@@ -1,0 +1,47 @@
+backend:
+  name: git-gateway
+  branch: main
+
+media_folder: "assets/images/uploads"
+public_folder: "/assets/images/uploads"
+
+collections:
+  - name: "projects"
+    label: "Projets"
+    files:
+      - name: "projects"
+        label: "Liste des projets"
+        file: "data/projects.json"
+        fields:
+          - label: "Projets"
+            name: "projects"
+            widget: "list"
+            summary: "{{title}} — {{year}}"
+            fields:
+              - { label: "Identifiant unique (id)", name: "id", widget: "string", hint: "Sans espace ni accent, ex: mon-nouveau-projet" }
+              - { label: "Titre", name: "title", widget: "string" }
+              - { label: "Année", name: "year", widget: "number", value_type: "int" }
+              - label: "Branches / tags"
+                name: "tags"
+                widget: "select"
+                multiple: true
+                options:
+                  - { label: "Musique", value: "musique" }
+                  - { label: "Vidéo — Montage", value: "video-montage" }
+                  - { label: "Vidéo — Réalisation", value: "video-realisation" }
+                  - { label: "VFX — Génératif", value: "vfx-generatif" }
+                  - { label: "VFX — Interactif", value: "vfx-interactif" }
+                  - { label: "VFX — Basé sur vidéo", value: "vfx-video" }
+              - { label: "Rôle", name: "role", widget: "string", required: false }
+              - { label: "Crédits", name: "credits", widget: "string", required: false }
+              - { label: "Description", name: "description", widget: "text" }
+              - label: "Média"
+                name: "media"
+                widget: "object"
+                fields:
+                  - label: "Type"
+                    name: "type"
+                    widget: "select"
+                    options: ["youtube", "spotify", "pending"]
+                  - { label: "URL (si YouTube ou Spotify)", name: "url", widget: "string", required: false }
+                  - { label: "Note (si en attente)", name: "note", widget: "string", required: false }

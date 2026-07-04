@@ -23,11 +23,13 @@
   <!-- Rempli automatiquement par renderProjectDetail() selon ?id=... dans l'URL -->
 </main>
 
-<script src="js/projects-data.js"></script>
+<script src="js/branches-config.js"></script>
 <script src="js/main.js"></script>
 <script>
   initPageTransitions();
-  renderProjectDetail("project-detail");
+  loadProjectsData().then(() => {
+    renderProjectDetail("project-detail");
+  });
 </script>
 
 </body>

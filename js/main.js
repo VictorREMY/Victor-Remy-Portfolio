@@ -2,6 +2,20 @@
    FONCTIONS PARTAGÉES — utilisées par toutes les pages
    ========================================================== */
 
+/* Les projets sont maintenant chargés depuis data/projects.json
+   (modifiable via le CMS), pas codés en dur ici. */
+let PROJECTS = [];
+
+function loadProjectsData(){
+  return fetch("data/projects.json")
+    .then(response => response.json())
+    .then(data => { PROJECTS = data.projects; return PROJECTS; })
+    .catch(err => {
+      console.error("Impossible de charger les projets :", err);
+      return [];
+    });
+}
+
 /* ---------- Transition "rideau" entre les pages ----------
    initPageTransitions() : à appeler UNE SEULE FOIS par page (crée le rideau).
    bindTransitionLinks() : à appeler à chaque fois que de nouveaux liens
@@ -30,6 +44,22 @@ function bindTransitionLinks(){
       _overlay.classList.remove("reveal");
       _overlay.classList.add("cover");
       setTimeout(() => { window.location.href = target; }, 700);
+    });
+  });
+}
+
+/* ---------- Bouton "Retour" : revient à la page précédente
+   (celle d'où le visiteur vient réellement, filtre compris),
+   contrairement au fil d'Ariane qui ramène toujours à la racine. ---------- */
+function bindBackButtons(){
+  document.querySelectorAll("[data-back]").forEach(btn => {
+    if(btn.dataset.bound) return;
+    btn.dataset.bound = "true";
+    btn.addEventListener("click", function(e){
+      e.preventDefault();
+      _overlay.classList.remove("reveal");
+      _overlay.classList.add("cover");
+      setTimeout(() => { window.history.back(); }, 700);
     });
   });
 }
@@ -116,7 +146,10 @@ function renderProjectDetail(containerId){
     .join(" · ");
 
   container.innerHTML = `
-    <p class="breadcrumb"><a href="hub.html" data-transition>Hub</a> / ${breadcrumbTags} / ${project.title}</p>
+    <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem;">
+      <p class="breadcrumb"><a href="hub.html" data-transition>Hub</a> / ${breadcrumbTags} / ${project.title}</p>
+      <button class="pill-link" data-back><span>←</span> Retour</button>
+    </div>
     <h1 style="margin-top:1rem;">${project.title}</h1>
     <p class="muted" style="margin-top:0.5rem;">${project.year}${project.role ? " — " + project.role : ""}${project.credits ? " — " + project.credits : ""}</p>
     <div class="tags" style="margin:1.5rem 0;">
@@ -127,4 +160,5 @@ function renderProjectDetail(containerId){
   `;
 
   bindTransitionLinks(); // le fil d'Ariane vient d'être généré, on attache ses liens
+  bindBackButtons();
 }
