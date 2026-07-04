@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Victor Remy — Projet</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,500;9..144,600&family=Space+Grotesk:wght@400;500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<nav class="site-nav">
+  <a href="index.html" class="brand" data-transition>Victor Remy</a>
+  <ul class="branches">
+    <li><a href="musique.html" data-transition>Musique</a></li>
+    <li><a href="video.html" data-transition>Vidéo</a></li>
+    <li><a href="vfx.html" data-transition>VFX</a></li>
+  </ul>
+</nav>
+
+<main class="page" id="project-detail">
+  <!-- Rempli automatiquement par renderProjectDetail() selon ?id=... dans l'URL -->
+</main>
+
+<script src="js/projects-data.js"></script>
+<script src="js/main.js"></script>
+<script>
+  initPageTransitions();
+  renderProjectDetail("project-detail");
+</script>
+
+</body>
+</html>

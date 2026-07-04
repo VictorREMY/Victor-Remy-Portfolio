@@ -1,0 +1,256 @@
+/* ==========================================================
+   DESIGN SYSTEM — Victor Remy Portfolio
+   Toutes les pages du site utilisent ce fichier.
+   Change une valeur ici, elle se répercute partout.
+   ========================================================== */
+
+:root{
+  /* Couleurs */
+  --bg: #0D0F1A;
+  --bg-alt: #14101A;
+  --ink: #EDEBE3;
+  --gold: #E8B34D;
+  --cyan: #5EC8D8;
+  --muted: #6B6F80;
+  --line: rgba(237, 235, 227, 0.12);
+
+  /* Typographie */
+  --font-display: 'Fraunces', serif;
+  --font-body: 'Space Grotesk', sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+
+  /* Espacements */
+  --gap-sm: 0.75rem;
+  --gap-md: 1.5rem;
+  --gap-lg: 3rem;
+  --gap-xl: 6vw;
+
+  /* Transition */
+  --ease: cubic-bezier(0.76, 0, 0.24, 1);
+}
+
+*{ margin:0; padding:0; box-sizing:border-box; }
+html, body{ height:100%; }
+
+body{
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-body);
+  line-height: 1.5;
+}
+
+a{ color: inherit; }
+img, video{ max-width: 100%; display:block; }
+
+/* ---------- Typo utilitaires ---------- */
+
+.eyebrow{
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--cyan);
+}
+
+h1, h2, h3{
+  font-family: var(--font-display);
+  font-weight: 500;
+  line-height: 1.05;
+}
+
+h1{ font-size: clamp(2.2rem, 6vw, 4.5rem); }
+h2{ font-size: clamp(1.6rem, 4vw, 2.6rem); }
+
+em{ font-style: italic; color: var(--gold); }
+
+.muted{ color: var(--muted); }
+
+/* ---------- Navigation persistante ---------- */
+
+.site-nav{
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 100;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.5rem var(--gap-xl);
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  letter-spacing: 0.05em;
+  background: linear-gradient(to bottom, rgba(13,15,26,0.9), transparent);
+}
+
+.site-nav .brand{
+  text-decoration: none;
+  color: var(--ink);
+}
+
+.site-nav .branches{
+  display: flex;
+  gap: var(--gap-md);
+  list-style: none;
+}
+
+.site-nav .brand,
+.site-nav .branches a{
+  text-decoration: none;
+  color: var(--muted);
+  transition: color 0.3s;
+  cursor: pointer;
+}
+.site-nav .brand{ color: var(--ink); }
+.site-nav .branches a:hover,
+.site-nav .branches a.active{
+  color: var(--gold);
+  text-decoration: underline;
+}
+.site-nav .brand:hover{
+  color: var(--gold);
+  text-decoration: underline;
+}
+
+/* ---------- Fil d'Ariane ---------- */
+
+.breadcrumb{
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  color: var(--muted);
+  letter-spacing: 0.05em;
+}
+.breadcrumb a{ text-decoration:none; color: var(--muted); cursor: pointer; transition: color 0.3s; }
+.breadcrumb a:hover{ color: var(--gold); text-decoration: underline; }
+
+/* ---------- Boutons / liens ronds ---------- */
+
+.pill-link{
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  letter-spacing: 0.05em;
+  color: var(--ink);
+  text-decoration: none;
+  border: 1px solid var(--muted);
+  padding: 0.9em 1.6em;
+  border-radius: 999px;
+  transition: border-color 0.3s, color 0.3s;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6em;
+  cursor: pointer;
+  background: none;
+}
+.pill-link:hover{ border-color: var(--gold); color: var(--gold); }
+
+/* ---------- Grille de projets (galeries filtrées) ---------- */
+
+.filter-row{
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  margin: var(--gap-lg) 0;
+}
+
+.filter-chip{
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.05em;
+  padding: 0.5em 1.1em;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: none;
+  color: var(--muted);
+  cursor: pointer;
+  transition: all 0.25s;
+}
+.filter-chip:hover{ color: var(--ink); border-color: var(--muted); }
+.filter-chip.active{
+  color: var(--bg);
+  background: var(--gold);
+  border-color: var(--gold);
+}
+
+.project-grid{
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: var(--gap-md);
+}
+
+.project-card{
+  text-decoration: none;
+  color: var(--ink);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: var(--gap-md);
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+  transition: border-color 0.3s, transform 0.3s;
+  min-height: 200px;
+}
+.project-card:hover{
+  border-color: var(--gold);
+  transform: translateY(-4px);
+}
+
+.project-card .thumb{
+  width: 100%;
+  aspect-ratio: 16/9;
+  border-radius: 8px;
+  background: var(--bg-alt);
+  border: 1px dashed var(--line);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  color: var(--muted);
+  text-align: center;
+  padding: 1rem;
+}
+
+.project-card .tags{
+  display: flex;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+}
+.project-card .tag{
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  color: var(--cyan);
+  border: 1px solid var(--line);
+  padding: 0.2em 0.6em;
+  border-radius: 999px;
+}
+
+/* ---------- Transition de page (rideau) ---------- */
+
+.transition-overlay{
+  position: fixed;
+  inset: 0;
+  background: var(--bg);
+  z-index: 999;
+  transform: scaleY(1);
+  transform-origin: top;
+  transition: transform 0.7s var(--ease);
+  pointer-events: none;
+}
+.transition-overlay.reveal{
+  transform: scaleY(0);
+  transform-origin: bottom;
+}
+.transition-overlay.cover{
+  transform: scaleY(1);
+  transform-origin: top;
+  pointer-events: all;
+}
+
+/* ---------- Layout générique de page ---------- */
+
+.page{
+  min-height: 100vh;
+  padding: 7rem var(--gap-xl) var(--gap-xl);
+}
+
+.page-header{
+  margin-bottom: var(--gap-lg);
+}

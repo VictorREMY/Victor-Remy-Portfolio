@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Victor Remy — VFX</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,500;9..144,600&family=Space+Grotesk:wght@400;500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<nav class="site-nav">
+  <a href="index.html" class="brand" data-transition>Victor Remy</a>
+  <ul class="branches">
+    <li><a href="musique.html" data-transition>Musique</a></li>
+    <li><a href="video.html" data-transition>Vidéo</a></li>
+    <li><a href="vfx.html" class="active" data-transition>VFX</a></li>
+  </ul>
+</nav>
+
+<main class="page">
+  <p class="breadcrumb"><a href="hub.html" data-transition>Hub</a> / VFX</p>
+  <div class="page-header">
+    <h1 style="margin-top:1rem;">VFX</h1>
+    <p class="muted" style="max-width:50ch; margin-top:0.8rem;">Génératif, interactif, ou construit à partir d'une source vidéo existante.</p>
+  </div>
+
+  <div class="filter-row" id="filters"></div>
+  <div class="project-grid" id="grid"></div>
+</main>
+
+<script src="js/projects-data.js"></script>
+<script src="js/main.js"></script>
+<script>
+  initPageTransitions();
+  renderFilterableGrid("grid", "filters", ["vfx-generatif", "vfx-interactif", "vfx-video"], "all");
+</script>
+
+</body>
+</html>
