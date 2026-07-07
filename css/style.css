@@ -254,3 +254,157 @@ em{ font-style: italic; color: var(--gold); }
 .page-header{
   margin-bottom: var(--gap-lg);
 }
+
+/* ==========================================================
+   NAVIGATION SYPHON — Hub / branches / sous-catégories
+   ========================================================== */
+
+/* Nav du haut minimale : Contact / Nom / À propos */
+.top-nav-minimal{
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 50;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.5rem var(--gap-xl);
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  letter-spacing: 0.05em;
+  pointer-events: none;
+}
+.top-nav-minimal a{
+  pointer-events: all;
+  text-decoration: none;
+  color: var(--muted);
+  cursor: pointer;
+  transition: color 0.3s;
+}
+.top-nav-minimal a:hover{ color: var(--gold); text-decoration: underline; }
+.top-nav-minimal .brand{ color: var(--ink); }
+
+/* Chemin en haut à gauche, sous la nav */
+.path-breadcrumb{
+  position: fixed;
+  top: 4.5rem;
+  left: var(--gap-xl);
+  z-index: 50;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--muted);
+}
+
+/* Bouton retour, bas gauche */
+.retour-btn{
+  position: fixed;
+  bottom: var(--gap-lg);
+  left: var(--gap-xl);
+  z-index: 50;
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  color: var(--ink);
+  text-decoration: none;
+  cursor: pointer;
+  background: none;
+  border: none;
+  opacity: 0.7;
+  transition: opacity 0.3s;
+}
+.retour-btn:hover{ opacity: 1; color: var(--gold); }
+
+/* Canvas plein écran (placeholder du futur effet eau) */
+.syphon-field-canvas{
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+}
+
+/* Conteneur des syphons, par-dessus le canvas */
+.syphon-field{
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+}
+
+/* Un syphon : cercle cliquable positionné en absolu */
+.syphon{
+  position: absolute;
+  transform: translate(-50%, -50%);
+  width: 200px;
+  height: 140px;
+  border: 2px solid var(--gold);
+  border-radius: 50%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.3rem;
+  background: rgba(13, 15, 26, 0.35);
+  backdrop-filter: blur(2px);
+  cursor: pointer;
+  text-decoration: none;
+  color: var(--ink);
+  font-family: var(--font-display);
+  font-size: 1.15rem;
+  transition: transform 0.35s var(--ease), border-color 0.35s, background 0.35s;
+}
+.syphon:hover{
+  transform: translate(-50%, -50%) scale(1.06);
+  border-color: var(--cyan);
+  background: rgba(13, 15, 26, 0.55);
+}
+.syphon .zoom-hint{
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  color: var(--muted);
+  letter-spacing: 0.05em;
+}
+
+/* Rideau de transition "zoom" : un cercle qui s'étend ou se rétracte
+   depuis le point cliqué, plutôt qu'un rideau plein écran classique. */
+.zoom-overlay{
+  position: fixed;
+  inset: 0;
+  background: var(--bg);
+  z-index: 999;
+  pointer-events: none;
+}
+.zoom-overlay.active{ pointer-events: all; }
+
+/* ---------- Bulles Contact / À propos (superposées, pas des pages) ---------- */
+.info-backdrop{
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  background: rgba(0,0,0,0.4);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.35s;
+}
+.info-backdrop.visible{ opacity: 1; pointer-events: all; }
+
+.info-bubble{
+  position: fixed;
+  top: 0; bottom: 0;
+  width: min(440px, 88vw);
+  background: var(--bg-alt);
+  z-index: 201;
+  padding: 6.5rem var(--gap-lg) var(--gap-lg);
+  overflow-y: auto;
+  transition: transform 0.45s var(--ease);
+  box-shadow: 0 0 60px rgba(0,0,0,0.4);
+}
+.info-bubble.left{ left: 0; transform: translateX(-105%); }
+.info-bubble.right{ right: 0; transform: translateX(105%); }
+.info-bubble.open{ transform: translateX(0); }
+.info-bubble .close-hint{
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  color: var(--muted);
+  margin-top: 3rem;
+}
+
+/* ---------- Fiche projet : fond sobre et statique (pas de syphons ici) ---------- */
+.project-sober-bg{
+  background: var(--bg-alt);
+}

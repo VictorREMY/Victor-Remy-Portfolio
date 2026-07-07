@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Victor Remy — Hub</title>
+<title>Victor Remy — video-montage</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,500;9..144,600&family=Space+Grotesk:wght@400;500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="css/style.css">
@@ -15,7 +15,7 @@
   <a href="index.html" class="brand">Victor Remy</a>
   <a href="#" data-modal="apropos">À propos</a>
 </nav>
-<p class="path-breadcrumb" id="path-text">hub</p>
+<p class="path-breadcrumb" id="path-text">hub/video/montage</p>
 <button class="retour-btn" data-retour>← Retour</button>
 
 <canvas id="syphon-bg" class="syphon-field-canvas"></canvas>
@@ -29,7 +29,7 @@
   initInfoBubbles();
   bindRetourButton();
   loadProjectsData().then(() => {
-    const items = getTopLevelBranches().map(k => ({ label: BRANCHES[k].label, href: BRANCHES[k].page }));
+    const items = getProjectsByTag("video-montage").map(p => ({ label: p.title, href: "projet.html?id=" + p.id }));
     renderSyphons("syphon-field", items);
   });
 </script>

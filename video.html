@@ -10,33 +10,26 @@
 </head>
 <body>
 
-<nav class="site-nav">
-  <a href="index.html" class="brand" data-transition>Victor Remy</a>
-  <ul class="branches">
-    <li><a href="musique.html" data-transition>Musique</a></li>
-    <li><a href="video.html" class="active" data-transition>Vidéo</a></li>
-    <li><a href="vfx.html" data-transition>VFX</a></li>
-  </ul>
+<nav class="top-nav-minimal">
+  <a href="#" data-modal="contact">Contact</a>
+  <a href="index.html" class="brand">Victor Remy</a>
+  <a href="#" data-modal="apropos">À propos</a>
 </nav>
+<p class="path-breadcrumb" id="path-text">hub/video</p>
+<button class="retour-btn" data-retour>← Retour</button>
 
-<main class="page">
-  <p class="breadcrumb"><a href="hub.html" data-transition>Hub</a> / Vidéo</p>
-  <div class="page-header">
-    <h1 style="margin-top:1rem;">Vidéo</h1>
-    <p class="muted" style="max-width:50ch; margin-top:0.8rem;">Montage et réalisation — les projets où l'image prend le relais du son.</p>
-  </div>
-
-  <div class="filter-row" id="filters"></div>
-  <div class="project-grid" id="grid"></div>
-</main>
+<canvas id="syphon-bg" class="syphon-field-canvas"></canvas>
+<div id="syphon-field" class="syphon-field"></div>
 
 <script src="js/branches-config.js"></script>
 <script src="js/main.js"></script>
 <script>
-  initPageTransitions();
-  loadProjectsData().then(() => {
-    renderFilterableGrid("grid", "filters", ["video-montage", "video-realisation"], "all");
-  });
+  initParticleField("syphon-bg");
+  initZoomTransitions();
+  initInfoBubbles();
+  bindRetourButton();
+  const items = getChildren("video").map(k => ({ label: BRANCHES[k].label, href: BRANCHES[k].page }));
+  renderSyphons("syphon-field", items);
 </script>
 
 </body>

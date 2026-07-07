@@ -8,27 +8,33 @@
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,500;9..144,600&family=Space+Grotesk:wght@400;500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="css/style.css">
 </head>
-<body>
+<body class="project-sober-bg">
 
-<nav class="site-nav">
-  <a href="index.html" class="brand" data-transition>Victor Remy</a>
-  <ul class="branches">
-    <li><a href="musique.html" data-transition>Musique</a></li>
-    <li><a href="video.html" data-transition>Vidéo</a></li>
-    <li><a href="vfx.html" data-transition>VFX</a></li>
-  </ul>
+<nav class="top-nav-minimal">
+  <a href="#" data-modal="contact">Contact</a>
+  <a href="index.html" class="brand">Victor Remy</a>
+  <a href="#" data-modal="apropos">À propos</a>
 </nav>
+<p class="path-breadcrumb" id="path-text"></p>
+<button class="retour-btn" data-retour>← Retour</button>
 
-<main class="page" id="project-detail">
+<main class="page" id="project-detail" style="max-width: 1000px;">
   <!-- Rempli automatiquement par renderProjectDetail() selon ?id=... dans l'URL -->
 </main>
 
 <script src="js/branches-config.js"></script>
 <script src="js/main.js"></script>
 <script>
-  initPageTransitions();
+  initInfoBubbles();
+
   loadProjectsData().then(() => {
-    renderProjectDetail("project-detail");
+    renderProjectDetail("project-detail", "path-text");
+  });
+
+  // Fond statique ici : le retour n'a pas besoin de l'effet zoom, juste l'historique
+  document.querySelector("[data-retour]").addEventListener("click", (e) => {
+    e.preventDefault();
+    window.history.back();
   });
 </script>
 

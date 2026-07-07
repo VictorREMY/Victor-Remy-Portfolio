@@ -26,7 +26,8 @@ collections:
                 widget: "select"
                 multiple: true
                 options:
-                  - { label: "Musique", value: "musique" }
+                  - { label: "Musique — Chanson produite", value: "musique-son" }
+                  - { label: "Musique — Projet produit", value: "musique-projet" }
                   - { label: "Vidéo — Montage", value: "video-montage" }
                   - { label: "Vidéo — Réalisation", value: "video-realisation" }
                   - { label: "VFX — Génératif", value: "vfx-generatif" }
