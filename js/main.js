@@ -127,6 +127,25 @@ function zoomThenRun(x, y, callback){
   anim.onfinish = callback;
 }
 
+/* Effet "tourbillon" : le syphon cliqué grossit et tourne sur lui-même,
+   comme aspiré dans l'écran — donne un retour visuel immédiat et fort. */
+function vortexInto(syphonEl, targetUrl){
+  const rect = syphonEl.getBoundingClientRect();
+  const x = rect.left + rect.width / 2;
+  const y = rect.top + rect.height / 2;
+
+  syphonEl.style.zIndex = "500";
+  syphonEl.animate(
+    [
+      { transform: "translate(-50%, -50%) scale(1) rotate(0deg)", opacity: 1 },
+      { transform: "translate(-50%, -50%) scale(22) rotate(240deg)", opacity: 0 }
+    ],
+    { duration: 750, easing: "cubic-bezier(0.6, 0, 0.9, 0.4)", fill: "forwards" }
+  );
+
+  zoomToPage(x, y, targetUrl);
+}
+
 /* ---------- Positions organiques prédéfinies pour les syphons (en %) ---------- */
 const SYPHON_SLOTS = [
   { x: 50, y: 42 },
@@ -154,10 +173,7 @@ function renderSyphons(containerId, items){
   field.querySelectorAll("[data-syphon]").forEach(el => {
     el.addEventListener("click", function(e){
       e.preventDefault();
-      const rect = this.getBoundingClientRect();
-      const x = rect.left + rect.width / 2;
-      const y = rect.top + rect.height / 2;
-      zoomToPage(x, y, this.getAttribute("href"));
+      vortexInto(this, this.getAttribute("href"));
     });
   });
 }
