@@ -1,3 +1,13 @@
+/* Corrige un piège classique des navigateurs : en cliquant "retour", certains
+   navigateurs restaurent une version figée de la page (telle qu'elle était
+   au moment de la quitter, donc parfois en plein milieu d'une animation)
+   plutôt que de la recharger proprement. On force un rechargement frais. */
+window.addEventListener("pageshow", function(e){
+  if(e.persisted){
+    window.location.reload();
+  }
+});
+
 /* ==========================================================
    FONCTIONS PARTAGÉES — utilisées par toutes les pages
    ========================================================== */
@@ -148,14 +158,14 @@ function vortexInto(syphonEl, targetUrl){
 
 /* ---------- Positions organiques prédéfinies pour les syphons (en %) ---------- */
 const SYPHON_SLOTS = [
-  { x: 50, y: 42 },
-  { x: 25, y: 32 },
-  { x: 72, y: 28 },
-  { x: 78, y: 62 },
-  { x: 22, y: 66 },
-  { x: 48, y: 72 },
-  { x: 60, y: 48 },
-  { x: 35, y: 50 }
+  { x: 26, y: 30 },
+  { x: 50, y: 74 },
+  { x: 74, y: 28 },
+  { x: 15, y: 65 },
+  { x: 85, y: 62 },
+  { x: 50, y: 30 },
+  { x: 30, y: 78 },
+  { x: 70, y: 78 }
 ];
 
 /* ---------- Génère et affiche les syphons dans un conteneur ----------
@@ -187,12 +197,12 @@ function renderSyphonTree(containerId, nodes){
 
   nodes.forEach((node, i) => {
     const slot = SYPHON_SLOTS[i % SYPHON_SLOTS.length];
-    renderSyphonNode(field, svg, node, slot.x, slot.y, 0, null);
+    renderSyphonNode(field, svg, node, slot.x, slot.y, 0, null, null);
   });
   bindSyphonClicks(field);
 }
 
-function renderSyphonNode(field, svg, node, xPct, yPct, depth, parentPos){
+function renderSyphonNode(field, svg, node, xPct, yPct, depth, parentPos, incomingAngle){
   if(svg && parentPos){
     const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
     line.setAttribute("x1", parentPos.x);
@@ -214,14 +224,21 @@ function renderSyphonNode(field, svg, node, xPct, yPct, depth, parentPos){
   field.appendChild(el);
 
   // On limite à 2 niveaux d'imbrication (branches > sous-catégories > projets)
-  // pour éviter que ça devienne illisible si le contenu grandit beaucoup.
   if(node.children && node.children.length && depth < 2){
-    const radius = depth === 0 ? 11 : 7; // écart (en %) autour du parent
+    // Les enfants s'étalent en éventail à l'opposé du centre de l'écran
+    // (jamais vers le milieu, où se trouvent les autres branches) —
+    // ça évite les chevauchements quelle que soit la position du parent.
+    const outward = incomingAngle !== null ? incomingAngle : Math.atan2(yPct - 50, xPct - 50);
+    const n = node.children.length;
+    const arc = n > 1 ? Math.PI * 0.5 : 0; // ~90° d'étalement si plusieurs enfants
+    const radius = depth === 0 ? 12 : 8;
+
     node.children.forEach((child, i) => {
-      const angle = (i / node.children.length) * Math.PI * 2 + depth * 0.6;
+      const t = n > 1 ? (i / (n - 1)) - 0.5 : 0; // de -0.5 à 0.5
+      const angle = outward + t * arc;
       const cx = clampPct(xPct + Math.cos(angle) * radius);
-      const cy = clampPct(yPct + Math.sin(angle) * radius * 0.7);
-      renderSyphonNode(field, svg, child, cx, cy, depth + 1, { x: xPct, y: yPct });
+      const cy = clampPct(yPct + Math.sin(angle) * radius * 0.8);
+      renderSyphonNode(field, svg, child, cx, cy, depth + 1, { x: xPct, y: yPct }, angle);
     });
   }
 }
