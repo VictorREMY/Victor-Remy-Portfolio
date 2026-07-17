@@ -41,12 +41,41 @@ function currentPageKey(){
   return window.location.pathname.split("/").pop() || "index.html";
 }
 
-/* Retourne la position enregistrée pour cette bulle sur cette page,
-   ou la position calculée automatiquement si rien n'a été personnalisé. */
+/* Retourne la position enregistrée pour cette bulle sur cette page :
+   en priorité celle en cours d'édition dans cette session (si tu es en
+   train de retravailler plusieurs pages sans avoir encore copié/collé),
+   sinon celle déjà sauvegardée dans data/layout.json, sinon la position
+   calculée automatiquement. */
 function resolvePosition(key, autoX, autoY){
-  const page = LAYOUT[currentPageKey()];
-  if(page && page[key]) return { x: page[key].x, y: page[key].y };
+  const page = currentPageKey();
+  if(isEditMode()){
+    const session = getEditSession();
+    if(session[page] && session[page][key]) return { x: session[page][key].x, y: session[page][key].y };
+  }
+  const saved = LAYOUT[page];
+  if(saved && saved[key]) return { x: saved[key].x, y: saved[key].y };
   return { x: autoX, y: autoY };
+}
+
+/* Brouillon d'édition en cours, gardé le temps de la session de navigation
+   (permet de modifier plusieurs pages avant de tout copier d'un coup). */
+function getEditSession(){
+  try { return JSON.parse(sessionStorage.getItem("editSession") || "{}"); }
+  catch(e){ return {}; }
+}
+
+function saveEditSessionForCurrentPage(){
+  const session = getEditSession();
+  const page = currentPageKey();
+  const overrides = session[page] || {};
+  document.querySelectorAll("[data-key]").forEach(el => {
+    overrides[el.dataset.key] = {
+      x: Math.round(parseFloat(el.style.left) * 10) / 10,
+      y: Math.round(parseFloat(el.style.top) * 10) / 10
+    };
+  });
+  session[page] = overrides;
+  sessionStorage.setItem("editSession", JSON.stringify(session));
 }
 
 /* ==========================================================
@@ -373,31 +402,54 @@ function initEditMode(){
   buildEditPanel();
 }
 
+const EDITABLE_PAGES = [
+  { v: "hub.html", l: "Hub" },
+  { v: "musique.html", l: "Musique" },
+  { v: "musique-son.html", l: "Musique / Chansons produites" },
+  { v: "musique-projet.html", l: "Musique / Projets produits" },
+  { v: "video.html", l: "Vidéo" },
+  { v: "video-montage.html", l: "Vidéo / Montage" },
+  { v: "video-realisation.html", l: "Vidéo / Réalisation" },
+  { v: "vfx.html", l: "VFX" },
+  { v: "vfx-generatif.html", l: "VFX / Génératif" },
+  { v: "vfx-interactif.html", l: "VFX / Interactif" },
+  { v: "vfx-video.html", l: "VFX / Basé sur vidéo" }
+];
+
 function buildEditPanel(){
+  const current = currentPageKey();
+  const options = EDITABLE_PAGES.map(p =>
+    `<option value="${p.v}" ${p.v === current ? "selected" : ""}>${p.l}</option>`
+  ).join("");
+
   const panel = document.createElement("div");
   panel.className = "edit-panel";
   panel.innerHTML = `
-    <p><strong>Mode édition</strong> — glisse les bulles, puis :</p>
-    <button id="edit-copy" class="pill-link">Copier les positions</button>
+    <p><strong>Mode édition</strong> — glisse les bulles.</p>
+    <select id="edit-page-switch" class="pill-link">${options}</select>
+    <button id="edit-copy" class="pill-link">Copier toutes les pages modifiées</button>
     <a href="${window.location.pathname}" class="pill-link">Quitter sans sauvegarder</a>
   `;
   document.body.appendChild(panel);
 
+  // Changer de page en édition : on garde en mémoire ce qui vient d'être fait ici
+  document.getElementById("edit-page-switch").addEventListener("change", function(){
+    saveEditSessionForCurrentPage();
+    window.location.href = this.value + "?edit=1";
+  });
+
   document.getElementById("edit-copy").addEventListener("click", function(){
-    const page = currentPageKey();
-    const overrides = LAYOUT[page] || {};
-    document.querySelectorAll("[data-key]").forEach(el => {
-      overrides[el.dataset.key] = {
-        x: Math.round(parseFloat(el.style.left) * 10) / 10,
-        y: Math.round(parseFloat(el.style.top) * 10) / 10
-      };
+    saveEditSessionForCurrentPage();
+    const session = getEditSession();
+    const merged = JSON.parse(JSON.stringify(LAYOUT)); // copie du fichier tel qu'il était déjà
+    Object.keys(session).forEach(page => {
+      merged[page] = Object.assign({}, merged[page] || {}, session[page]);
     });
-    LAYOUT[page] = overrides;
-    const json = JSON.stringify(LAYOUT, null, 2);
+    const json = JSON.stringify(merged, null, 2);
 
     if(navigator.clipboard && navigator.clipboard.writeText){
       navigator.clipboard.writeText(json).then(() => {
-        alert("Copié ! Colle ce contenu dans data/layout.json, puis envoie ce fichier sur GitHub comme d'habitude.");
+        alert("Copié ! Ça inclut toutes les pages modifiées pendant cette session. Colle ce contenu dans data/layout.json, puis envoie ce fichier sur GitHub.");
       }).catch(() => showLayoutFallback(json));
     } else {
       showLayoutFallback(json);
