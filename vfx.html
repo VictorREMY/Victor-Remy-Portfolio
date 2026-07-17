@@ -20,6 +20,7 @@
 
 <div id="zoom-stage" class="zoom-stage">
 <canvas id="syphon-bg" class="syphon-field-canvas"></canvas>
+<svg id="syphon-connectors" class="syphon-connectors" viewBox="0 0 100 100" preserveAspectRatio="none"></svg>
 <div id="syphon-field" class="syphon-field"></div>
 </div>
 
@@ -31,8 +32,14 @@
   initInfoBubbles();
   initWheelZoom();
   bindRetourButton();
-  const items = getChildren("vfx").map(k => ({ label: BRANCHES[k].label, href: BRANCHES[k].page }));
-  renderSyphons("syphon-field", items);
+  loadProjectsData().then(() => {
+    const tree = getChildren("vfx").map(cKey => ({
+      label: BRANCHES[cKey].label,
+      href: BRANCHES[cKey].page,
+      children: getProjectsByTag(cKey).map(p => ({ label: p.title, href: "projet.html?id=" + p.id, children: [] }))
+    }));
+    renderSyphonTree("syphon-field", tree);
+  });
 </script>
 
 </body>

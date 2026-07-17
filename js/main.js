@@ -159,7 +159,7 @@ const SYPHON_SLOTS = [
 ];
 
 /* ---------- Génère et affiche les syphons dans un conteneur ----------
-   items: [{ label, sublabel, href }] */
+   items: [{ label, sublabel, href }] — usage simple, un seul niveau */
 function renderSyphons(containerId, items){
   const field = document.getElementById(containerId);
   field.innerHTML = items.map((item, i) => {
@@ -169,7 +169,68 @@ function renderSyphons(containerId, items){
       <span class="zoom-hint">${item.sublabel || "zoom in !"}</span>
     </a>`;
   }).join("");
+  bindSyphonClicks(field);
+}
 
+/* ---------- Rendu hiérarchique imbriqué ----------
+   nodes: [{ label, href, children: [...même forme...] }]
+   Chaque niveau de profondeur réduit la taille du syphon et le
+   regroupe visuellement autour de son parent, relié par une ligne,
+   pour qu'on comprenne qu'il en fait partie. Permet de zoomer
+   directement vers une sous-catégorie ou un projet sans passer
+   par toutes les pages intermédiaires. */
+function renderSyphonTree(containerId, nodes){
+  const field = document.getElementById(containerId);
+  const svg = document.getElementById("syphon-connectors");
+  field.innerHTML = "";
+  if(svg) svg.innerHTML = "";
+
+  nodes.forEach((node, i) => {
+    const slot = SYPHON_SLOTS[i % SYPHON_SLOTS.length];
+    renderSyphonNode(field, svg, node, slot.x, slot.y, 0, null);
+  });
+  bindSyphonClicks(field);
+}
+
+function renderSyphonNode(field, svg, node, xPct, yPct, depth, parentPos){
+  if(svg && parentPos){
+    const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+    line.setAttribute("x1", parentPos.x);
+    line.setAttribute("y1", parentPos.y);
+    line.setAttribute("x2", xPct);
+    line.setAttribute("y2", yPct);
+    line.setAttribute("class", "connector-line");
+    svg.appendChild(line);
+  }
+
+  const sizeClass = depth === 0 ? "" : depth === 1 ? "syphon-sm" : "syphon-xs";
+  const el = document.createElement("a");
+  el.href = node.href;
+  el.className = ("syphon " + sizeClass).trim();
+  el.setAttribute("data-syphon", "true");
+  el.style.left = xPct + "%";
+  el.style.top = yPct + "%";
+  el.innerHTML = `<span>${node.label}</span><span class="zoom-hint">zoom in !</span>`;
+  field.appendChild(el);
+
+  // On limite à 2 niveaux d'imbrication (branches > sous-catégories > projets)
+  // pour éviter que ça devienne illisible si le contenu grandit beaucoup.
+  if(node.children && node.children.length && depth < 2){
+    const radius = depth === 0 ? 11 : 7; // écart (en %) autour du parent
+    node.children.forEach((child, i) => {
+      const angle = (i / node.children.length) * Math.PI * 2 + depth * 0.6;
+      const cx = clampPct(xPct + Math.cos(angle) * radius);
+      const cy = clampPct(yPct + Math.sin(angle) * radius * 0.7);
+      renderSyphonNode(field, svg, child, cx, cy, depth + 1, { x: xPct, y: yPct });
+    });
+  }
+}
+
+function clampPct(v){
+  return Math.min(94, Math.max(6, v));
+}
+
+function bindSyphonClicks(field){
   field.querySelectorAll("[data-syphon]").forEach(el => {
     el.addEventListener("click", function(e){
       e.preventDefault();
@@ -193,65 +254,106 @@ function bindRetourButton(){
 
 /* ==========================================================
    ZOOM CONTINU À LA MOLETTE
-   Scroller vers l'avant pendant qu'un syphon est sous le curseur
-   zoome progressivement dessus ; passé un certain niveau, la
-   navigation se déclenche automatiquement. Le clic reste un
-   raccourci optionnel (voir vortexInto ci-dessus).
+   - Scroller vers l'avant sur un syphon zoome dessus ; passé un
+     certain niveau, la navigation se déclenche automatiquement.
+   - Scroller vers l'arrière (hors d'un syphon en cours de zoom)
+     dézoome toute la page ; passé un certain niveau, ça déclenche
+     le retour — l'inverse exact du zoom avant.
+   - Le clic reste un raccourci optionnel (voir vortexInto).
    ========================================================== */
 function initWheelZoom(){
   const stage = document.getElementById("zoom-stage");
   if(!stage) return;
 
-  const MAX_SCALE = 7;
-  const THRESHOLD = 5.2;
+  const MAX_SCALE = 4;       // niveau de zoom avant max
+  const THRESHOLD_IN = 2.3;  // seuil pour déclencher l'entrée dans le syphon
+  const MIN_SCALE = 0.4;     // niveau de dézoom max
+  const THRESHOLD_OUT = 0.65; // seuil pour déclencher le retour
+
   let scale = 1;
   let target = null;
   let resetTimer = null;
   let navigating = false;
+  const retourBtn = document.querySelector("[data-retour]");
 
-  function applyStage(immediate){
+  function applyStage(immediate, origin){
     stage.style.transition = immediate ? "none" : "transform 0.5s cubic-bezier(0.22,1,0.36,1)";
+    if(origin) stage.style.transformOrigin = origin;
     stage.style.transform = `scale(${scale})`;
   }
 
   function resetStage(){
     scale = 1;
     target = null;
-    applyStage(false);
+    applyStage(false, "50% 50%");
   }
 
   window.addEventListener("wheel", function(e){
     if(navigating) return;
     e.preventDefault();
 
-    if(!target){
-      const hovered = document.elementFromPoint(e.clientX, e.clientY);
-      const syphon = hovered ? hovered.closest(".syphon") : null;
-      if(!syphon) return; // pas de syphon sous le curseur : le scroll ne fait rien
-      target = syphon;
-      const rect = syphon.getBoundingClientRect();
-      stage.style.transformOrigin = `${rect.left + rect.width / 2}px ${rect.top + rect.height / 2}px`;
+    const zoomingIn = e.deltaY < 0;
+
+    if(zoomingIn){
+      // ---------- Zoom avant : besoin d'un syphon sous le curseur ----------
+      if(!target){
+        const hovered = document.elementFromPoint(e.clientX, e.clientY);
+        const syphon = hovered ? hovered.closest(".syphon") : null;
+        if(!syphon) return;
+        target = syphon;
+        const rect = syphon.getBoundingClientRect();
+        stage.style.transformOrigin = `${rect.left + rect.width / 2}px ${rect.top + rect.height / 2}px`;
+      }
+
+      scale = Math.min(MAX_SCALE, scale + (-e.deltaY * 0.004));
+      applyStage(true);
+      clearTimeout(resetTimer);
+
+      if(scale >= THRESHOLD_IN){
+        navigating = true;
+        vortexInto(target, target.getAttribute("href"));
+        return;
+      }
+      resetTimer = setTimeout(resetStage, 450);
+
+    } else {
+      // ---------- Zoom arrière : dézoome toute la page, déclenche "retour" ----------
+      if(target) return; // on ne dézoome pas tant qu'on est en train d'entrer dans un syphon
+
+      if(!retourBtn) return; // rien où retourner (ex: page d'accueil)
+
+      stage.style.transformOrigin = "50% 50%";
+      scale = Math.max(MIN_SCALE, scale + (-e.deltaY * 0.004));
+      applyStage(true);
+      clearTimeout(resetTimer);
+
+      if(scale <= THRESHOLD_OUT){
+        navigating = true;
+        zoomOutBack();
+        return;
+      }
+      resetTimer = setTimeout(resetStage, 450);
     }
-
-    const delta = -e.deltaY * 0.0035; // molette vers l'avant = zoom avant
-    scale = Math.min(MAX_SCALE, Math.max(1, scale + delta));
-    applyStage(true);
-
-    clearTimeout(resetTimer);
-
-    if(scale >= THRESHOLD){
-      navigating = true;
-      const href = target.getAttribute("href");
-      vortexInto(target, href);
-      return;
-    }
-
-    // Si on arrête de scroller sans atteindre le seuil, on revient en douceur
-    resetTimer = setTimeout(resetStage, 500);
-
-    // Si on scroll en arrière jusqu'à revenir au niveau 1, on relâche le syphon ciblé
-    if(scale <= 1.02) target = null;
   }, { passive: false });
+}
+
+/* Animation de dézoom qui déclenche le retour (l'inverse de vortexInto) */
+function zoomOutBack(){
+  const stage = document.getElementById("zoom-stage");
+  stage.style.transition = "transform 0.45s cubic-bezier(0.6,0,0.9,0.4)";
+  stage.style.transformOrigin = "50% 50%";
+  stage.style.transform = "scale(0.08)";
+
+  _zoomOverlay.classList.add("active");
+  const r = maxRadius();
+  const anim = _zoomOverlay.animate(
+    [
+      { clipPath: "circle(0px at 50% 50%)" },
+      { clipPath: `circle(${r}px at 50% 50%)` }
+    ],
+    { duration: 450, easing: "cubic-bezier(0.6,0,0.9,0.4)", fill: "forwards" }
+  );
+  anim.onfinish = () => window.history.back();
 }
 
 /* ==========================================================

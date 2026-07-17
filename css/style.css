@@ -327,11 +327,25 @@ em{ font-style: italic; color: var(--gold); }
   z-index: 0;
 }
 
-/* Conteneur des syphons, par-dessus le canvas */
-.syphon-field{
+/* Lignes reliant chaque syphon à son parent (montre l'appartenance à la branche) */
+.syphon-connectors{
   position: fixed;
   inset: 0;
   z-index: 1;
+  pointer-events: none;
+}
+.connector-line{
+  stroke: var(--gold);
+  stroke-width: 0.15;
+  stroke-dasharray: 0.7 0.9;
+  opacity: 0.45;
+}
+
+/* Conteneur des syphons, par-dessus le canvas et les connecteurs */
+.syphon-field{
+  position: fixed;
+  inset: 0;
+  z-index: 2;
 }
 
 /* Un syphon : cercle cliquable positionné en absolu */
@@ -367,6 +381,24 @@ em{ font-style: italic; color: var(--gold); }
   color: var(--muted);
   letter-spacing: 0.05em;
 }
+
+/* Tailles réduites pour les niveaux imbriqués (sous-catégories, projets) */
+.syphon.syphon-sm{
+  width: 128px;
+  height: 88px;
+  font-size: 0.82rem;
+  border-width: 1.5px;
+}
+.syphon.syphon-sm .zoom-hint{ font-size: 0.56rem; }
+
+.syphon.syphon-xs{
+  width: 86px;
+  height: 60px;
+  font-size: 0.66rem;
+  border-width: 1px;
+  gap: 0.1rem;
+}
+.syphon.syphon-xs .zoom-hint{ font-size: 0.48rem; }
 
 /* Rideau de transition "zoom" : un cercle qui s'étend ou se rétracte
    depuis le point cliqué, plutôt qu'un rideau plein écran classique. */
