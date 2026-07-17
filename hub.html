@@ -39,7 +39,7 @@
       children: getChildren(bKey).map(cKey => ({
         label: BRANCHES[cKey].label,
         href: BRANCHES[cKey].page,
-        children: getProjectsByTag(cKey).map(p => ({ label: p.title, href: "projet.html?id=" + p.id, children: [] }))
+        children: []
       }))
     }));
     renderSyphonTree("syphon-field", tree);

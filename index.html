@@ -32,7 +32,17 @@
   initInfoBubbles();
   initWheelZoom();
   
-  renderSyphons("syphon-field", [{ label: "Victor Remy", sublabel: "zoom in !", href: "hub.html" }]);
+  
+const el = document.createElement("a");
+el.href = "hub.html";
+el.className = "syphon";
+el.setAttribute("data-syphon", "true");
+el.style.left = "50%";
+el.style.top = "50%";
+el.innerHTML = '<span>Victor Remy</span><span class="zoom-hint">zoom in !</span>';
+document.getElementById("syphon-field").appendChild(el);
+bindSyphonClicks(document.getElementById("syphon-field"));
+
 </script>
 
 </body>

@@ -32,14 +32,12 @@
   initInfoBubbles();
   initWheelZoom();
   bindRetourButton();
-  loadProjectsData().then(() => {
-    const tree = getChildren("vfx").map(cKey => ({
-      label: BRANCHES[cKey].label,
-      href: BRANCHES[cKey].page,
-      children: getProjectsByTag(cKey).map(p => ({ label: p.title, href: "projet.html?id=" + p.id, children: [] }))
-    }));
-    renderSyphonTree("syphon-field", tree);
-  });
+  const tree = getChildren("vfx").map(cKey => ({
+    label: BRANCHES[cKey].label,
+    href: BRANCHES[cKey].page,
+    children: []
+  }));
+  renderSyphonTree("syphon-field", tree);
 </script>
 
 </body>

@@ -231,7 +231,7 @@ function renderSyphonNode(field, svg, node, xPct, yPct, depth, parentPos, incomi
     const outward = incomingAngle !== null ? incomingAngle : Math.atan2(yPct - 50, xPct - 50);
     const n = node.children.length;
     const arc = n > 1 ? Math.PI * 0.5 : 0; // ~90° d'étalement si plusieurs enfants
-    const radius = depth === 0 ? 12 : 8;
+    const radius = depth === 0 ? 15 : 8;
 
     node.children.forEach((child, i) => {
       const t = n > 1 ? (i / (n - 1)) - 0.5 : 0; // de -0.5 à 0.5
