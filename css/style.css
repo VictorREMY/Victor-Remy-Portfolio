@@ -327,21 +327,21 @@ em{ font-style: italic; color: var(--gold); }
   z-index: 0;
 }
 
-/* Lignes reliant chaque syphon à son parent (montre l'appartenance à la branche) */
-.syphon-connectors{
-  position: fixed;
-  inset: 0;
-  z-index: 1;
+/* Lignes reliant chaque syphon à son parent (montre l'appartenance à la branche).
+   Ce sont des div positionnées en pixels réels (pas du SVG), tracées après
+   coup une fois les syphons dans le DOM pour un alignement garanti. */
+.connector-line{
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 0;
+  border-top: 1.5px dashed var(--gold);
+  opacity: 0.4;
+  transform-origin: 0 0;
   pointer-events: none;
 }
-.connector-line{
-  stroke: var(--gold);
-  stroke-width: 0.15;
-  stroke-dasharray: 0.7 0.9;
-  opacity: 0.45;
-}
 
-/* Conteneur des syphons, par-dessus le canvas et les connecteurs */
+/* Conteneur des syphons (et de leurs lignes), par-dessus le canvas */
 .syphon-field{
   position: fixed;
   inset: 0;

@@ -191,28 +191,30 @@ function renderSyphons(containerId, items){
    par toutes les pages intermédiaires. */
 function renderSyphonTree(containerId, nodes){
   const field = document.getElementById(containerId);
-  const svg = document.getElementById("syphon-connectors");
   field.innerHTML = "";
-  if(svg) svg.innerHTML = "";
+  const pairs = []; // { parentEl, childEl } — les lignes sont tracées après coup, en pixels réels
 
   nodes.forEach((node, i) => {
     const slot = SYPHON_SLOTS[i % SYPHON_SLOTS.length];
-    renderSyphonNode(field, svg, node, slot.x, slot.y, 0, null, null);
+    renderSyphonNode(field, node, slot.x, slot.y, 0, null, pairs);
   });
+
   bindSyphonClicks(field);
+  drawConnectors(field, pairs);
 }
 
-function renderSyphonNode(field, svg, node, xPct, yPct, depth, parentPos, incomingAngle){
-  if(svg && parentPos){
-    const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
-    line.setAttribute("x1", parentPos.x);
-    line.setAttribute("y1", parentPos.y);
-    line.setAttribute("x2", xPct);
-    line.setAttribute("y2", yPct);
-    line.setAttribute("class", "connector-line");
-    svg.appendChild(line);
-  }
+/* Motifs de placement des enfants autour d'un parent, selon leur nombre.
+   Coordonnées locales : y = éloignement du parent (dans la direction "vers
+   l'extérieur"), x = décalage perpendiculaire (gauche/droite de cet axe).
+   Ça reproduit exactement : 1 enfant = centré ; 2 = côte à côte ;
+   3 = deux "coins" éloignés + un au centre, plus proche. */
+const CHILD_PATTERNS = {
+  1: [{ x: 0, y: 1.0 }],
+  2: [{ x: -0.95, y: 0.85 }, { x: 0.95, y: 0.85 }],
+  3: [{ x: -0.95, y: 1.0 }, { x: 0.95, y: 1.0 }, { x: 0, y: 0.6 }]
+};
 
+function renderSyphonNode(field, node, xPct, yPct, depth, incomingAngle, pairs){
   const sizeClass = depth === 0 ? "" : depth === 1 ? "syphon-sm" : "syphon-xs";
   const el = document.createElement("a");
   el.href = node.href;
@@ -225,22 +227,53 @@ function renderSyphonNode(field, svg, node, xPct, yPct, depth, parentPos, incomi
 
   // On limite à 2 niveaux d'imbrication (branches > sous-catégories > projets)
   if(node.children && node.children.length && depth < 2){
-    // Les enfants s'étalent en éventail à l'opposé du centre de l'écran
-    // (jamais vers le milieu, où se trouvent les autres branches) —
-    // ça évite les chevauchements quelle que soit la position du parent.
-    const outward = incomingAngle !== null ? incomingAngle : Math.atan2(yPct - 50, xPct - 50);
+    const outward = incomingAngle !== null && incomingAngle !== undefined
+      ? incomingAngle
+      : Math.atan2(yPct - 50, xPct - 50);
     const n = node.children.length;
-    const arc = n > 1 ? Math.PI * 0.5 : 0; // ~90° d'étalement si plusieurs enfants
-    const radius = depth === 0 ? 15 : 8;
+    const radius = depth === 0 ? 18 : 11;
+
+    // Au-delà de 3 enfants, on retombe sur un éventail générique
+    const pattern = CHILD_PATTERNS[n] || node.children.map((_, i) => {
+      const t = (i / (n - 1)) - 0.5;
+      return { x: Math.sin(t * Math.PI * 0.6), y: 1 };
+    });
 
     node.children.forEach((child, i) => {
-      const t = n > 1 ? (i / (n - 1)) - 0.5 : 0; // de -0.5 à 0.5
-      const angle = outward + t * arc;
-      const cx = clampPct(xPct + Math.cos(angle) * radius);
-      const cy = clampPct(yPct + Math.sin(angle) * radius * 0.8);
-      renderSyphonNode(field, svg, child, cx, cy, depth + 1, { x: xPct, y: yPct }, angle);
+      const local = pattern[i];
+      // Rotation du motif local vers la direction "outward"
+      const dx = local.x * -Math.sin(outward) + local.y * Math.cos(outward);
+      const dy = local.x * Math.cos(outward) + local.y * Math.sin(outward);
+      const cx = clampPct(xPct + dx * radius);
+      const cy = clampPct(yPct + dy * radius * 0.85);
+      const childEl = renderSyphonNode(field, child, cx, cy, depth + 1, outward, pairs);
+      pairs.push({ parentEl: el, childEl });
     });
   }
+
+  return el;
+}
+
+/* Trace les lignes de connexion en pixels réels, une fois que tous les
+   syphons sont dans le DOM — évite tout décalage entre systèmes de coordonnées. */
+function drawConnectors(field, pairs){
+  pairs.forEach(({ parentEl, childEl }) => {
+    const r1 = parentEl.getBoundingClientRect();
+    const r2 = childEl.getBoundingClientRect();
+    const x1 = r1.left + r1.width / 2, y1 = r1.top + r1.height / 2;
+    const x2 = r2.left + r2.width / 2, y2 = r2.top + r2.height / 2;
+    const dx = x2 - x1, dy = y2 - y1;
+    const length = Math.sqrt(dx * dx + dy * dy);
+    const angle = Math.atan2(dy, dx) * 180 / Math.PI;
+
+    const line = document.createElement("div");
+    line.className = "connector-line";
+    line.style.left = x1 + "px";
+    line.style.top = y1 + "px";
+    line.style.width = length + "px";
+    line.style.transform = `rotate(${angle}deg)`;
+    field.appendChild(line);
+  });
 }
 
 function clampPct(v){
