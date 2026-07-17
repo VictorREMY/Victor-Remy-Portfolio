@@ -312,7 +312,12 @@ function clampPct(v){
   return Math.min(88, Math.max(12, v));
 }
 
+function isEditMode(){
+  return new URLSearchParams(window.location.search).get("edit") === "1";
+}
+
 function bindSyphonClicks(field){
+  if(isEditMode()) return; // en édition, le clic sert à glisser, pas à naviguer
   field.querySelectorAll("[data-syphon]").forEach(el => {
     el.addEventListener("click", function(e){
       e.preventDefault();
@@ -330,7 +335,7 @@ function bindSyphonClicks(field){
    à envoyer sur GitHub comme le reste du contenu.
    ========================================================== */
 function initEditMode(){
-  if(new URLSearchParams(window.location.search).get("edit") !== "1") return;
+  if(!isEditMode()) return;
 
   document.body.classList.add("edit-mode");
 

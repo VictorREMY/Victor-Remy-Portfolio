@@ -448,6 +448,9 @@ em{ font-style: italic; color: var(--gold); }
 .edit-mode .syphon{
   cursor: grab;
 }
+.edit-mode .connector-line{
+  display: none;
+}
 .syphon.dragging{
   cursor: grabbing;
   border-color: var(--cyan) !important;
