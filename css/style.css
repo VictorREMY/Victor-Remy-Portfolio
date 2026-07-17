@@ -444,6 +444,38 @@ em{ font-style: italic; color: var(--gold); }
   margin-top: 3rem;
 }
 
+/* ---------- Mode édition ---------- */
+.edit-mode .syphon{
+  cursor: grab;
+}
+.syphon.dragging{
+  cursor: grabbing;
+  border-color: var(--cyan) !important;
+  z-index: 50;
+}
+.edit-mode .syphon-field-canvas{
+  opacity: 0.5;
+}
+.edit-panel{
+  position: fixed;
+  bottom: var(--gap-lg);
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 300;
+  background: var(--bg-alt);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 1rem 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+  justify-content: center;
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+}
+.edit-panel p{ margin: 0; color: var(--muted); }
+
 /* ---------- Fiche projet : fond sobre et statique (pas de syphons ici) ---------- */
 .project-sober-bg{
   background: var(--bg-alt);

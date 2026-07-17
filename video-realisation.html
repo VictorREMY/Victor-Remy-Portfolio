@@ -31,9 +31,11 @@
   initInfoBubbles();
   initWheelZoom();
   bindRetourButton();
-  loadProjectsData().then(() => {
-    const items = getProjectsByTag("video-realisation").map(p => ({ label: p.title, href: "projet.html?id=" + p.id }));
+
+  Promise.all([loadLayoutData(), loadProjectsData()]).then(() => {
+    const items = getProjectsByTag("video-realisation").map(p => ({ label: p.title, href: "projet.html?id=" + p.id, key: p.id }));
     renderSyphons("syphon-field", items);
+    initEditMode();
   });
 </script>
 

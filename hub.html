@@ -31,17 +31,21 @@
   initInfoBubbles();
   initWheelZoom();
   bindRetourButton();
-  loadProjectsData().then(() => {
+
+  loadLayoutData().then(() => {
     const tree = getTopLevelBranches().map(bKey => ({
       label: BRANCHES[bKey].label,
       href: BRANCHES[bKey].page,
+      key: bKey,
       children: getChildren(bKey).map(cKey => ({
         label: BRANCHES[cKey].label,
         href: BRANCHES[cKey].page,
+        key: cKey,
         children: []
       }))
     }));
     renderSyphonTree("syphon-field", tree);
+    initEditMode();
   });
 </script>
 

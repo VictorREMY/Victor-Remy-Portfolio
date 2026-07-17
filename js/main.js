@@ -26,6 +26,29 @@ function loadProjectsData(){
     });
 }
 
+/* Positions de bulles ajustées manuellement (mode édition), par page.
+   Format : { "hub.html": { "musique": {x,y}, ... }, "musique.html": {...} } */
+let LAYOUT = {};
+
+function loadLayoutData(){
+  return fetch("data/layout.json")
+    .then(response => response.json())
+    .then(data => { LAYOUT = data || {}; return LAYOUT; })
+    .catch(() => { LAYOUT = {}; return LAYOUT; });
+}
+
+function currentPageKey(){
+  return window.location.pathname.split("/").pop() || "index.html";
+}
+
+/* Retourne la position enregistrée pour cette bulle sur cette page,
+   ou la position calculée automatiquement si rien n'a été personnalisé. */
+function resolvePosition(key, autoX, autoY){
+  const page = LAYOUT[currentPageKey()];
+  if(page && page[key]) return { x: page[key].x, y: page[key].y };
+  return { x: autoX, y: autoY };
+}
+
 /* ==========================================================
    NAVIGATION PAR SYPHONS (remplace la nav texte + grilles)
    ========================================================== */
@@ -156,70 +179,91 @@ function vortexInto(syphonEl, targetUrl){
   zoomToPage(x, y, targetUrl);
 }
 
-/* ---------- Positions organiques prédéfinies pour les syphons (en %) ---------- */
-const SYPHON_SLOTS = [
-  { x: 26, y: 30 },
-  { x: 50, y: 74 },
-  { x: 74, y: 28 },
-  { x: 15, y: 65 },
-  { x: 85, y: 62 },
-  { x: 50, y: 30 },
-  { x: 30, y: 78 },
-  { x: 70, y: 78 }
-];
-
 /* ---------- Génère et affiche les syphons dans un conteneur ----------
-   items: [{ label, sublabel, href }] — usage simple, un seul niveau */
+   items: [{ label, sublabel, href }] — usage simple, un seul niveau.
+   Utilise le même motif que les niveaux imbriqués : 1 bulle = centrée,
+   2 = côte à côte, 3 = deux coins + un centre. */
 function renderSyphons(containerId, items){
   const field = document.getElementById(containerId);
-  field.innerHTML = items.map((item, i) => {
-    const slot = SYPHON_SLOTS[i % SYPHON_SLOTS.length];
-    return `<a href="${item.href}" class="syphon" style="left:${slot.x}%; top:${slot.y}%;" data-syphon>
-      <span>${item.label}</span>
-      <span class="zoom-hint">${item.sublabel || "zoom in !"}</span>
-    </a>`;
-  }).join("");
-  bindSyphonClicks(field);
-}
-
-/* ---------- Rendu hiérarchique imbriqué ----------
-   nodes: [{ label, href, children: [...même forme...] }]
-   Chaque niveau de profondeur réduit la taille du syphon et le
-   regroupe visuellement autour de son parent, relié par une ligne,
-   pour qu'on comprenne qu'il en fait partie. Permet de zoomer
-   directement vers une sous-catégorie ou un projet sans passer
-   par toutes les pages intermédiaires. */
-function renderSyphonTree(containerId, nodes){
-  const field = document.getElementById(containerId);
   field.innerHTML = "";
-  const pairs = []; // { parentEl, childEl } — les lignes sont tracées après coup, en pixels réels
+  const n = items.length;
+  const radius = n === 1 ? 0 : 24;
+  const autoPositions = positionsAround(50, 50, n, radius, -Math.PI / 2);
 
-  nodes.forEach((node, i) => {
-    const slot = SYPHON_SLOTS[i % SYPHON_SLOTS.length];
-    renderSyphonNode(field, node, slot.x, slot.y, 0, null, pairs);
+  items.forEach((item, i) => {
+    const pos = resolvePosition(item.key, autoPositions[i].x, autoPositions[i].y);
+    const el = document.createElement("a");
+    el.href = item.href;
+    el.className = "syphon";
+    el.setAttribute("data-syphon", "true");
+    el.setAttribute("data-key", item.key);
+    el.style.left = pos.x + "%";
+    el.style.top = pos.y + "%";
+    el.innerHTML = `<span>${item.label}</span><span class="zoom-hint">${item.sublabel || "zoom in !"}</span>`;
+    field.appendChild(el);
   });
-
   bindSyphonClicks(field);
-  drawConnectors(field, pairs);
 }
 
-/* Motifs de placement des enfants autour d'un parent, selon leur nombre.
-   Coordonnées locales : y = éloignement du parent (dans la direction "vers
-   l'extérieur"), x = décalage perpendiculaire (gauche/droite de cet axe).
-   Ça reproduit exactement : 1 enfant = centré ; 2 = côte à côte ;
-   3 = deux "coins" éloignés + un au centre, plus proche. */
+/* Motifs de placement selon le nombre de bulles à répartir autour d'un
+   centre. Coordonnées locales : y = éloignement du centre (direction
+   "vers l'extérieur"), x = décalage perpendiculaire (gauche/droite).
+   1 = centrée ; 2 = côte à côte ; 3 = deux coins éloignés + un centre. */
 const CHILD_PATTERNS = {
   1: [{ x: 0, y: 1.0 }],
   2: [{ x: -0.95, y: 0.85 }, { x: 0.95, y: 0.85 }],
   3: [{ x: -0.95, y: 1.0 }, { x: 0.95, y: 1.0 }, { x: 0, y: 0.6 }]
 };
 
-function renderSyphonNode(field, node, xPct, yPct, depth, incomingAngle, pairs){
+/* Calcule n positions (en %) autour d'un centre donné, orientées vers "outward" */
+function positionsAround(centerX, centerY, n, radius, outward){
+  const pattern = CHILD_PATTERNS[n] || Array.from({ length: n }, (_, i) => {
+    const t = (i / (n - 1 || 1)) - 0.5;
+    return { x: Math.sin(t * Math.PI * 0.6), y: 1 };
+  });
+  return pattern.map(local => {
+    const dx = local.x * -Math.sin(outward) + local.y * Math.cos(outward);
+    const dy = local.x * Math.cos(outward) + local.y * Math.sin(outward);
+    return {
+      x: clampPct(centerX + dx * radius),
+      y: clampPct(centerY + dy * radius * 0.85)
+    };
+  });
+}
+
+/* ---------- Rendu hiérarchique imbriqué ----------
+   nodes: [{ label, href, children: [...même forme...] }]
+   Chaque niveau de profondeur réduit la taille du syphon et le
+   regroupe visuellement autour de son parent, relié par une ligne.
+   Permet de zoomer directement vers une sous-catégorie ou un projet
+   sans passer par toutes les pages intermédiaires. */
+function renderSyphonTree(containerId, nodes){
+  const field = document.getElementById(containerId);
+  field.innerHTML = "";
+  const pairs = []; // { parentEl, childEl } — les lignes sont tracées après coup, en pixels réels
+
+  const n = nodes.length;
+  const rootRadius = n === 1 ? 0 : 22;
+  const rootPositions = positionsAround(50, 50, n, rootRadius, -Math.PI / 2);
+
+  nodes.forEach((node, i) => {
+    renderSyphonNode(field, node, rootPositions[i].x, rootPositions[i].y, 0, null, pairs);
+  });
+
+  bindSyphonClicks(field);
+  drawConnectors(field, pairs);
+}
+
+function renderSyphonNode(field, node, autoX, autoY, depth, incomingAngle, pairs){
+  const pos = resolvePosition(node.key, autoX, autoY);
+  const xPct = pos.x, yPct = pos.y;
+
   const sizeClass = depth === 0 ? "" : depth === 1 ? "syphon-sm" : "syphon-xs";
   const el = document.createElement("a");
   el.href = node.href;
   el.className = ("syphon " + sizeClass).trim();
   el.setAttribute("data-syphon", "true");
+  el.setAttribute("data-key", node.key);
   el.style.left = xPct + "%";
   el.style.top = yPct + "%";
   el.innerHTML = `<span>${node.label}</span><span class="zoom-hint">zoom in !</span>`;
@@ -230,23 +274,11 @@ function renderSyphonNode(field, node, xPct, yPct, depth, incomingAngle, pairs){
     const outward = incomingAngle !== null && incomingAngle !== undefined
       ? incomingAngle
       : Math.atan2(yPct - 50, xPct - 50);
-    const n = node.children.length;
-    const radius = depth === 0 ? 18 : 11;
-
-    // Au-delà de 3 enfants, on retombe sur un éventail générique
-    const pattern = CHILD_PATTERNS[n] || node.children.map((_, i) => {
-      const t = (i / (n - 1)) - 0.5;
-      return { x: Math.sin(t * Math.PI * 0.6), y: 1 };
-    });
+    const radius = depth === 0 ? 14 : 9;
+    const childAutoPositions = positionsAround(xPct, yPct, node.children.length, radius, outward);
 
     node.children.forEach((child, i) => {
-      const local = pattern[i];
-      // Rotation du motif local vers la direction "outward"
-      const dx = local.x * -Math.sin(outward) + local.y * Math.cos(outward);
-      const dy = local.x * Math.cos(outward) + local.y * Math.sin(outward);
-      const cx = clampPct(xPct + dx * radius);
-      const cy = clampPct(yPct + dy * radius * 0.85);
-      const childEl = renderSyphonNode(field, child, cx, cy, depth + 1, outward, pairs);
+      const childEl = renderSyphonNode(field, child, childAutoPositions[i].x, childAutoPositions[i].y, depth + 1, outward, pairs);
       pairs.push({ parentEl: el, childEl });
     });
   }
@@ -277,7 +309,7 @@ function drawConnectors(field, pairs){
 }
 
 function clampPct(v){
-  return Math.min(94, Math.max(6, v));
+  return Math.min(88, Math.max(12, v));
 }
 
 function bindSyphonClicks(field){
@@ -287,6 +319,89 @@ function bindSyphonClicks(field){
       vortexInto(this, this.getAttribute("href"));
     });
   });
+}
+
+/* ==========================================================
+   MODE ÉDITION — déplacer les bulles à la souris
+   Activé en ajoutant ?edit=1 à l'adresse de la page. Pas de
+   lien visible nulle part : c'est un mode pour toi, pas pour
+   tes visiteurs. Les positions se sauvegardent en cliquant
+   "Copier les positions", à coller dans data/layout.json puis
+   à envoyer sur GitHub comme le reste du contenu.
+   ========================================================== */
+function initEditMode(){
+  if(new URLSearchParams(window.location.search).get("edit") !== "1") return;
+
+  document.body.classList.add("edit-mode");
+
+  let dragEl = null, offsetX = 0, offsetY = 0;
+
+  document.addEventListener("pointerdown", function(e){
+    const syphon = e.target.closest(".syphon");
+    if(!syphon) return;
+    e.preventDefault();
+    dragEl = syphon;
+    dragEl.classList.add("dragging");
+    const rect = syphon.getBoundingClientRect();
+    offsetX = e.clientX - (rect.left + rect.width / 2);
+    offsetY = e.clientY - (rect.top + rect.height / 2);
+  });
+
+  document.addEventListener("pointermove", function(e){
+    if(!dragEl) return;
+    const xPct = ((e.clientX - offsetX) / window.innerWidth) * 100;
+    const yPct = ((e.clientY - offsetY) / window.innerHeight) * 100;
+    dragEl.style.left = clampPct(xPct) + "%";
+    dragEl.style.top = clampPct(yPct) + "%";
+  });
+
+  document.addEventListener("pointerup", function(){
+    dragEl = dragEl && dragEl.classList.remove("dragging");
+    dragEl = null;
+  });
+
+  // En mode édition, un clic sur une bulle ne doit jamais naviguer
+  document.addEventListener("click", function(e){
+    if(e.target.closest(".syphon")) e.preventDefault();
+  }, true);
+
+  buildEditPanel();
+}
+
+function buildEditPanel(){
+  const panel = document.createElement("div");
+  panel.className = "edit-panel";
+  panel.innerHTML = `
+    <p><strong>Mode édition</strong> — glisse les bulles, puis :</p>
+    <button id="edit-copy" class="pill-link">Copier les positions</button>
+    <a href="${window.location.pathname}" class="pill-link">Quitter sans sauvegarder</a>
+  `;
+  document.body.appendChild(panel);
+
+  document.getElementById("edit-copy").addEventListener("click", function(){
+    const page = currentPageKey();
+    const overrides = LAYOUT[page] || {};
+    document.querySelectorAll("[data-key]").forEach(el => {
+      overrides[el.dataset.key] = {
+        x: Math.round(parseFloat(el.style.left) * 10) / 10,
+        y: Math.round(parseFloat(el.style.top) * 10) / 10
+      };
+    });
+    LAYOUT[page] = overrides;
+    const json = JSON.stringify(LAYOUT, null, 2);
+
+    if(navigator.clipboard && navigator.clipboard.writeText){
+      navigator.clipboard.writeText(json).then(() => {
+        alert("Copié ! Colle ce contenu dans data/layout.json, puis envoie ce fichier sur GitHub comme d'habitude.");
+      }).catch(() => showLayoutFallback(json));
+    } else {
+      showLayoutFallback(json);
+    }
+  });
+}
+
+function showLayoutFallback(json){
+  prompt("Copie ce texte (Ctrl+C / Cmd+C), colle-le dans data/layout.json :", json);
 }
 
 /* ---------- Bouton retour (utilise l'historique du navigateur, avec la transition zoom depuis le bas gauche) ---------- */
@@ -312,6 +427,7 @@ function bindRetourButton(){
    - Le clic reste un raccourci optionnel (voir vortexInto).
    ========================================================== */
 function initWheelZoom(){
+  if(new URLSearchParams(window.location.search).get("edit") === "1") return;
   const stage = document.getElementById("zoom-stage");
   if(!stage) return;
 
