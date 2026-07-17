@@ -18,8 +18,10 @@
 <p class="path-breadcrumb" id="path-text">hub/vfx/basé sur vidéo</p>
 <button class="retour-btn" data-retour>← Retour</button>
 
+<div id="zoom-stage" class="zoom-stage">
 <canvas id="syphon-bg" class="syphon-field-canvas"></canvas>
 <div id="syphon-field" class="syphon-field"></div>
+</div>
 
 <script src="js/branches-config.js"></script>
 <script src="js/main.js"></script>
@@ -27,6 +29,7 @@
   initParticleField("syphon-bg");
   initZoomTransitions();
   initInfoBubbles();
+  initWheelZoom();
   bindRetourButton();
   loadProjectsData().then(() => {
     const items = getProjectsByTag("vfx-video").map(p => ({ label: p.title, href: "projet.html?id=" + p.id }));

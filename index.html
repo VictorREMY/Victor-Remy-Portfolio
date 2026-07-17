@@ -18,8 +18,10 @@
 
 
 
+<div id="zoom-stage" class="zoom-stage">
 <canvas id="syphon-bg" class="syphon-field-canvas"></canvas>
 <div id="syphon-field" class="syphon-field"></div>
+</div>
 
 <script src="js/branches-config.js"></script>
 <script src="js/main.js"></script>
@@ -27,6 +29,7 @@
   initParticleField("syphon-bg");
   initZoomTransitions();
   initInfoBubbles();
+  initWheelZoom();
   
   renderSyphons("syphon-field", [{ label: "Victor Remy", sublabel: "zoom in !", href: "hub.html" }]);
 </script>

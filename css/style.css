@@ -312,6 +312,14 @@ em{ font-style: italic; color: var(--gold); }
 }
 .retour-btn:hover{ opacity: 1; color: var(--gold); }
 
+/* Conteneur zoomé à la molette (canvas + syphons dedans) */
+.zoom-stage{
+  position: fixed;
+  inset: 0;
+  transform-origin: 50% 50%;
+  will-change: transform;
+}
+
 /* Canvas plein écran (placeholder du futur effet eau) */
 .syphon-field-canvas{
   position: fixed;

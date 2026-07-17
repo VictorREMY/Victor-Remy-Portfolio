@@ -192,6 +192,69 @@ function bindRetourButton(){
 }
 
 /* ==========================================================
+   ZOOM CONTINU À LA MOLETTE
+   Scroller vers l'avant pendant qu'un syphon est sous le curseur
+   zoome progressivement dessus ; passé un certain niveau, la
+   navigation se déclenche automatiquement. Le clic reste un
+   raccourci optionnel (voir vortexInto ci-dessus).
+   ========================================================== */
+function initWheelZoom(){
+  const stage = document.getElementById("zoom-stage");
+  if(!stage) return;
+
+  const MAX_SCALE = 7;
+  const THRESHOLD = 5.2;
+  let scale = 1;
+  let target = null;
+  let resetTimer = null;
+  let navigating = false;
+
+  function applyStage(immediate){
+    stage.style.transition = immediate ? "none" : "transform 0.5s cubic-bezier(0.22,1,0.36,1)";
+    stage.style.transform = `scale(${scale})`;
+  }
+
+  function resetStage(){
+    scale = 1;
+    target = null;
+    applyStage(false);
+  }
+
+  window.addEventListener("wheel", function(e){
+    if(navigating) return;
+    e.preventDefault();
+
+    if(!target){
+      const hovered = document.elementFromPoint(e.clientX, e.clientY);
+      const syphon = hovered ? hovered.closest(".syphon") : null;
+      if(!syphon) return; // pas de syphon sous le curseur : le scroll ne fait rien
+      target = syphon;
+      const rect = syphon.getBoundingClientRect();
+      stage.style.transformOrigin = `${rect.left + rect.width / 2}px ${rect.top + rect.height / 2}px`;
+    }
+
+    const delta = -e.deltaY * 0.0035; // molette vers l'avant = zoom avant
+    scale = Math.min(MAX_SCALE, Math.max(1, scale + delta));
+    applyStage(true);
+
+    clearTimeout(resetTimer);
+
+    if(scale >= THRESHOLD){
+      navigating = true;
+      const href = target.getAttribute("href");
+      vortexInto(target, href);
+      return;
+    }
+
+    // Si on arrête de scroller sans atteindre le seuil, on revient en douceur
+    resetTimer = setTimeout(resetStage, 500);
+
+    // Si on scroll en arrière jusqu'à revenir au niveau 1, on relâche le syphon ciblé
+    if(scale <= 1.02) target = null;
+  }, { passive: false });
+}
+
+/* ==========================================================
    BULLES CONTACT / À PROPOS
    Superposées à la page en cours (pas de navigation, pas
    d'historique). Contact à gauche, À propos à droite.

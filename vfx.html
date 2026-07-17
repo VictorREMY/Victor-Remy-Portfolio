@@ -18,8 +18,10 @@
 <p class="path-breadcrumb" id="path-text">hub/vfx</p>
 <button class="retour-btn" data-retour>← Retour</button>
 
+<div id="zoom-stage" class="zoom-stage">
 <canvas id="syphon-bg" class="syphon-field-canvas"></canvas>
 <div id="syphon-field" class="syphon-field"></div>
+</div>
 
 <script src="js/branches-config.js"></script>
 <script src="js/main.js"></script>
@@ -27,6 +29,7 @@
   initParticleField("syphon-bg");
   initZoomTransitions();
   initInfoBubbles();
+  initWheelZoom();
   bindRetourButton();
   const items = getChildren("vfx").map(k => ({ label: BRANCHES[k].label, href: BRANCHES[k].page }));
   renderSyphons("syphon-field", items);
