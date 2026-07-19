@@ -21,11 +21,24 @@ collections:
               - { label: "Identifiant unique (id)", name: "id", widget: "string", hint: "Sans espace ni accent, ex: mon-nouveau-projet" }
               - { label: "Titre", name: "title", widget: "string" }
               - { label: "Année", name: "year", widget: "number", value_type: "int" }
+              - label: "Miniature (image affichée sur la bulle)"
+                name: "thumbnail"
+                widget: "image"
+                required: false
+                hint: "Optionnel — sans image, la bulle reste en texte simple"
+              - label: "Couleur de fond de la fiche (optionnel)"
+                name: "popup_bg"
+                widget: "color"
+                required: false
+                hint: "Laisse vide pour garder la couleur par défaut du site"
+
               - label: "Branches / tags"
                 name: "tags"
                 widget: "select"
                 multiple: true
-                options:
+                required: false
+                hint: "Remplis ceci UNIQUEMENT si le projet n'a qu'un seul volet. Si tu utilises les Chapitres plus bas, laisse vide."
+                options: &branch_options
                   - { label: "Musique — Chanson produite", value: "musique-son" }
                   - { label: "Musique — Projet produit", value: "musique-projet" }
                   - { label: "Vidéo — Montage", value: "video-montage" }
@@ -35,14 +48,43 @@ collections:
                   - { label: "VFX — Basé sur vidéo", value: "vfx-video" }
               - { label: "Rôle", name: "role", widget: "string", required: false }
               - { label: "Crédits", name: "credits", widget: "string", required: false }
-              - { label: "Description", name: "description", widget: "text" }
+              - label: "Description / contenu"
+                name: "description"
+                widget: "markdown"
+                required: false
+                hint: "Texte libre : titres, gras, italique, liens, images — utilise la barre d'outils."
               - label: "Média"
                 name: "media"
                 widget: "object"
+                required: false
                 fields:
-                  - label: "Type"
-                    name: "type"
-                    widget: "select"
-                    options: ["youtube", "spotify", "pending"]
+                  - { label: "Type", name: "type", widget: "select", options: ["youtube", "spotify", "pending"] }
                   - { label: "URL (si YouTube ou Spotify)", name: "url", widget: "string", required: false }
                   - { label: "Note (si en attente)", name: "note", widget: "string", required: false }
+
+              - label: "Chapitres (optionnel — pour les projets à plusieurs volets)"
+                name: "chapters"
+                widget: "list"
+                required: false
+                hint: "Si tu remplis des chapitres ici, les champs 'Projet simple' ci-dessus ne sont pas utilisés — tout se passe dans les chapitres. Chaque chapitre a ses propres branches, donc son propre onglet dans la fiche, et s'ouvre directement selon la branche d'où le visiteur clique."
+                summary: "{{title}}"
+                fields:
+                  - { label: "Identifiant du chapitre (sans espace)", name: "id", widget: "string", hint: "ex: montage, vfx, visualizer" }
+                  - { label: "Titre du chapitre", name: "title", widget: "string" }
+                  - label: "Branches / tags de ce chapitre"
+                    name: "tags"
+                    widget: "select"
+                    multiple: true
+                    options: *branch_options
+                  - { label: "Rôle", name: "role", widget: "string", required: false }
+                  - { label: "Crédits", name: "credits", widget: "string", required: false }
+                  - label: "Description de ce chapitre"
+                    name: "description"
+                    widget: "markdown"
+                  - label: "Média"
+                    name: "media"
+                    widget: "object"
+                    fields:
+                      - { label: "Type", name: "type", widget: "select", options: ["youtube", "spotify", "pending"] }
+                      - { label: "URL (si YouTube ou Spotify)", name: "url", widget: "string", required: false }
+                      - { label: "Note (si en attente)", name: "note", widget: "string", required: false }

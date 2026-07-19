@@ -4,11 +4,11 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Victor Remy — musique-projet</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,500;9..144,600&family=Space+Grotesk:wght@400;500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/style.css?v=1784304086">
+<link rel="stylesheet" href="css/style.css?v=1784474434">
 </head>
 <body>
+
+<div id="water-bg"></div>
 
 <nav class="top-nav-minimal">
   <a href="#" data-modal="contact">Contact</a>
@@ -19,24 +19,37 @@
 <button class="retour-btn" data-retour>← Retour</button>
 
 <div id="zoom-stage" class="zoom-stage">
-<canvas id="syphon-bg" class="syphon-field-canvas"></canvas>
 <div id="syphon-field" class="syphon-field"></div>
 </div>
 
-<script src="js/branches-config.js?v=1784304086"></script>
-<script src="js/main.js?v=1784304086"></script>
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<script src="js/branches-config.js?v=1784474434"></script>
+<script src="js/main.js?v=1784474434"></script>
 <script>
-  initParticleField("syphon-bg");
   initZoomTransitions();
   initInfoBubbles();
+  initProjectPopups();
   initWheelZoom();
   bindRetourButton();
 
   Promise.all([loadLayoutData(), loadProjectsData()]).then(() => {
-    const items = getProjectsByTag("musique-projet").map(p => ({ label: p.title, href: "projet.html?id=" + p.id, key: p.id }));
+    const items = getProjectsByTag("musique-projet").map(p => ({ label: p.title, href: "projet.html?id=" + p.id, key: p.id, popup: true, thumbnail: p.thumbnail || null, contextTag: "musique-projet" }));
     renderSyphons("syphon-field", items);
     initEditMode();
   });
+</script>
+
+<script type="importmap">
+{
+  "imports": {
+    "three": "./js/vendor/three.module.js",
+    "lil-gui": "./js/vendor/lil-gui.esm.js"
+  }
+}
+</script>
+<script type="module">
+  import { initWaterEffect } from './js/water-effect.js';
+  initWaterEffect(document.getElementById('water-bg'));
 </script>
 
 </body>

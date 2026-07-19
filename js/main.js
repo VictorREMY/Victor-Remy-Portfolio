@@ -82,55 +82,6 @@ function saveEditSessionForCurrentPage(){
    NAVIGATION PAR SYPHONS (remplace la nav texte + grilles)
    ========================================================== */
 
-/* ---------- Fond animé (placeholder de l'effet eau — sera remplacé
-   par l'export TouchDesigner de Victor plus tard) ---------- */
-function initParticleField(canvasId){
-  const canvas = document.getElementById(canvasId);
-  const ctx = canvas.getContext("2d");
-  let w, h, points = [];
-  const spacing = 46;
-  const mouse = { x: -9999, y: -9999 };
-
-  function resize(){
-    w = canvas.width = window.innerWidth;
-    h = canvas.height = window.innerHeight;
-    points = [];
-    for(let y = 0; y < h + spacing; y += spacing){
-      for(let x = 0; x < w + spacing; x += spacing){
-        points.push({ x, y, ox: x, oy: y });
-      }
-    }
-  }
-  window.addEventListener("resize", resize);
-  window.addEventListener("mousemove", e => { mouse.x = e.clientX; mouse.y = e.clientY; });
-  window.addEventListener("mouseleave", () => { mouse.x = -9999; mouse.y = -9999; });
-
-  function draw(){
-    ctx.clearRect(0, 0, w, h);
-    for(const p of points){
-      const dx = p.ox - mouse.x, dy = p.oy - mouse.y;
-      const dist = Math.sqrt(dx*dx + dy*dy);
-      const radius = 160;
-      let px = p.ox, py = p.oy;
-      if(dist < radius){
-        const force = (1 - dist / radius) * 18;
-        const angle = Math.atan2(dy, dx);
-        px += Math.cos(angle) * force;
-        py += Math.sin(angle) * force;
-      }
-      const size = dist < radius ? 2.2 : 1.2;
-      const alpha = dist < radius ? 0.85 : 0.2;
-      ctx.beginPath();
-      ctx.arc(px, py, size, 0, Math.PI * 2);
-      ctx.fillStyle = `rgba(94, 200, 216, ${alpha})`;
-      ctx.fill();
-    }
-    requestAnimationFrame(draw);
-  }
-  resize();
-  draw();
-}
-
 /* ---------- Transition "zoom" : un cercle qui part du point cliqué
    pour recouvrir l'écran, puis se rétracte au chargement de la page
    suivante depuis ce même point (mémorisé via sessionStorage).
@@ -226,8 +177,14 @@ function renderSyphons(containerId, items){
     el.className = "syphon";
     el.setAttribute("data-syphon", "true");
     el.setAttribute("data-key", item.key);
+    if(item.popup) el.setAttribute("data-popup", "true");
+    if(item.contextTag) el.setAttribute("data-context", item.contextTag);
     el.style.left = pos.x + "%";
     el.style.top = pos.y + "%";
+    if(item.thumbnail){
+      el.classList.add("has-thumb");
+      el.style.backgroundImage = `linear-gradient(to top, rgba(0,0,0,0.88), rgba(0,0,0,0.05) 60%), url('${item.thumbnail}')`;
+    }
     el.innerHTML = `<span>${item.label}</span><span class="zoom-hint">${item.sublabel || "zoom in !"}</span>`;
     field.appendChild(el);
   });
@@ -350,7 +307,11 @@ function bindSyphonClicks(field){
   field.querySelectorAll("[data-syphon]").forEach(el => {
     el.addEventListener("click", function(e){
       e.preventDefault();
-      vortexInto(this, this.getAttribute("href"));
+      if(this.dataset.popup === "true"){
+        openProjectPopup(this.dataset.key, this.dataset.context || null);
+      } else {
+        vortexInto(this, this.getAttribute("href"));
+      }
     });
   });
 }
@@ -683,10 +644,21 @@ function bindBackButtons(){
   });
 }
 
+/* Un projet à chapitres n'a pas de "tags" fixes : ses tags sont l'union
+   de ceux de tous ses chapitres. Un projet simple garde son tableau tags. */
+function projectTags(project){
+  if(Array.isArray(project.chapters) && project.chapters.length){
+    const set = new Set();
+    project.chapters.forEach(c => (c.tags || []).forEach(t => set.add(t)));
+    return Array.from(set);
+  }
+  return project.tags || [];
+}
+
 /* ---------- Récupère les projets qui ont un tag donné ---------- */
 function getProjectsByTag(tag){
   if(!tag || tag === "all") return PROJECTS;
-  return PROJECTS.filter(p => p.tags.includes(tag));
+  return PROJECTS.filter(p => projectTags(p).includes(tag));
 }
 
 /* ---------- Construit une carte projet (HTML) ---------- */
@@ -736,6 +708,67 @@ function renderFilterableGrid(containerId, filterRowId, tagsToShow, defaultTag){
 }
 
 /* ---------- Affiche le détail d'un projet à partir de l'URL (?id=...) ---------- */
+/* Construit le bloc média (vidéo/son/en attente) pour un chapitre ou un projet simple */
+function buildMediaBlock(media){
+  if(!media) return `<div class="thumb" style="aspect-ratio:16/9;">média à venir</div>`;
+  if(media.type === "youtube"){
+    const videoId = media.url.split("/").pop().split("?")[0];
+    return `<div style="aspect-ratio:16/9; border-radius:10px; overflow:hidden;">
+      <iframe width="100%" height="100%" src="https://www.youtube.com/embed/${videoId}" frameborder="0" allowfullscreen></iframe>
+    </div>`;
+  }
+  if(media.type === "spotify"){
+    const trackId = media.url.split("/").pop().split("?")[0];
+    return `<iframe src="https://open.spotify.com/embed/track/${trackId}" width="100%" height="152" frameborder="0" allow="encrypted-media" style="border-radius:10px;"></iframe>`;
+  }
+  return `<div class="thumb" style="aspect-ratio:16/9;">${media.note || "média à venir"}</div>`;
+}
+
+function renderMarkdown(text){
+  return (typeof marked !== "undefined") ? marked.parse(text || "") : `<p>${text || ""}</p>`;
+}
+
+/* Construit le HTML d'une fiche projet — utilisé à la fois par la page
+   projet.html (gardée pour un lien partageable direct) et par la popup.
+   Si le projet a des "chapters" (plusieurs volets : montage, vfx, visualizer...),
+   ils s'affichent tous à la suite dans la même fiche, avec des onglets pour
+   sauter directement à l'un d'eux. Sinon, c'est l'ancien format simple. */
+function buildProjectDetailHTML(project){
+  const hasChapters = Array.isArray(project.chapters) && project.chapters.length > 0;
+  const chapters = hasChapters ? project.chapters : [{
+    id: "main", tags: project.tags, title: project.title,
+    role: project.role, credits: project.credits,
+    media: project.media, description: project.description
+  }];
+
+  const tabsHTML = hasChapters ? `
+    <div class="chapter-tabs">
+      ${chapters.map(c => `<button class="chapter-tab" data-chapter-tab="${c.id}">${c.title}</button>`).join("")}
+    </div>
+  ` : "";
+
+  const sectionsHTML = chapters.map(c => `
+    <section class="chapter-section" id="chapter-${c.id}">
+      ${hasChapters ? `<h2>${c.title}</h2>` : ""}
+      <p class="muted" style="margin-top:0.3rem;">${c.role || ""}${c.credits ? " — " + c.credits : ""}</p>
+      <div style="display:grid; grid-template-columns: minmax(280px, 480px) 1fr; gap: var(--gap-lg); margin-top: var(--gap-md); align-items:start;">
+        <div>${buildMediaBlock(c.media)}</div>
+        <div class="markdown-content">${renderMarkdown(c.description)}</div>
+      </div>
+    </section>
+  `).join(hasChapters ? '<hr class="chapter-divider">' : "");
+
+  return `
+    <p class="eyebrow" style="margin-bottom:0.6rem;">${project.year}</p>
+    <h1>${project.title}</h1>
+    ${tabsHTML}
+    ${sectionsHTML}
+    <div class="tags" style="margin-top: var(--gap-lg);">
+      ${projectTags(project).map(t => `<span class="tag">${BRANCHES[t] ? BRANCHES[t].label : t}</span>`).join("")}
+    </div>
+  `;
+}
+
 function renderProjectDetail(containerId, pathId){
   const params = new URLSearchParams(window.location.search);
   const id = params.get("id");
@@ -748,37 +781,79 @@ function renderProjectDetail(containerId, pathId){
     return;
   }
 
-  let mediaBlock = "";
-  if(project.media.type === "youtube"){
-    const videoId = project.media.url.split("/").pop().split("?")[0];
-    mediaBlock = `<div style="aspect-ratio:16/9; border-radius:10px; overflow:hidden;">
-      <iframe width="100%" height="100%" src="https://www.youtube.com/embed/${videoId}" title="${project.title}" frameborder="0" allowfullscreen></iframe>
-    </div>`;
-  } else if(project.media.type === "spotify"){
-    const trackId = project.media.url.split("/").pop().split("?")[0];
-    mediaBlock = `<iframe src="https://open.spotify.com/embed/track/${trackId}" width="100%" height="152" frameborder="0" allow="encrypted-media" style="border-radius:10px;"></iframe>`;
-  } else {
-    mediaBlock = `<div class="thumb" style="aspect-ratio:16/9;">${project.media.note || "média à venir"}</div>`;
-  }
-
-  // Chemin textuel simple, en haut à gauche de la page
   if(pathEl){
-    const pathParts = ["hub", ...project.tags.map(t => BRANCHES[t].label.toLowerCase())];
+    const pathParts = ["hub", ...projectTags(project).map(t => BRANCHES[t] ? BRANCHES[t].label.toLowerCase() : t)];
     pathEl.textContent = pathParts.join(" / ") + " / " + project.title.toLowerCase();
   }
 
-  container.innerHTML = `
-    <p class="eyebrow" style="margin-bottom:0.6rem;">${project.year}</p>
-    <h1>${project.title}</h1>
-    <p class="muted" style="margin-top:0.6rem;">${project.role || ""}${project.credits ? " — " + project.credits : ""}</p>
+  if(project.popup_bg) document.body.style.background = project.popup_bg;
+  container.innerHTML = buildProjectDetailHTML(project);
+  bindChapterTabs(container, container);
+}
 
-    <div style="display:grid; grid-template-columns: minmax(280px, 480px) 1fr; gap: var(--gap-lg); margin-top: var(--gap-lg); align-items:start;">
-      <div>${mediaBlock}</div>
-      <p style="line-height:1.7; max-width:55ch;">${project.description}</p>
-    </div>
+/* ==========================================================
+   POPUP FICHE PROJET
+   Les fiches s'ouvrent par-dessus la page en cours (comme
+   Contact/À propos), sans navigation ni entrée dans l'historique.
+   Si on arrive depuis une branche précise (ex: VFX), la popup
+   s'ouvre directement sur le chapitre correspondant.
+   ========================================================== */
+function initProjectPopups(){
+  if(document.getElementById("project-popup")) return; // déjà en place
 
-    <div class="tags" style="margin-top: var(--gap-lg);">
-      ${project.tags.map(t => `<span class="tag">${BRANCHES[t].label}</span>`).join("")}
-    </div>
-  `;
+  const backdrop = document.createElement("div");
+  backdrop.id = "project-popup-backdrop";
+  backdrop.className = "project-popup-backdrop";
+  document.body.appendChild(backdrop);
+
+  const popup = document.createElement("div");
+  popup.id = "project-popup";
+  popup.className = "project-popup";
+  popup.innerHTML = `<button class="popup-close" aria-label="Fermer">✕</button><div id="popup-content"></div>`;
+  document.body.appendChild(popup);
+
+  function close(){
+    backdrop.classList.remove("visible");
+    popup.classList.remove("open");
+  }
+  backdrop.addEventListener("click", close);
+  popup.querySelector(".popup-close").addEventListener("click", close);
+  document.addEventListener("keydown", e => { if(e.key === "Escape") close(); });
+}
+
+/* Active les onglets de chapitres : clic = défilement fluide jusqu'au chapitre */
+function bindChapterTabs(scopeEl, scrollContainer){
+  scopeEl.querySelectorAll("[data-chapter-tab]").forEach(btn => {
+    btn.addEventListener("click", () => scrollToChapter(scrollContainer, btn.dataset.chapterTab, false));
+  });
+}
+
+function scrollToChapter(scrollContainer, chapterId, instant){
+  const section = scrollContainer.querySelector(`#chapter-${chapterId}`);
+  if(!section) return;
+  scrollContainer.querySelectorAll("[data-chapter-tab]").forEach(b =>
+    b.classList.toggle("active", b.dataset.chapterTab === chapterId)
+  );
+  section.scrollIntoView({ behavior: instant ? "auto" : "smooth", block: "start" });
+}
+
+function openProjectPopup(id, contextTag){
+  const project = PROJECTS.find(p => p.id === id);
+  const content = document.getElementById("popup-content");
+  if(!project || !content) return;
+
+  content.innerHTML = buildProjectDetailHTML(project);
+  const popupEl = document.getElementById("project-popup");
+  popupEl.style.background = project.popup_bg ? project.popup_bg : "";
+  bindChapterTabs(content, popupEl);
+
+  document.getElementById("project-popup-backdrop").classList.add("visible");
+  popupEl.classList.add("open");
+  popupEl.scrollTop = 0;
+
+  // Ouvre directement sur le chapitre lié à la branche d'où on vient
+  if(contextTag && Array.isArray(project.chapters)){
+    const target = project.chapters.find(c => (c.tags || []).includes(contextTag));
+    if(target) scrollToChapter(popupEl, target.id, true);
+  }
 }
