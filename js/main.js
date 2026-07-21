@@ -461,87 +461,74 @@ function initWheelZoom(){
   const stage = document.getElementById("zoom-stage");
   if(!stage) return;
 
-  const MAX_SCALE = 6;       // niveau de zoom avant max
-  const THRESHOLD_IN = 4;    // seuil pour déclencher l'entrée dans le syphon
-  const MIN_SCALE = 0.12;    // niveau de dézoom max
-  const THRESHOLD_OUT = 0.3; // seuil pour déclencher le retour (plus bas = plus de marge avant que ça bascule)
+  // Amplitude large : beaucoup de marge pour se déplacer avant que ça bascule
+  const MAX_SCALE = 9;        // zoom avant max
+  const THRESHOLD_IN = 7;     // seuil d'entrée dans un syphon
+  const MIN_SCALE = 0.15;     // dézoom max
+  const THRESHOLD_OUT = 0.25; // seuil de retour
 
-  let scale = 1;
-  let target = null;
-  let resetTimer = null;
+  let scale = 1;          // niveau affiché (suit targetScale en douceur)
+  let targetScale = 1;    // niveau visé par la molette
+  let originX = window.innerWidth / 2;
+  let originY = window.innerHeight / 2;
   let navigating = false;
+  let rafId = null;
   const retourBtn = document.querySelector("[data-retour]");
 
-  function applyStage(immediate, origin){
-    stage.style.transition = immediate ? "none" : "transform 0.5s cubic-bezier(0.22,1,0.36,1)";
-    if(origin) stage.style.transformOrigin = origin;
-    stage.style.transform = `scale(${scale})`;
-  }
-
-  function resetStage(){
-    scale = 1;
-    target = null;
-    applyStage(false, "50% 50%");
-  }
-
-  /* Trouve le syphon le plus proche du curseur, peu importe si la souris
-     est pile dessus ou juste quelque part sur la page — permet de zoomer
-     "dans l'espace" depuis n'importe où, pas seulement en survolant une bulle. */
-  function findNearestSyphon(x, y){
+  /* Le syphon le plus proche du point de zoom : sert uniquement à savoir
+     vers quelle page aller au moment où le seuil est franchi. Le zoom
+     lui-même est libre et suit le curseur, il ne "vise" aucune bulle. */
+  function nearestSyphonTo(x, y){
     let nearest = null, minDist = Infinity;
     document.querySelectorAll(".syphon").forEach(el => {
-      const rect = el.getBoundingClientRect();
-      const dist = Math.hypot((rect.left + rect.width / 2) - x, (rect.top + rect.height / 2) - y);
-      if(dist < minDist){ minDist = dist; nearest = el; }
+      const r = el.getBoundingClientRect();
+      const d = Math.hypot((r.left + r.width / 2) - x, (r.top + r.height / 2) - y);
+      if(d < minDist){ minDist = d; nearest = el; }
     });
     return nearest;
   }
+
+  /* Boucle d'animation : le niveau affiché rattrape progressivement le
+     niveau visé, ce qui lisse complètement le mouvement au lieu de sauter
+     d'un cran à l'autre à chaque coup de molette. */
+  function animate(){
+    const diff = targetScale - scale;
+    if(Math.abs(diff) > 0.0005){
+      scale += diff * 0.12; // plus la valeur est basse, plus c'est doux
+      stage.style.transform = `scale(${scale})`;
+    }
+
+    if(!navigating){
+      if(scale >= THRESHOLD_IN){
+        const target = nearestSyphonTo(originX, originY);
+        if(target){
+          navigating = true;
+          vortexInto(target, target.getAttribute("href"));
+        }
+      } else if(scale <= THRESHOLD_OUT && retourBtn){
+        navigating = true;
+        zoomOutBack();
+      }
+    }
+
+    rafId = requestAnimationFrame(animate);
+  }
+  rafId = requestAnimationFrame(animate);
 
   window.addEventListener("wheel", function(e){
     if(navigating) return;
     e.preventDefault();
 
-    const zoomingIn = e.deltaY < 0;
+    // Le point de zoom suit le curseur, sans se caler sur une bulle
+    originX = e.clientX;
+    originY = e.clientY;
+    stage.style.transformOrigin = `${originX}px ${originY}px`;
+    stage.style.transition = "none";
 
-    if(zoomingIn){
-      // ---------- Zoom avant : cible la bulle la plus proche, où que soit la souris ----------
-      if(!target){
-        const nearest = findNearestSyphon(e.clientX, e.clientY);
-        if(!nearest) return;
-        target = nearest;
-        const rect = target.getBoundingClientRect();
-        stage.style.transformOrigin = `${rect.left + rect.width / 2}px ${rect.top + rect.height / 2}px`;
-      }
-
-      scale = Math.min(MAX_SCALE, scale + (-e.deltaY * 0.004));
-      applyStage(true);
-      clearTimeout(resetTimer);
-
-      if(scale >= THRESHOLD_IN){
-        navigating = true;
-        vortexInto(target, target.getAttribute("href"));
-        return;
-      }
-      resetTimer = setTimeout(resetStage, 450);
-
-    } else {
-      // ---------- Zoom arrière : dézoome toute la page, déclenche "retour" ----------
-      if(target) return; // on ne dézoome pas tant qu'on est en train d'entrer dans un syphon
-
-      if(!retourBtn) return; // rien où retourner (ex: page d'accueil)
-
-      stage.style.transformOrigin = "50% 50%";
-      scale = Math.max(MIN_SCALE, scale + (-e.deltaY * 0.004));
-      applyStage(true);
-      clearTimeout(resetTimer);
-
-      if(scale <= THRESHOLD_OUT){
-        navigating = true;
-        zoomOutBack();
-        return;
-      }
-      resetTimer = setTimeout(resetStage, 450);
-    }
+    // Progression proportionnelle : le zoom avance du même "pas visuel"
+    // quel que soit le niveau actuel, ce qui évite les à-coups
+    targetScale *= Math.exp(-e.deltaY * 0.0012);
+    targetScale = Math.min(MAX_SCALE, Math.max(MIN_SCALE, targetScale));
   }, { passive: false });
 }
 
