@@ -326,6 +326,23 @@ function initSimpleWaterEffect(container) {
   // object-fit: cover (proportions gardées, léger recadrage sur les bords).
   video.style.objectFit = CONFIG.FIT_MODE === 'cover' ? 'cover' : 'fill';
 
+  // Chaque page est un vrai rechargement de navigateur, donc la vidéo
+  // recommence techniquement de zéro à chaque fois. Pour que ça ne se
+  // voie pas, on mémorise où elle en était juste avant de quitter la
+  // page, et on la reprend à ce moment précis dès qu'elle est prête —
+  // ça donne l'impression qu'elle n'a jamais été coupée.
+  const savedTime = parseFloat(sessionStorage.getItem('waterBgTime') || '0');
+  if (savedTime > 0) {
+    video.addEventListener('loadedmetadata', () => {
+      if (isFinite(video.duration) && savedTime < video.duration) {
+        video.currentTime = savedTime;
+      }
+    }, { once: true });
+  }
+  window.addEventListener('pagehide', () => {
+    sessionStorage.setItem('waterBgTime', String(video.currentTime));
+  });
+
   video.play().catch(() => {
     const resume = () => { video.play(); window.removeEventListener('pointerdown', resume); };
     window.addEventListener('pointerdown', resume);

@@ -92,6 +92,72 @@
         "type": "youtube",
         "url": "https://youtu.be/Ya8XBiCIqKw"
       }
+    },
+    {
+      "id": "le-sol-et-le-fa",
+      "title": "Le Sol et Le Fa",
+      "chapters": [
+        {
+          "id": "realisation",
+          "title": "Réalisation vidéo",
+          "tags": [
+            "video-realisation"
+          ],
+          "role": "Réalisation",
+          "credits": "Mailow (artiste)",
+          "description": "La réalisation s'appuie sur des mouvements de caméra marqués — de nombreux allers-retours avant/arrière — pensés pour coller au rythme nerveux du morceau et pour se donner un maximum de matière au montage (transitions, effets d'impact).\n\nLe cadrage, en grand angle, place le sujet au milieu des micros et instruments qui l'entourent.\n\nLa lumière, dominée par le rouge, installe une ambiance sombre et tendue — une teinte légèrement retravaillée par la suite au montage.",
+          "media": {
+            "type": "pending",
+            "url": "",
+            "note": "vidéo Instagram à télécharger et héberger"
+          }
+        },
+        {
+          "id": "montage",
+          "title": "Montage",
+          "tags": [
+            "video-montage"
+          ],
+          "role": "Montage",
+          "credits": "Mailow (artiste)",
+          "description": "Le montage n'est pas construit en lipsync mais comme une boucle de visualiseur, avec des coupes minutées sur la structure rythmique du morceau — les temps forts (kick, snare) mais aussi des éléments plus secondaires comme les percussions, pour que l'image suive le rythme au plus près.\n\nMailow a participé directement au montage, en aidant à sélectionner certains cuts et moments clés parmi les rushs.\n\nL'étalonnage évolue en deux temps : un premier traitement plus clair, saturé et \"sale\", puis un second plus sombre, avec du grain et des glitchs plus marqués, sur une dominante bleue avec quelques touches jaunes.",
+          "media": {
+            "type": "pending",
+            "url": "",
+            "note": "même vidéo que réalisation"
+          }
+        },
+        {
+          "id": "vfx-video",
+          "title": "VFX vidéo",
+          "tags": [
+            "vfx-video"
+          ],
+          "role": "VFX",
+          "credits": "Mailow (artiste, colorimétrie)",
+          "description": "Les effets de grain et de glitch sont produits dans TouchDesigner, via des displacements et des composites.\n\nL'étalonnage est réparti sur deux logiciels : TouchDesigner pour le traitement le plus sombre, granuleux et à dominante bleue, et Premiere Pro pour le premier traitement, plus clair et saturé.\n\nLes effets ont été réalisés seul, avec Mailow présent pour orienter les choix de colorimétrie.",
+          "media": {
+            "type": "pending",
+            "url": "",
+            "note": "même vidéo que réalisation"
+          }
+        },
+        {
+          "id": "vfx-generatif",
+          "title": "VFX génératif",
+          "tags": [
+            "vfx-generatif"
+          ],
+          "role": "VFX génératif",
+          "credits": "Solo",
+          "description": "Pensé à l'origine comme fond de scène pour un concert, ce visuel devait rester simple et peu chargé pour laisser l'artiste au centre de l'attention.\n\nLe visuel repose sur un système de particules confinées dans deux volumes distincts, dont les limites se déforment de manière audioréactive (basses et kick). La bande étant elle-même très rythmée, le résultat garde beaucoup d'impact tout en restant plus organique que le reste du projet.\n\nTout est produit dans TouchDesigner : les limites des volumes sont pilotées par plusieurs pistes audio traitées en amont, et la caméra suit une animation à vitesse constante.\n\nLe projet s'inscrit dans une série de visuels prévus pour un concert parisien réunissant plusieurs artistes de mon collectif, avant son annulation.",
+          "media": {
+            "type": "pending",
+            "url": "",
+            "note": "visualiseur à exporter/héberger"
+          }
+        }
+      ]
     }
   ]
 }

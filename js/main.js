@@ -135,7 +135,7 @@ function zoomThenRun(x, y, callback){
       { clipPath: `circle(0px at ${x}px ${y}px)` },
       { clipPath: `circle(${r}px at ${x}px ${y}px)` }
     ],
-    { duration: 800, easing: "cubic-bezier(0.76,0,0.24,1)", fill: "forwards" }
+    { duration: 700, easing: "cubic-bezier(0.65, 0, 0.35, 1)", fill: "forwards" }
   );
   anim.onfinish = callback;
 }
@@ -153,7 +153,7 @@ function vortexInto(syphonEl, targetUrl){
       { transform: "translate(-50%, -50%) scale(1) rotate(0deg)", opacity: 1 },
       { transform: "translate(-50%, -50%) scale(22) rotate(240deg)", opacity: 0 }
     ],
-    { duration: 750, easing: "cubic-bezier(0.6, 0, 0.9, 0.4)", fill: "forwards" }
+    { duration: 700, easing: "cubic-bezier(0.65, 0, 0.35, 1)", fill: "forwards" }
   );
 
   zoomToPage(x, y, targetUrl);
@@ -449,8 +449,8 @@ function initWheelZoom(){
   const stage = document.getElementById("zoom-stage");
   if(!stage) return;
 
-  const MAX_SCALE = 4;       // niveau de zoom avant max
-  const THRESHOLD_IN = 2.3;  // seuil pour déclencher l'entrée dans le syphon
+  const MAX_SCALE = 6;       // niveau de zoom avant max
+  const THRESHOLD_IN = 4;    // seuil pour déclencher l'entrée dans le syphon (plus haut = plus de marge pour "se déplacer" avant que ça bascule)
   const MIN_SCALE = 0.4;     // niveau de dézoom max
   const THRESHOLD_OUT = 0.65; // seuil pour déclencher le retour
 
