@@ -1,0 +1,9 @@
+{
+  "maxScale": 9,
+  "thresholdIn": 7,
+  "minScale": 0.35,
+  "thresholdOut": 0.45,
+  "speed": 1.2,
+  "smoothing": 0.12,
+  "bounce": 1.15
+}

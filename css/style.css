@@ -719,3 +719,35 @@ em{ font-style: italic; color: var(--gold); }
   cursor: pointer;
 }
 .block-toolbar button:hover{ color: var(--ink); border-color: var(--muted); }
+
+/* Poignée pour agrandir la zone de travail d'un chapitre (mode édition) */
+.canvas-resize-handle{
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 18px;
+  height: 18px;
+  background: var(--gold);
+  cursor: nwse-resize;
+  z-index: 20;
+}
+
+/* Panneau de réglage du zoom (?zoomtune=1) */
+.zoom-tune-panel{
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0.4rem;
+  max-width: 320px;
+  left: auto;
+  right: var(--gap-lg);
+  transform: none;
+}
+.tune-row{
+  display: grid;
+  grid-template-columns: 1fr 90px 40px;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.7rem;
+  color: var(--muted);
+}
+.tune-row output{ text-align: right; }

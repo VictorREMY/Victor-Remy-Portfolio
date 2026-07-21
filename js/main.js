@@ -456,80 +456,166 @@ function bindRetourButton(){
      le retour — l'inverse exact du zoom avant.
    - Le clic reste un raccourci optionnel (voir vortexInto).
    ========================================================== */
+/* Réglages du zoom — ajustables en direct via ?zoomtune=1 */
+const ZOOM_SETTINGS = {
+  maxScale: 9,        // zoom avant max
+  thresholdIn: 7,     // seuil d'entrée dans un syphon (il faut viser la bulle)
+  minScale: 0.35,     // dézoom max
+  thresholdOut: 0.45, // seuil de déclenchement du retour
+  speed: 1.2,         // sensibilité de la molette
+  smoothing: 0.12,    // 0.05 = très doux/lent, 0.3 = plus direct
+  bounce: 1.15        // léger rebond avant la bascule (1 = aucun)
+};
+
+function loadZoomSettings(){
+  return fetch("data/zoom-settings.json")
+    .then(r => r.json())
+    .then(data => { Object.assign(ZOOM_SETTINGS, data || {}); return ZOOM_SETTINGS; })
+    .catch(() => ZOOM_SETTINGS);
+}
+
 function initWheelZoom(){
   if(new URLSearchParams(window.location.search).get("edit") === "1") return;
   const stage = document.getElementById("zoom-stage");
   if(!stage) return;
 
-  // Amplitude large : beaucoup de marge pour se déplacer avant que ça bascule
-  const MAX_SCALE = 9;        // zoom avant max
-  const THRESHOLD_IN = 7;     // seuil d'entrée dans un syphon
-  const MIN_SCALE = 0.15;     // dézoom max
-  const THRESHOLD_OUT = 0.25; // seuil de retour
+  const S = ZOOM_SETTINGS;
 
-  let scale = 1;          // niveau affiché (suit targetScale en douceur)
-  let targetScale = 1;    // niveau visé par la molette
-  let originX = window.innerWidth / 2;
-  let originY = window.innerHeight / 2;
+  // On gère nous-mêmes le déplacement (tx, ty) en plus de l'échelle, plutôt
+  // que de bouger le point d'ancrage : c'est ce qui garantit que le point
+  // sous le curseur reste exactement sous le curseur pendant le zoom.
+  let scale = 1, targetScale = 1;
+  let tx = 0, ty = 0, targetTx = 0, targetTy = 0;
   let navigating = false;
-  let rafId = null;
+  let bouncing = false;
   const retourBtn = document.querySelector("[data-retour]");
 
-  /* Le syphon le plus proche du point de zoom : sert uniquement à savoir
-     vers quelle page aller au moment où le seuil est franchi. Le zoom
-     lui-même est libre et suit le curseur, il ne "vise" aucune bulle. */
-  function nearestSyphonTo(x, y){
-    let nearest = null, minDist = Infinity;
-    document.querySelectorAll(".syphon").forEach(el => {
-      const r = el.getBoundingClientRect();
-      const d = Math.hypot((r.left + r.width / 2) - x, (r.top + r.height / 2) - y);
-      if(d < minDist){ minDist = d; nearest = el; }
-    });
-    return nearest;
+  stage.style.transformOrigin = "0 0";
+
+  function apply(){
+    stage.style.transform = `translate(${tx}px, ${ty}px) scale(${scale})`;
   }
 
-  /* Boucle d'animation : le niveau affiché rattrape progressivement le
-     niveau visé, ce qui lisse complètement le mouvement au lieu de sauter
-     d'un cran à l'autre à chaque coup de molette. */
+  /* Le syphon actuellement sous le curseur (il faut viser pour entrer) */
+  let cursorX = window.innerWidth / 2, cursorY = window.innerHeight / 2;
+  window.addEventListener("mousemove", e => { cursorX = e.clientX; cursorY = e.clientY; });
+
+  function syphonUnderCursor(){
+    const el = document.elementFromPoint(cursorX, cursorY);
+    return el ? el.closest(".syphon") : null;
+  }
+
+  /* Petit rebond avant de basculer, pour rendre la transition plus satisfaisante */
+  function bounceThen(callback){
+    if(bouncing) return;
+    bouncing = true;
+    const before = targetScale;
+    targetScale = before / S.bounce; // léger recul...
+    setTimeout(() => {
+      targetScale = before * S.bounce; // ...puis relance vers l'avant
+      setTimeout(callback, 130);
+    }, 110);
+  }
+
   function animate(){
-    const diff = targetScale - scale;
-    if(Math.abs(diff) > 0.0005){
-      scale += diff * 0.12; // plus la valeur est basse, plus c'est doux
-      stage.style.transform = `scale(${scale})`;
+    const ds = targetScale - scale;
+    const dx = targetTx - tx;
+    const dy = targetTy - ty;
+
+    if(Math.abs(ds) > 0.0005 || Math.abs(dx) > 0.05 || Math.abs(dy) > 0.05){
+      scale += ds * S.smoothing;
+      tx += dx * S.smoothing;
+      ty += dy * S.smoothing;
+      apply();
     }
 
-    if(!navigating){
-      if(scale >= THRESHOLD_IN){
-        const target = nearestSyphonTo(originX, originY);
+    if(!navigating && !bouncing){
+      if(scale >= S.thresholdIn){
+        const target = syphonUnderCursor();
         if(target){
           navigating = true;
-          vortexInto(target, target.getAttribute("href"));
+          bounceThen(() => vortexInto(target, target.getAttribute("href")));
         }
-      } else if(scale <= THRESHOLD_OUT && retourBtn){
+      } else if(scale <= S.thresholdOut && retourBtn){
         navigating = true;
-        zoomOutBack();
+        bounceThen(zoomOutBack);
       }
     }
 
-    rafId = requestAnimationFrame(animate);
+    requestAnimationFrame(animate);
   }
-  rafId = requestAnimationFrame(animate);
+  requestAnimationFrame(animate);
 
   window.addEventListener("wheel", function(e){
     if(navigating) return;
     e.preventDefault();
 
-    // Le point de zoom suit le curseur, sans se caler sur une bulle
-    originX = e.clientX;
-    originY = e.clientY;
-    stage.style.transformOrigin = `${originX}px ${originY}px`;
-    stage.style.transition = "none";
+    const prev = targetScale;
+    let next = prev * Math.exp(-e.deltaY * 0.001 * S.speed);
+    next = Math.min(S.maxScale, Math.max(S.minScale, next));
+    if(next === prev) return;
 
-    // Progression proportionnelle : le zoom avance du même "pas visuel"
-    // quel que soit le niveau actuel, ce qui évite les à-coups
-    targetScale *= Math.exp(-e.deltaY * 0.0012);
-    targetScale = Math.min(MAX_SCALE, Math.max(MIN_SCALE, targetScale));
+    // Garde le point sous le curseur immobile pendant le zoom :
+    // on convertit la position curseur en coordonnées "monde", puis on
+    // recalcule le déplacement pour que ce point retombe au même endroit.
+    const worldX = (e.clientX - targetTx) / prev;
+    const worldY = (e.clientY - targetTy) / prev;
+    targetTx = e.clientX - worldX * next;
+    targetTy = e.clientY - worldY * next;
+    targetScale = next;
   }, { passive: false });
+
+  // Panneau de réglage en direct : tonsite.netlify.app/hub.html?zoomtune=1
+  if(new URLSearchParams(window.location.search).get("zoomtune") === "1"){
+    buildZoomTunePanel();
+  }
+}
+
+/* Panneau de réglage du zoom, pour ajuster sans allers-retours */
+function buildZoomTunePanel(){
+  const fields = [
+    { key: "speed", label: "Vitesse molette", min: 0.2, max: 4, step: 0.1 },
+    { key: "smoothing", label: "Douceur (bas = doux)", min: 0.02, max: 0.4, step: 0.01 },
+    { key: "maxScale", label: "Zoom avant max", min: 2, max: 20, step: 0.5 },
+    { key: "thresholdIn", label: "Seuil d'entrée", min: 1.5, max: 18, step: 0.5 },
+    { key: "minScale", label: "Dézoom max", min: 0.1, max: 0.95, step: 0.05 },
+    { key: "thresholdOut", label: "Seuil de retour", min: 0.15, max: 0.95, step: 0.05 },
+    { key: "bounce", label: "Rebond", min: 1, max: 1.5, step: 0.05 }
+  ];
+
+  const panel = document.createElement("div");
+  panel.className = "edit-panel zoom-tune-panel";
+  panel.innerHTML = `
+    <p><strong>Réglages du zoom</strong></p>
+    ${fields.map(f => `
+      <label class="tune-row">
+        <span>${f.label}</span>
+        <input type="range" data-tune="${f.key}" min="${f.min}" max="${f.max}" step="${f.step}" value="${ZOOM_SETTINGS[f.key]}">
+        <output data-out="${f.key}">${ZOOM_SETTINGS[f.key]}</output>
+      </label>
+    `).join("")}
+    <button id="zoom-copy" class="pill-link">Copier les réglages</button>
+  `;
+  document.body.appendChild(panel);
+
+  panel.querySelectorAll("[data-tune]").forEach(input => {
+    input.addEventListener("input", () => {
+      const key = input.dataset.tune;
+      ZOOM_SETTINGS[key] = parseFloat(input.value);
+      panel.querySelector(`[data-out="${key}"]`).textContent = input.value;
+    });
+  });
+
+  document.getElementById("zoom-copy").addEventListener("click", () => {
+    const json = JSON.stringify(ZOOM_SETTINGS, null, 2);
+    if(navigator.clipboard && navigator.clipboard.writeText){
+      navigator.clipboard.writeText(json).then(() => {
+        alert("Copié ! Colle ce contenu dans data/zoom-settings.json, puis envoie sur GitHub.");
+      }).catch(() => showLayoutFallback(json));
+    } else {
+      showLayoutFallback(json);
+    }
+  });
 }
 
 /* Animation de dézoom qui déclenche le retour (l'inverse de vortexInto) */
@@ -930,6 +1016,33 @@ function renderBlockCanvas(container, layout, editable){
     canvas.style.transform = "none";
     container.style.height = canvasHeight + "px";
     container.style.overflowX = "auto";
+
+    // Poignée pour agrandir/réduire la zone de travail elle-même :
+    // aucune limite imposée, tu places tes blocs où tu veux.
+    const canvasHandle = document.createElement("div");
+    canvasHandle.className = "canvas-resize-handle";
+    canvas.appendChild(canvasHandle);
+
+    let resizingCanvas = false, cStartX, cStartY, cStartW, cStartH;
+    canvasHandle.addEventListener("pointerdown", e => {
+      e.stopPropagation();
+      resizingCanvas = true;
+      cStartX = e.clientX; cStartY = e.clientY;
+      cStartW = canvasWidth; cStartH = canvasHeight;
+      canvasHandle.setPointerCapture(e.pointerId);
+    });
+    canvasHandle.addEventListener("pointermove", e => {
+      if(!resizingCanvas) return;
+      layout.canvasWidth = Math.max(400, cStartW + (e.clientX - cStartX));
+      layout.canvasHeight = Math.max(300, cStartH + (e.clientY - cStartY));
+      canvas.style.width = layout.canvasWidth + "px";
+      canvas.style.height = layout.canvasHeight + "px";
+      container.style.height = layout.canvasHeight + "px";
+    });
+    canvasHandle.addEventListener("pointerup", e => {
+      e.stopPropagation();
+      resizingCanvas = false;
+    });
   } else {
     const rescale = () => {
       const scale = container.clientWidth / canvasWidth;
@@ -968,8 +1081,8 @@ function ensureChapterLayout(project, chapter){
     // Convertit l'affichage par défaut (média + texte) en deux blocs de départ,
     // pour ne pas repartir d'une page blanche.
     CHAPTER_LAYOUTS[project.id][chapter.id] = {
-      canvasWidth: 900,
-      canvasHeight: 460,
+      canvasWidth: 1200,
+      canvasHeight: 800,
       blocks: [
         {
           id: "media-" + chapter.id,
@@ -1000,6 +1113,12 @@ function initChapterEditor(project){
     const layout = ensureChapterLayout(project, chapter);
     const section = document.getElementById("chapter-" + chapter.id);
     if(!section) return;
+
+    // Le chapitre affiche par défaut sa version "média + texte en deux colonnes".
+    // En édition, cette version est remplacée par le canevas — sinon les deux
+    // s'affichaient l'une sous l'autre, ce qui donnait l'impression d'un doublon.
+    section.querySelectorAll(":scope > div:not(.block-canvas-wrapper):not(.block-toolbar)")
+      .forEach(el => el.remove());
 
     let wrapper = section.querySelector(".block-canvas-wrapper");
     if(!wrapper){

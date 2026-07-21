@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Victor Remy — video-realisation</title>
-<link rel="stylesheet" href="css/style.css?v=1784637122">
+<link rel="stylesheet" href="css/style.css?v=1784638036">
 </head>
 <body>
 
@@ -23,13 +23,13 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-<script src="js/branches-config.js?v=1784637122"></script>
-<script src="js/main.js?v=1784637122"></script>
+<script src="js/branches-config.js?v=1784638036"></script>
+<script src="js/main.js?v=1784638036"></script>
 <script>
   initZoomTransitions();
   initInfoBubbles();
   initProjectPopups();
-  initWheelZoom();
+  loadZoomSettings().then(() => initWheelZoom());
   bindRetourButton();
 
   Promise.all([loadLayoutData(), loadChapterLayouts(), loadProjectsData()]).then(() => {
