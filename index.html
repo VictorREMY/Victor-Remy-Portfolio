@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Victor Remy — Accueil</title>
-<link rel="stylesheet" href="css/style.css?v=1784628464">
+<link rel="stylesheet" href="css/style.css?v=1784630142">
 </head>
 <body>
 
@@ -23,8 +23,8 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-<script src="js/branches-config.js?v=1784628464"></script>
-<script src="js/main.js?v=1784628464"></script>
+<script src="js/branches-config.js?v=1784630142"></script>
+<script src="js/main.js?v=1784630142"></script>
 <script>
   initZoomTransitions();
   initInfoBubbles();
@@ -32,7 +32,7 @@
   initWheelZoom();
   
 
-  loadLayoutData().then(() => {
+  Promise.all([loadLayoutData(), loadChapterLayouts()]).then(() => {
     renderSyphons("syphon-field", [{ label: "Victor Remy", href: "hub.html", key: "home" }]);
     initEditMode();
   });

@@ -37,6 +37,18 @@ function loadLayoutData(){
     .catch(() => { LAYOUT = {}; return LAYOUT; });
 }
 
+/* Dispositions personnalisées du CONTENU d'un chapitre (blocs texte/image/
+   vidéo positionnés librement). Format :
+   { "id-du-projet": { "id-du-chapitre": { canvasWidth, canvasHeight, blocks:[...] } } } */
+let CHAPTER_LAYOUTS = {};
+
+function loadChapterLayouts(){
+  return fetch("data/chapter-layouts.json")
+    .then(response => response.json())
+    .then(data => { CHAPTER_LAYOUTS = data || {}; return CHAPTER_LAYOUTS; })
+    .catch(() => { CHAPTER_LAYOUTS = {}; return CHAPTER_LAYOUTS; });
+}
+
 function currentPageKey(){
   return window.location.pathname.split("/").pop() || "index.html";
 }
@@ -450,9 +462,9 @@ function initWheelZoom(){
   if(!stage) return;
 
   const MAX_SCALE = 6;       // niveau de zoom avant max
-  const THRESHOLD_IN = 4;    // seuil pour déclencher l'entrée dans le syphon (plus haut = plus de marge pour "se déplacer" avant que ça bascule)
-  const MIN_SCALE = 0.4;     // niveau de dézoom max
-  const THRESHOLD_OUT = 0.65; // seuil pour déclencher le retour
+  const THRESHOLD_IN = 4;    // seuil pour déclencher l'entrée dans le syphon
+  const MIN_SCALE = 0.12;    // niveau de dézoom max
+  const THRESHOLD_OUT = 0.3; // seuil pour déclencher le retour (plus bas = plus de marge avant que ça bascule)
 
   let scale = 1;
   let target = null;
@@ -472,6 +484,19 @@ function initWheelZoom(){
     applyStage(false, "50% 50%");
   }
 
+  /* Trouve le syphon le plus proche du curseur, peu importe si la souris
+     est pile dessus ou juste quelque part sur la page — permet de zoomer
+     "dans l'espace" depuis n'importe où, pas seulement en survolant une bulle. */
+  function findNearestSyphon(x, y){
+    let nearest = null, minDist = Infinity;
+    document.querySelectorAll(".syphon").forEach(el => {
+      const rect = el.getBoundingClientRect();
+      const dist = Math.hypot((rect.left + rect.width / 2) - x, (rect.top + rect.height / 2) - y);
+      if(dist < minDist){ minDist = dist; nearest = el; }
+    });
+    return nearest;
+  }
+
   window.addEventListener("wheel", function(e){
     if(navigating) return;
     e.preventDefault();
@@ -479,13 +504,12 @@ function initWheelZoom(){
     const zoomingIn = e.deltaY < 0;
 
     if(zoomingIn){
-      // ---------- Zoom avant : besoin d'un syphon sous le curseur ----------
+      // ---------- Zoom avant : cible la bulle la plus proche, où que soit la souris ----------
       if(!target){
-        const hovered = document.elementFromPoint(e.clientX, e.clientY);
-        const syphon = hovered ? hovered.closest(".syphon") : null;
-        if(!syphon) return;
-        target = syphon;
-        const rect = syphon.getBoundingClientRect();
+        const nearest = findNearestSyphon(e.clientX, e.clientY);
+        if(!nearest) return;
+        target = nearest;
+        const rect = target.getBoundingClientRect();
         stage.style.transformOrigin = `${rect.left + rect.width / 2}px ${rect.top + rect.height / 2}px`;
       }
 
@@ -747,16 +771,24 @@ function buildProjectDetailHTML(project){
     </div>
   ` : "";
 
-  const sectionsHTML = chapters.map(c => `
+  const projectLayouts = CHAPTER_LAYOUTS[project.id] || {};
+
+  const sectionsHTML = chapters.map(c => {
+    const customLayout = projectLayouts[c.id];
+    const bodyHTML = (customLayout && customLayout.blocks && customLayout.blocks.length)
+      ? `<div class="block-canvas-wrapper" data-canvas-chapter="${project.id}:${c.id}"></div>`
+      : `<div style="display:grid; grid-template-columns: minmax(280px, 480px) 1fr; gap: var(--gap-lg); margin-top: var(--gap-md); align-items:start;">
+          <div>${buildMediaBlock(c.media)}</div>
+          <div class="markdown-content">${renderMarkdown(c.description)}</div>
+        </div>`;
+    return `
     <section class="chapter-section" id="chapter-${c.id}">
       ${hasChapters ? `<h2>${c.title}</h2>` : ""}
       <p class="muted" style="margin-top:0.3rem;">${c.role || ""}${c.credits ? " — " + c.credits : ""}</p>
-      <div style="display:grid; grid-template-columns: minmax(280px, 480px) 1fr; gap: var(--gap-lg); margin-top: var(--gap-md); align-items:start;">
-        <div>${buildMediaBlock(c.media)}</div>
-        <div class="markdown-content">${renderMarkdown(c.description)}</div>
-      </div>
+      ${bodyHTML}
     </section>
-  `).join(hasChapters ? '<hr class="chapter-divider">' : "");
+  `;
+  }).join(hasChapters ? '<hr class="chapter-divider">' : "");
 
   return `
     <p class="eyebrow" style="margin-bottom:0.6rem;">${project.year}</p>
@@ -782,7 +814,10 @@ function renderProjectDetail(containerId, pathId){
   }
 
   if(pathEl){
-    const pathParts = ["hub", ...projectTags(project).map(t => BRANCHES[t] ? BRANCHES[t].label.toLowerCase() : t)];
+    const hasChapters = Array.isArray(project.chapters) && project.chapters.length > 0;
+    const pathParts = hasChapters
+      ? ["hub"]
+      : ["hub", ...projectTags(project).map(t => BRANCHES[t] ? BRANCHES[t].label.toLowerCase() : t)];
     pathEl.textContent = pathParts.join(" / ") + " / " + project.title.toLowerCase();
   }
 
@@ -846,6 +881,7 @@ function openProjectPopup(id, contextTag){
   const popupEl = document.getElementById("project-popup");
   popupEl.style.background = project.popup_bg ? project.popup_bg : "";
   bindChapterTabs(content, popupEl);
+  mountBlockCanvases(content);
 
   document.getElementById("project-popup-backdrop").classList.add("visible");
   popupEl.classList.add("open");
@@ -856,4 +892,320 @@ function openProjectPopup(id, contextTag){
     const target = project.chapters.find(c => (c.tags || []).includes(contextTag));
     if(target) scrollToChapter(popupEl, target.id, true);
   }
+}
+
+/* ==========================================================
+   CANEVAS DE BLOCS (contenu libre d'un chapitre)
+   Chaque chapitre peut avoir une disposition personnalisée :
+   des blocs (texte, image, vidéo) positionnés librement, avec
+   alignement magnétique entre eux en mode édition. Sans
+   disposition personnalisée, l'ancien affichage (média + texte
+   en deux colonnes) reste utilisé.
+   ========================================================== */
+
+/* Affiche tous les canevas présents dans une portion de page (mode lecture) */
+function mountBlockCanvases(scopeEl){
+  scopeEl.querySelectorAll("[data-canvas-chapter]").forEach(container => {
+    const [projectId, chapterId] = container.dataset.canvasChapter.split(":");
+    const layout = (CHAPTER_LAYOUTS[projectId] || {})[chapterId];
+    if(!layout) return;
+    renderBlockCanvas(container, layout, false);
+  });
+}
+
+/* Construit le canevas lui-même (utilisé en lecture ET en édition) */
+function renderBlockCanvas(container, layout, editable){
+  container.innerHTML = "";
+  const canvasWidth = layout.canvasWidth || 900;
+  const canvasHeight = layout.canvasHeight || 460;
+
+  const canvas = document.createElement("div");
+  canvas.className = "block-canvas";
+  canvas.style.width = canvasWidth + "px";
+  canvas.style.height = canvasHeight + "px";
+
+  (layout.blocks || []).forEach(block => {
+    const el = document.createElement("div");
+    el.className = "content-block";
+    el.dataset.blockId = block.id;
+    el.style.left = block.x + "px";
+    el.style.top = block.y + "px";
+    el.style.width = block.w + "px";
+    el.style.height = block.h + "px";
+    fillBlockContent(el, block);
+    canvas.appendChild(el);
+  });
+
+  container.appendChild(canvas);
+  container.classList.toggle("editable", !!editable);
+
+  if(editable){
+    canvas.style.transform = "none";
+    container.style.height = canvasHeight + "px";
+    container.style.overflowX = "auto";
+  } else {
+    const rescale = () => {
+      const scale = container.clientWidth / canvasWidth;
+      canvas.style.transform = `scale(${scale})`;
+      container.style.height = (canvasHeight * scale) + "px";
+    };
+    if(window.ResizeObserver){
+      new ResizeObserver(rescale).observe(container);
+    }
+    rescale();
+  }
+
+  return canvas;
+}
+
+function fillBlockContent(el, block){
+  if(block.type === "text"){
+    el.classList.add("markdown-content");
+    el.innerHTML = renderMarkdown(block.content || "");
+  } else if(block.type === "image"){
+    el.innerHTML = block.url
+      ? `<img src="${block.url}" alt="" style="width:100%; height:100%; object-fit:cover;">`
+      : `<div class="thumb" style="width:100%; height:100%;">image à venir</div>`;
+  } else if(block.type === "video"){
+    el.innerHTML = block.url
+      ? buildMediaBlock({ type: block.videoType || "youtube", url: block.url })
+      : `<div class="thumb" style="width:100%; height:100%;">vidéo à venir</div>`;
+  }
+}
+
+/* ---------- Mode édition des blocs (accessible via projet.html?id=...&edit=1) ---------- */
+
+function ensureChapterLayout(project, chapter){
+  CHAPTER_LAYOUTS[project.id] = CHAPTER_LAYOUTS[project.id] || {};
+  if(!CHAPTER_LAYOUTS[project.id][chapter.id]){
+    // Convertit l'affichage par défaut (média + texte) en deux blocs de départ,
+    // pour ne pas repartir d'une page blanche.
+    CHAPTER_LAYOUTS[project.id][chapter.id] = {
+      canvasWidth: 900,
+      canvasHeight: 460,
+      blocks: [
+        {
+          id: "media-" + chapter.id,
+          type: (chapter.media && chapter.media.type !== "pending") ? "video" : "image",
+          url: chapter.media ? (chapter.media.url || "") : "",
+          videoType: chapter.media ? chapter.media.type : "youtube",
+          x: 20, y: 20, w: 420, h: 260
+        },
+        {
+          id: "text-" + chapter.id,
+          type: "text",
+          content: chapter.description || "",
+          x: 460, y: 20, w: 420, h: 420
+        }
+      ]
+    };
+  }
+  return CHAPTER_LAYOUTS[project.id][chapter.id];
+}
+
+function initChapterEditor(project){
+  const hasChapters = Array.isArray(project.chapters) && project.chapters.length > 0;
+  const chapters = hasChapters ? project.chapters : [{
+    id: "main", media: project.media, description: project.description
+  }];
+
+  chapters.forEach(chapter => {
+    const layout = ensureChapterLayout(project, chapter);
+    const section = document.getElementById("chapter-" + chapter.id);
+    if(!section) return;
+
+    let wrapper = section.querySelector(".block-canvas-wrapper");
+    if(!wrapper){
+      wrapper = document.createElement("div");
+      wrapper.dataset.canvasChapter = project.id + ":" + chapter.id;
+      section.appendChild(wrapper);
+    }
+    wrapper.className = "block-canvas-wrapper";
+
+    const toolbar = document.createElement("div");
+    toolbar.className = "block-toolbar";
+    toolbar.innerHTML = `
+      <button data-add="text">+ Texte</button>
+      <button data-add="image">+ Image</button>
+      <button data-add="video">+ Vidéo</button>
+    `;
+    section.insertBefore(toolbar, wrapper);
+
+    function render(){
+      const canvas = renderBlockCanvas(wrapper, layout, true);
+      bindBlockInteractions(wrapper, canvas, layout, render);
+    }
+    render();
+
+    toolbar.querySelectorAll("[data-add]").forEach(btn => {
+      btn.addEventListener("click", () => {
+        const type = btn.dataset.add;
+        const id = type + "-" + Date.now();
+        const block = { id, type, x: 40, y: 40, w: 260, h: type === "text" ? 140 : 200 };
+        if(type === "text") block.content = "Nouveau texte";
+        if(type === "image") block.url = "";
+        if(type === "video"){ block.url = ""; block.videoType = "youtube"; }
+        layout.blocks.push(block);
+        render();
+      });
+    });
+  });
+
+  buildChapterEditPanel();
+}
+
+function bindBlockInteractions(wrapper, canvas, layout, rerender){
+  const SNAP = 6;
+
+  let guideX = canvas.querySelector(".snap-guide-x");
+  let guideY = canvas.querySelector(".snap-guide-y");
+  if(!guideX){ guideX = document.createElement("div"); guideX.className = "snap-guide-x"; canvas.appendChild(guideX); }
+  if(!guideY){ guideY = document.createElement("div"); guideY.className = "snap-guide-y"; canvas.appendChild(guideY); }
+
+  canvas.querySelectorAll(".content-block").forEach(el => {
+    const block = layout.blocks.find(b => b.id === el.dataset.blockId);
+    if(!block) return;
+
+    const del = document.createElement("button");
+    del.className = "block-delete";
+    del.textContent = "✕";
+    del.addEventListener("pointerdown", e => e.stopPropagation());
+    del.addEventListener("click", e => {
+      e.stopPropagation();
+      layout.blocks = layout.blocks.filter(b => b.id !== block.id);
+      rerender();
+    });
+    el.appendChild(del);
+
+    const handle = document.createElement("div");
+    handle.className = "block-resize-handle";
+    el.appendChild(handle);
+
+    if(block.type === "text"){
+      el.addEventListener("dblclick", e => {
+        if(e.target === handle || e.target === del) return;
+        const textarea = document.createElement("textarea");
+        textarea.className = "block-edit-textarea";
+        textarea.value = block.content || "";
+        el.innerHTML = "";
+        el.appendChild(textarea);
+        textarea.focus();
+        textarea.addEventListener("pointerdown", ev => ev.stopPropagation());
+        textarea.addEventListener("blur", () => {
+          block.content = textarea.value;
+          rerender();
+        });
+      });
+    } else {
+      el.addEventListener("dblclick", e => {
+        if(e.target === handle || e.target === del) return;
+        const label = block.type === "image" ? "URL de l'image" : "URL de la vidéo (YouTube ou Spotify)";
+        const url = prompt(label + " :", block.url || "");
+        if(url !== null){ block.url = url; rerender(); }
+      });
+    }
+
+    let dragging = false, startX, startY, startBX, startBY;
+    el.addEventListener("pointerdown", e => {
+      if(e.target === handle || e.target === del || e.target.tagName === "TEXTAREA") return;
+      dragging = true;
+      startX = e.clientX; startY = e.clientY;
+      startBX = block.x; startBY = block.y;
+      el.setPointerCapture(e.pointerId);
+    });
+    el.addEventListener("pointermove", e => {
+      if(!dragging) return;
+      const scale = canvas.getBoundingClientRect().width / layout.canvasWidth;
+      const nx = startBX + (e.clientX - startX) / scale;
+      const ny = startBY + (e.clientY - startY) / scale;
+      const snapped = applySnap(block, nx, ny, layout.blocks, SNAP, guideX, guideY);
+      block.x = snapped.x; block.y = snapped.y;
+      el.style.left = block.x + "px";
+      el.style.top = block.y + "px";
+    });
+    el.addEventListener("pointerup", () => {
+      dragging = false;
+      guideX.style.display = "none";
+      guideY.style.display = "none";
+    });
+
+    let resizing = false, startW, startH;
+    handle.addEventListener("pointerdown", e => {
+      e.stopPropagation();
+      resizing = true;
+      startX = e.clientX; startY = e.clientY;
+      startW = block.w; startH = block.h;
+      handle.setPointerCapture(e.pointerId);
+    });
+    handle.addEventListener("pointermove", e => {
+      if(!resizing) return;
+      const scale = canvas.getBoundingClientRect().width / layout.canvasWidth;
+      block.w = Math.max(80, startW + (e.clientX - startX) / scale);
+      block.h = Math.max(60, startH + (e.clientY - startY) / scale);
+      el.style.width = block.w + "px";
+      el.style.height = block.h + "px";
+    });
+    handle.addEventListener("pointerup", e => {
+      e.stopPropagation();
+      resizing = false;
+    });
+  });
+}
+
+/* Aligne un bloc en cours de déplacement sur les bords/centres des autres
+   blocs quand ils sont proches (comme les guides de Figma/Canva). */
+function applySnap(block, x, y, allBlocks, threshold, guideXEl, guideYEl){
+  let snappedX = x, snappedY = y, foundX = false, foundY = false;
+  const edgesX = [x, x + block.w / 2, x + block.w];
+  const edgesY = [y, y + block.h / 2, y + block.h];
+
+  allBlocks.forEach(other => {
+    if(other.id === block.id) return;
+    const oEdgesX = [other.x, other.x + other.w / 2, other.x + other.w];
+    const oEdgesY = [other.y, other.y + other.h / 2, other.y + other.h];
+
+    edgesX.forEach(ex => oEdgesX.forEach(oex => {
+      if(Math.abs(ex - oex) < threshold){
+        snappedX = x + (oex - ex);
+        foundX = true;
+        guideXEl.style.left = oex + "px";
+        guideXEl.style.display = "block";
+      }
+    }));
+    edgesY.forEach(ey => oEdgesY.forEach(oey => {
+      if(Math.abs(ey - oey) < threshold){
+        snappedY = y + (oey - ey);
+        foundY = true;
+        guideYEl.style.top = oey + "px";
+        guideYEl.style.display = "block";
+      }
+    }));
+  });
+
+  if(!foundX) guideXEl.style.display = "none";
+  if(!foundY) guideYEl.style.display = "none";
+  return { x: snappedX, y: snappedY };
+}
+
+function buildChapterEditPanel(){
+  if(document.getElementById("chapter-edit-panel")) return;
+  const panel = document.createElement("div");
+  panel.id = "chapter-edit-panel";
+  panel.className = "edit-panel";
+  panel.innerHTML = `
+    <p><strong>Édition des blocs</strong> — glisse/redimensionne, double-clic pour éditer un texte ou une URL.</p>
+    <button id="chapter-copy" class="pill-link">Copier la disposition</button>
+  `;
+  document.body.appendChild(panel);
+
+  document.getElementById("chapter-copy").addEventListener("click", () => {
+    const json = JSON.stringify(CHAPTER_LAYOUTS, null, 2);
+    if(navigator.clipboard && navigator.clipboard.writeText){
+      navigator.clipboard.writeText(json).then(() => {
+        alert("Copié ! Colle ce contenu dans data/chapter-layouts.json, puis envoie ce fichier sur GitHub.");
+      }).catch(() => showLayoutFallback(json));
+    } else {
+      showLayoutFallback(json);
+    }
+  });
 }

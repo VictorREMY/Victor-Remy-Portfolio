@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Victor Remy — Projet</title>
-<link rel="stylesheet" href="css/style.css?v=1784628464">
+<link rel="stylesheet" href="css/style.css?v=1784630142">
 </head>
 <body class="project-sober-bg">
 
@@ -21,13 +21,21 @@
 </main>
 
 <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-<script src="js/branches-config.js?v=1784628464"></script>
-<script src="js/main.js?v=1784628464"></script>
+<script src="js/branches-config.js?v=1784630142"></script>
+<script src="js/main.js?v=1784630142"></script>
 <script>
   initInfoBubbles();
 
-  loadProjectsData().then(() => {
+  Promise.all([loadProjectsData(), loadChapterLayouts()]).then(() => {
     renderProjectDetail("project-detail", "path-text");
+    const container = document.getElementById("project-detail");
+    mountBlockCanvases(container);
+
+    const params = new URLSearchParams(window.location.search);
+    if(params.get("edit") === "1"){
+      const project = PROJECTS.find(p => p.id === params.get("id"));
+      if(project) initChapterEditor(project);
+    }
   });
 
   // Fond statique ici : le retour n'a pas besoin de l'effet zoom, juste l'historique

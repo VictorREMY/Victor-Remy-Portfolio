@@ -300,10 +300,14 @@ em{ font-style: italic; color: var(--gold); }
   position: fixed;
   top: 4.5rem;
   left: var(--gap-xl);
+  right: var(--gap-xl);
   z-index: 50;
   font-family: var(--font-mono);
   font-size: 0.75rem;
   color: var(--muted);
+  max-width: 70ch;
+  line-height: 1.5;
+  overflow-wrap: break-word;
 }
 
 /* Bouton retour, bas gauche */
@@ -617,3 +621,101 @@ em{ font-style: italic; color: var(--gold); }
 .project-sober-bg{
   background: var(--bg-alt);
 }
+
+/* ---------- Canevas de blocs (contenu libre d'un chapitre) ---------- */
+.block-canvas-wrapper{
+  position: relative;
+  width: 100%;
+  margin-top: var(--gap-md);
+  overflow: hidden;
+}
+.block-canvas-wrapper.editable{
+  border: 1px dashed var(--line);
+  overflow-x: auto;
+}
+.block-canvas{
+  position: relative;
+  transform-origin: top left;
+}
+.content-block{
+  position: absolute;
+  overflow: auto;
+}
+.content-block.markdown-content{
+  padding: 0.4rem;
+  max-width: none;
+}
+.block-canvas-wrapper.editable .content-block{
+  cursor: grab;
+  border: 1px solid transparent;
+}
+.block-canvas-wrapper.editable .content-block:hover{
+  border-color: var(--line);
+}
+.block-delete{
+  position: absolute;
+  top: -0.4rem;
+  right: -0.4rem;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 1px solid var(--line);
+  background: var(--bg);
+  color: var(--muted);
+  font-size: 0.6rem;
+  cursor: pointer;
+  display: none;
+}
+.block-canvas-wrapper.editable .content-block:hover .block-delete{
+  display: block;
+}
+.block-resize-handle{
+  position: absolute;
+  bottom: -4px;
+  right: -4px;
+  width: 12px;
+  height: 12px;
+  border: 2px solid var(--gold);
+  background: var(--bg);
+  cursor: nwse-resize;
+  display: none;
+}
+.block-canvas-wrapper.editable .content-block:hover .block-resize-handle{
+  display: block;
+}
+.block-edit-textarea{
+  width: 100%;
+  height: 100%;
+  border: none;
+  resize: none;
+  font-family: var(--font-body);
+  font-size: 0.9rem;
+  padding: 0.4rem;
+  background: var(--bg-alt);
+  color: var(--ink);
+}
+.snap-guide-x, .snap-guide-y{
+  position: absolute;
+  background: var(--cyan);
+  display: none;
+  pointer-events: none;
+  z-index: 10;
+}
+.snap-guide-x{ top: 0; bottom: 0; width: 1px; }
+.snap-guide-y{ left: 0; right: 0; height: 1px; }
+
+.block-toolbar{
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.8rem;
+}
+.block-toolbar button{
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  padding: 0.4em 0.9em;
+  border: 1px solid var(--line);
+  background: none;
+  color: var(--muted);
+  cursor: pointer;
+}
+.block-toolbar button:hover{ color: var(--ink); border-color: var(--muted); }
