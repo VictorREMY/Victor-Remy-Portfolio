@@ -135,6 +135,11 @@ function initZoomTransitions(){
 /* Zoome depuis un point (x,y) donné vers une page cible */
 function zoomToPage(x, y, targetUrl){
   sessionStorage.setItem("zoomOrigin", JSON.stringify({ x, y }));
+  // En mode édition, on garde ?edit=1 en changeant de page à syphons,
+  // pour pouvoir continuer à éditer sans re-taper l'adresse.
+  if(isEditMode() && targetUrl.endsWith(".html") && !targetUrl.includes("projet.html")){
+    targetUrl += "?edit=1";
+  }
   zoomThenRun(x, y, () => { window.location.href = targetUrl; });
 }
 
@@ -318,7 +323,6 @@ function isEditMode(){
 }
 
 function bindSyphonClicks(field){
-  if(isEditMode()) return; // en édition, le clic sert à glisser, pas à naviguer
   field.querySelectorAll("[data-syphon]").forEach(el => {
     el.addEventListener("click", function(e){
       e.preventDefault();
@@ -345,13 +349,16 @@ function initEditMode(){
   document.body.classList.add("edit-mode");
 
   let dragEl = null, offsetX = 0, offsetY = 0;
+  let startX = 0, startY = 0, moved = false;
+  const DRAG_THRESHOLD = 5; // px : en dessous, c'est un clic, pas un glisser
 
   document.addEventListener("pointerdown", function(e){
     const syphon = e.target.closest(".syphon");
     if(!syphon) return;
-    e.preventDefault();
     dragEl = syphon;
-    dragEl.classList.add("dragging");
+    moved = false;
+    startX = e.clientX;
+    startY = e.clientY;
     const rect = syphon.getBoundingClientRect();
     offsetX = e.clientX - (rect.left + rect.width / 2);
     offsetY = e.clientY - (rect.top + rect.height / 2);
@@ -359,6 +366,10 @@ function initEditMode(){
 
   document.addEventListener("pointermove", function(e){
     if(!dragEl) return;
+    // On ne considère que c'est un glisser qu'après un vrai déplacement,
+    // pour ne pas empêcher le clic simple de naviguer.
+    if(!moved && Math.hypot(e.clientX - startX, e.clientY - startY) < DRAG_THRESHOLD) return;
+    if(!moved){ moved = true; dragEl.classList.add("dragging"); }
     const xPct = ((e.clientX - offsetX) / window.innerWidth) * 100;
     const yPct = ((e.clientY - offsetY) / window.innerHeight) * 100;
     dragEl.style.left = clampPct(xPct) + "%";
@@ -366,13 +377,17 @@ function initEditMode(){
   });
 
   document.addEventListener("pointerup", function(){
-    dragEl = dragEl && dragEl.classList.remove("dragging");
+    if(dragEl) dragEl.classList.remove("dragging");
     dragEl = null;
   });
 
-  // En mode édition, un clic sur une bulle ne doit jamais naviguer
+  // Un clic sur une bulle ne bloque la navigation QUE si on vient de la déplacer
   document.addEventListener("click", function(e){
-    if(e.target.closest(".syphon")) e.preventDefault();
+    if(moved && e.target.closest(".syphon")){
+      e.preventDefault();
+      e.stopPropagation();
+      moved = false;
+    }
   }, true);
 
   buildPositionsSection();
@@ -524,11 +539,15 @@ function initWheelZoom(){
 
   const S = ZOOM_SETTINGS;
 
-  // On gère nous-mêmes le déplacement (tx, ty) en plus de l'échelle, plutôt
-  // que de bouger le point d'ancrage : c'est ce qui garantit que le point
-  // sous le curseur reste exactement sous le curseur pendant le zoom.
+  // On lisse UNIQUEMENT l'échelle. La translation est recalculée à chaque
+  // frame à partir de l'échelle affichée, autour d'un point d'ancrage fixe
+  // (le dernier point visé par la molette). Ainsi le point sous le curseur
+  // reste rigoureusement immobile, sans décalage latéral pendant le lissage.
   let scale = 1, targetScale = 1;
-  let tx = 0, ty = 0, targetTx = 0, targetTy = 0;
+  let anchorScreenX = window.innerWidth / 2;   // point d'ancrage à l'écran
+  let anchorScreenY = window.innerHeight / 2;
+  let anchorWorldX = window.innerWidth / 2;    // même point en coordonnées "monde"
+  let anchorWorldY = window.innerHeight / 2;
   let navigating = false;
   let bouncing = false;
   const retourBtn = document.querySelector("[data-retour]");
@@ -536,6 +555,9 @@ function initWheelZoom(){
   stage.style.transformOrigin = "0 0";
 
   function apply(){
+    // tx/ty déduits : on veut anchorWorld * scale + t = anchorScreen
+    const tx = anchorScreenX - anchorWorldX * scale;
+    const ty = anchorScreenY - anchorWorldY * scale;
     stage.style.transform = `translate(${tx}px, ${ty}px) scale(${scale})`;
   }
 
@@ -562,13 +584,8 @@ function initWheelZoom(){
 
   function animate(){
     const ds = targetScale - scale;
-    const dx = targetTx - tx;
-    const dy = targetTy - ty;
-
-    if(Math.abs(ds) > 0.0005 || Math.abs(dx) > 0.05 || Math.abs(dy) > 0.05){
+    if(Math.abs(ds) > 0.0005){
       scale += ds * S.smoothing;
-      tx += dx * S.smoothing;
-      ty += dy * S.smoothing;
       apply();
     }
 
@@ -601,13 +618,17 @@ function initWheelZoom(){
     next = Math.min(S.maxScale, Math.max(S.minScale, next));
     if(next === prev) return;
 
-    // Garde le point sous le curseur immobile pendant le zoom :
-    // on convertit la position curseur en coordonnées "monde", puis on
-    // recalcule le déplacement pour que ce point retombe au même endroit.
-    const worldX = (e.clientX - targetTx) / prev;
-    const worldY = (e.clientY - targetTy) / prev;
-    targetTx = e.clientX - worldX * next;
-    targetTy = e.clientY - worldY * next;
+    // On recale le point d'ancrage sur la position actuelle du curseur, en
+    // convertissant cette position écran en coordonnées "monde" via l'échelle
+    // AFFICHÉE du moment (pas la cible) — ce qui garde la continuité même en
+    // plein lissage. À partir de là, apply() maintiendra ce point fixe.
+    const tx = anchorScreenX - anchorWorldX * scale;
+    const ty = anchorScreenY - anchorWorldY * scale;
+    anchorScreenX = e.clientX;
+    anchorScreenY = e.clientY;
+    anchorWorldX = (e.clientX - tx) / scale;
+    anchorWorldY = (e.clientY - ty) / scale;
+
     targetScale = next;
   }, { passive: false });
 }
