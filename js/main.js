@@ -147,7 +147,7 @@ function zoomThenRun(x, y, callback){
       { clipPath: `circle(0px at ${x}px ${y}px)` },
       { clipPath: `circle(${r}px at ${x}px ${y}px)` }
     ],
-    { duration: 700, easing: "cubic-bezier(0.65, 0, 0.35, 1)", fill: "forwards" }
+    { duration: 650, easing: "cubic-bezier(0.5, 0, 0.75, 0.35)", fill: "forwards" }
   );
   anim.onfinish = callback;
 }
@@ -159,13 +159,16 @@ function vortexInto(syphonEl, targetUrl){
   const x = rect.left + rect.width / 2;
   const y = rect.top + rect.height / 2;
 
+  // Expansion nette depuis le centre exact du syphon, sans rotation
+  // (la rotation combinée au zoom de fond donnait un effet de ballotement).
   syphonEl.style.zIndex = "500";
+  syphonEl.style.transformOrigin = "center center";
   syphonEl.animate(
     [
-      { transform: "translate(-50%, -50%) scale(1) rotate(0deg)", opacity: 1 },
-      { transform: "translate(-50%, -50%) scale(22) rotate(240deg)", opacity: 0 }
+      { transform: "translate(-50%, -50%) scale(1)", opacity: 1 },
+      { transform: "translate(-50%, -50%) scale(14)", opacity: 0 }
     ],
-    { duration: 700, easing: "cubic-bezier(0.65, 0, 0.35, 1)", fill: "forwards" }
+    { duration: 650, easing: "cubic-bezier(0.5, 0, 0.75, 0.35)", fill: "forwards" }
   );
 
   zoomToPage(x, y, targetUrl);
@@ -372,7 +375,9 @@ function initEditMode(){
     if(e.target.closest(".syphon")) e.preventDefault();
   }, true);
 
-  buildEditPanel();
+  buildPositionsSection();
+  buildZoomSection();
+  buildAppearanceSection();
 }
 
 const EDITABLE_PAGES = [
@@ -389,45 +394,83 @@ const EDITABLE_PAGES = [
   { v: "vfx-video.html", l: "VFX / Basé sur vidéo" }
 ];
 
-function buildEditPanel(){
+/* --- Section "Positions des bulles" --- */
+function buildPositionsSection(){
   const current = currentPageKey();
   const options = EDITABLE_PAGES.map(p =>
     `<option value="${p.v}" ${p.v === current ? "selected" : ""}>${p.l}</option>`
   ).join("");
 
-  const panel = document.createElement("div");
-  panel.className = "edit-panel";
-  panel.innerHTML = `
-    <p><strong>Mode édition</strong> — glisse les bulles.</p>
-    <select id="edit-page-switch" class="pill-link">${options}</select>
-    <button id="edit-copy" class="pill-link">Copier toutes les pages modifiées</button>
-    <a href="${window.location.pathname}" class="pill-link">Quitter sans sauvegarder</a>
+  const content = document.createElement("div");
+  content.innerHTML = `
+    <p class="edit-hint">Glisse les bulles pour les repositionner.</p>
+    <label class="tune-row-full">Page : <select id="edit-page-switch">${options}</select></label>
   `;
-  document.body.appendChild(panel);
 
-  // Changer de page en édition : on garde en mémoire ce qui vient d'être fait ici
-  document.getElementById("edit-page-switch").addEventListener("change", function(){
-    saveEditSessionForCurrentPage();
-    window.location.href = this.value + "?edit=1";
-  });
-
-  document.getElementById("edit-copy").addEventListener("click", function(){
+  const copyBtn = buildCopyButton("Copier les positions", () => {
     saveEditSessionForCurrentPage();
     const session = getEditSession();
-    const merged = JSON.parse(JSON.stringify(LAYOUT)); // copie du fichier tel qu'il était déjà
+    const merged = JSON.parse(JSON.stringify(LAYOUT));
     Object.keys(session).forEach(page => {
       merged[page] = Object.assign({}, merged[page] || {}, session[page]);
     });
-    const json = JSON.stringify(merged, null, 2);
+    return JSON.stringify(merged, null, 2);
+  }, "data/layout.json");
+  content.appendChild(copyBtn);
 
-    if(navigator.clipboard && navigator.clipboard.writeText){
-      navigator.clipboard.writeText(json).then(() => {
-        alert("Copié ! Ça inclut toutes les pages modifiées pendant cette session. Colle ce contenu dans data/layout.json, puis envoie ce fichier sur GitHub.");
-      }).catch(() => showLayoutFallback(json));
-    } else {
-      showLayoutFallback(json);
-    }
+  addEditSection("Positions des bulles", content, true);
+
+  content.querySelector("#edit-page-switch").addEventListener("change", function(){
+    saveEditSessionForCurrentPage();
+    window.location.href = this.value + "?edit=1";
   });
+}
+
+/* --- Section "Zoom" --- */
+function buildZoomSection(){
+  const fields = [
+    { key: "speed", label: "Vitesse molette", min: 0.2, max: 4, step: 0.1 },
+    { key: "smoothing", label: "Douceur (bas = doux)", min: 0.02, max: 0.4, step: 0.01 },
+    { key: "maxScale", label: "Zoom avant max", min: 2, max: 20, step: 0.5 },
+    { key: "thresholdIn", label: "Seuil d'entrée", min: 1.5, max: 18, step: 0.5 },
+    { key: "minScale", label: "Dézoom max", min: 0.1, max: 0.95, step: 0.05 },
+    { key: "thresholdOut", label: "Seuil de retour", min: 0.15, max: 0.95, step: 0.05 },
+    { key: "bounce", label: "Rebond", min: 1, max: 1.5, step: 0.05 }
+  ];
+  const content = document.createElement("div");
+  content.appendChild(buildSliderGroup(ZOOM_SETTINGS, fields));
+  content.appendChild(buildCopyButton("Copier les réglages du zoom",
+    () => JSON.stringify(ZOOM_SETTINGS, null, 2), "data/zoom-settings.json"));
+  addEditSection("Zoom", content, false);
+}
+
+/* --- Section "Apparence" (coins arrondis, etc.) --- */
+const APPEARANCE_SETTINGS = { radius: 0 };
+
+function loadAppearanceSettings(){
+  return fetch("data/appearance-settings.json")
+    .then(r => r.json())
+    .then(data => {
+      Object.assign(APPEARANCE_SETTINGS, data || {});
+      applyAppearance();
+      return APPEARANCE_SETTINGS;
+    })
+    .catch(() => APPEARANCE_SETTINGS);
+}
+
+function applyAppearance(){
+  document.documentElement.style.setProperty("--radius", APPEARANCE_SETTINGS.radius + "px");
+}
+
+function buildAppearanceSection(){
+  const fields = [
+    { key: "radius", label: "Coins arrondis (px)", min: 0, max: 40, step: 1 }
+  ];
+  const content = document.createElement("div");
+  content.appendChild(buildSliderGroup(APPEARANCE_SETTINGS, fields, () => applyAppearance()));
+  content.appendChild(buildCopyButton("Copier l'apparence",
+    () => JSON.stringify(APPEARANCE_SETTINGS, null, 2), "data/appearance-settings.json"));
+  addEditSection("Apparence", content, false);
 }
 
 function showLayoutFallback(json){
@@ -548,6 +591,9 @@ function initWheelZoom(){
 
   window.addEventListener("wheel", function(e){
     if(navigating) return;
+    // Si une popup/fiche est ouverte par-dessus, on laisse le scroll agir
+    // dedans plutôt que de zoomer/dézoomer la page en dessous.
+    if(document.querySelector(".project-popup.open, .info-bubble.open")) return;
     e.preventDefault();
 
     const prev = targetScale;
@@ -564,58 +610,6 @@ function initWheelZoom(){
     targetTy = e.clientY - worldY * next;
     targetScale = next;
   }, { passive: false });
-
-  // Panneau de réglage en direct : tonsite.netlify.app/hub.html?zoomtune=1
-  if(new URLSearchParams(window.location.search).get("zoomtune") === "1"){
-    buildZoomTunePanel();
-  }
-}
-
-/* Panneau de réglage du zoom, pour ajuster sans allers-retours */
-function buildZoomTunePanel(){
-  const fields = [
-    { key: "speed", label: "Vitesse molette", min: 0.2, max: 4, step: 0.1 },
-    { key: "smoothing", label: "Douceur (bas = doux)", min: 0.02, max: 0.4, step: 0.01 },
-    { key: "maxScale", label: "Zoom avant max", min: 2, max: 20, step: 0.5 },
-    { key: "thresholdIn", label: "Seuil d'entrée", min: 1.5, max: 18, step: 0.5 },
-    { key: "minScale", label: "Dézoom max", min: 0.1, max: 0.95, step: 0.05 },
-    { key: "thresholdOut", label: "Seuil de retour", min: 0.15, max: 0.95, step: 0.05 },
-    { key: "bounce", label: "Rebond", min: 1, max: 1.5, step: 0.05 }
-  ];
-
-  const panel = document.createElement("div");
-  panel.className = "edit-panel zoom-tune-panel";
-  panel.innerHTML = `
-    <p><strong>Réglages du zoom</strong></p>
-    ${fields.map(f => `
-      <label class="tune-row">
-        <span>${f.label}</span>
-        <input type="range" data-tune="${f.key}" min="${f.min}" max="${f.max}" step="${f.step}" value="${ZOOM_SETTINGS[f.key]}">
-        <output data-out="${f.key}">${ZOOM_SETTINGS[f.key]}</output>
-      </label>
-    `).join("")}
-    <button id="zoom-copy" class="pill-link">Copier les réglages</button>
-  `;
-  document.body.appendChild(panel);
-
-  panel.querySelectorAll("[data-tune]").forEach(input => {
-    input.addEventListener("input", () => {
-      const key = input.dataset.tune;
-      ZOOM_SETTINGS[key] = parseFloat(input.value);
-      panel.querySelector(`[data-out="${key}"]`).textContent = input.value;
-    });
-  });
-
-  document.getElementById("zoom-copy").addEventListener("click", () => {
-    const json = JSON.stringify(ZOOM_SETTINGS, null, 2);
-    if(navigator.clipboard && navigator.clipboard.writeText){
-      navigator.clipboard.writeText(json).then(() => {
-        alert("Copié ! Colle ce contenu dans data/zoom-settings.json, puis envoie sur GitHub.");
-      }).catch(() => showLayoutFallback(json));
-    } else {
-      showLayoutFallback(json);
-    }
-  });
 }
 
 /* Animation de dézoom qui déclenche le retour (l'inverse de vortexInto) */
@@ -846,12 +840,30 @@ function buildProjectDetailHTML(project){
 
   const projectLayouts = CHAPTER_LAYOUTS[project.id] || {};
 
-  const sectionsHTML = chapters.map(c => {
+  // Repère les médias identiques d'un chapitre à l'autre pour ne pas
+  // réafficher trois fois le même clip (on met juste une mention discrète).
+  const seenMedia = {};
+  const sectionsHTML = chapters.map((c, idx) => {
     const customLayout = projectLayouts[c.id];
+
+    // Clé d'identité du média (type + url), pour détecter les répétitions
+    const mediaKey = c.media ? `${c.media.type}|${c.media.url || ""}` : "";
+    const isRepeat = mediaKey && c.media && c.media.type !== "pending" && seenMedia[mediaKey] !== undefined;
+    if(mediaKey && c.media && c.media.type !== "pending") {
+      if(seenMedia[mediaKey] === undefined) seenMedia[mediaKey] = c.title;
+    }
+
+    let mediaCol;
+    if(isRepeat){
+      mediaCol = "";
+    } else {
+      mediaCol = buildMediaBlock(c.media);
+    }
+
     const bodyHTML = (customLayout && customLayout.blocks && customLayout.blocks.length)
       ? `<div class="block-canvas-wrapper" data-canvas-chapter="${project.id}:${c.id}"></div>`
       : `<div style="display:grid; grid-template-columns: minmax(280px, 480px) 1fr; gap: var(--gap-lg); margin-top: var(--gap-md); align-items:start;">
-          <div>${buildMediaBlock(c.media)}</div>
+          <div>${mediaCol}</div>
           <div class="markdown-content">${renderMarkdown(c.description)}</div>
         </div>`;
     return `
@@ -1294,24 +1306,106 @@ function applySnap(block, x, y, allBlocks, threshold, guideXEl, guideYEl){
 }
 
 function buildChapterEditPanel(){
-  if(document.getElementById("chapter-edit-panel")) return;
-  const panel = document.createElement("div");
-  panel.id = "chapter-edit-panel";
-  panel.className = "edit-panel";
-  panel.innerHTML = `
-    <p><strong>Édition des blocs</strong> — glisse/redimensionne, double-clic pour éditer un texte ou une URL.</p>
-    <button id="chapter-copy" class="pill-link">Copier la disposition</button>
-  `;
-  document.body.appendChild(panel);
+  const content = document.createElement("div");
+  content.innerHTML = `<p class="edit-hint">Glisse/redimensionne les blocs, double-clic pour éditer un texte ou une URL. Poignée dorée en bas à droite = agrandir la zone.</p>`;
+  content.appendChild(buildCopyButton("Copier la disposition",
+    () => JSON.stringify(CHAPTER_LAYOUTS, null, 2), "data/chapter-layouts.json"));
+  addEditSection("Blocs de contenu", content, true);
+}
 
-  document.getElementById("chapter-copy").addEventListener("click", () => {
-    const json = JSON.stringify(CHAPTER_LAYOUTS, null, 2);
+/* ==========================================================
+   BARRE D'ÉDITION UNIFIÉE
+   Une seule barre latérale rétractable, avec des sections
+   déroulantes (accordéon). Chaque partie du site qui a besoin
+   de réglages y ajoute sa section via addEditSection().
+   Accessible partout via ?edit=1.
+   ========================================================== */
+let _editSidebar = null;
+
+function ensureEditSidebar(){
+  if(_editSidebar) return _editSidebar;
+
+  const toggle = document.createElement("button");
+  toggle.className = "edit-sidebar-toggle";
+  toggle.textContent = "☰ Éditer";
+  document.body.appendChild(toggle);
+
+  const sidebar = document.createElement("aside");
+  sidebar.className = "edit-sidebar open";
+  sidebar.innerHTML = `
+    <div class="edit-sidebar-head">
+      <strong>Édition</strong>
+      <button class="edit-sidebar-close" aria-label="Fermer">✕</button>
+    </div>
+    <div class="edit-sidebar-body"></div>
+  `;
+  document.body.appendChild(sidebar);
+
+  toggle.addEventListener("click", () => sidebar.classList.toggle("open"));
+  sidebar.querySelector(".edit-sidebar-close").addEventListener("click", () => sidebar.classList.remove("open"));
+
+  _editSidebar = sidebar;
+  return sidebar;
+}
+
+/* Ajoute une section déroulante à la barre.
+   title: titre affiché ; contentEl: élément DOM du contenu ; open: ouvert par défaut */
+function addEditSection(title, contentEl, open){
+  const sidebar = ensureEditSidebar();
+  const body = sidebar.querySelector(".edit-sidebar-body");
+
+  const section = document.createElement("div");
+  section.className = "edit-section" + (open ? " open" : "");
+  section.innerHTML = `<button class="edit-section-head">${title}<span class="chevron">▾</span></button>`;
+  const content = document.createElement("div");
+  content.className = "edit-section-content";
+  content.appendChild(contentEl);
+  section.appendChild(content);
+  body.appendChild(section);
+
+  section.querySelector(".edit-section-head").addEventListener("click", () => {
+    section.classList.toggle("open");
+  });
+
+  return section;
+}
+
+/* Construit un groupe de curseurs relié à un objet de réglages */
+function buildSliderGroup(settingsObj, fields, onChange){
+  const wrap = document.createElement("div");
+  wrap.innerHTML = fields.map(f => `
+    <label class="tune-row">
+      <span>${f.label}</span>
+      <input type="range" data-tune="${f.key}" min="${f.min}" max="${f.max}" step="${f.step}" value="${settingsObj[f.key]}">
+      <output data-out="${f.key}">${settingsObj[f.key]}</output>
+    </label>
+  `).join("");
+
+  wrap.querySelectorAll("[data-tune]").forEach(input => {
+    input.addEventListener("input", () => {
+      const key = input.dataset.tune;
+      settingsObj[key] = parseFloat(input.value);
+      wrap.querySelector(`[data-out="${key}"]`).textContent = input.value;
+      if(onChange) onChange(key, settingsObj[key]);
+    });
+  });
+  return wrap;
+}
+
+/* Bouton "copier un JSON de réglages vers un fichier" */
+function buildCopyButton(label, getJson, targetFile){
+  const btn = document.createElement("button");
+  btn.className = "pill-link";
+  btn.textContent = label;
+  btn.addEventListener("click", () => {
+    const json = getJson();
     if(navigator.clipboard && navigator.clipboard.writeText){
       navigator.clipboard.writeText(json).then(() => {
-        alert("Copié ! Colle ce contenu dans data/chapter-layouts.json, puis envoie ce fichier sur GitHub.");
+        alert("Copié ! Colle ce contenu dans " + targetFile + ", puis envoie sur GitHub.");
       }).catch(() => showLayoutFallback(json));
     } else {
       showLayoutFallback(json);
     }
   });
+  return btn;
 }

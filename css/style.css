@@ -15,6 +15,9 @@
   --muted: #767676;
   --line: rgba(0, 0, 0, 0.18);
 
+  /* Rayon des coins arrondis — réglable via le menu (?radiustune ou éditeur) */
+  --radius: 0px;
+
   /* PLACEHOLDER — police système générique, aucun choix typographique fait */
   --font-display: system-ui, -apple-system, "Segoe UI", sans-serif;
   --font-body: system-ui, -apple-system, "Segoe UI", sans-serif;
@@ -143,7 +146,7 @@ em{ font-style: italic; color: var(--gold); }
   text-decoration: none;
   border: 1px solid var(--muted);
   padding: 0.9em 1.6em;
-  border-radius: 0;
+  border-radius: var(--radius);
   transition: border-color 0.3s, color 0.3s;
   display: inline-flex;
   align-items: center;
@@ -167,7 +170,7 @@ em{ font-style: italic; color: var(--gold); }
   font-size: 0.75rem;
   letter-spacing: 0.05em;
   padding: 0.5em 1.1em;
-  border-radius: 0;
+  border-radius: var(--radius);
   border: 1px solid var(--line);
   background: none;
   color: var(--muted);
@@ -191,7 +194,7 @@ em{ font-style: italic; color: var(--gold); }
   text-decoration: none;
   color: var(--ink);
   border: 1px solid var(--line);
-  border-radius: 0;
+  border-radius: var(--radius);
   padding: var(--gap-md);
   display: flex;
   flex-direction: column;
@@ -207,7 +210,7 @@ em{ font-style: italic; color: var(--gold); }
 .project-card .thumb{
   width: 100%;
   aspect-ratio: 16/9;
-  border-radius: 0;
+  border-radius: var(--radius);
   background: var(--bg-alt);
   border: 1px dashed var(--line);
   display: flex;
@@ -231,7 +234,7 @@ em{ font-style: italic; color: var(--gold); }
   color: var(--cyan);
   border: 1px solid var(--line);
   padding: 0.2em 0.6em;
-  border-radius: 0;
+  border-radius: var(--radius);
 }
 
 /* ---------- Transition de page (rideau) ---------- */
@@ -475,25 +478,6 @@ em{ font-style: italic; color: var(--gold); }
 .edit-mode #water-bg{
   opacity: 0.5;
 }
-.edit-panel{
-  position: fixed;
-  bottom: var(--gap-lg);
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 300;
-  background: var(--bg-alt);
-  border: 1px solid var(--line);
-  border-radius: 0;
-  padding: 1rem 1.5rem;
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  flex-wrap: wrap;
-  justify-content: center;
-  font-family: var(--font-mono);
-  font-size: 0.8rem;
-}
-.edit-panel p{ margin: 0; color: var(--muted); }
 
 /* ---------- Chapitres (projets à plusieurs volets) ---------- */
 .chapter-tabs{
@@ -507,7 +491,7 @@ em{ font-style: italic; color: var(--gold); }
   font-size: 0.75rem;
   letter-spacing: 0.05em;
   padding: 0.5em 1.1em;
-  border-radius: 0;
+  border-radius: var(--radius);
   border: 1px solid var(--line);
   background: none;
   color: var(--muted);
@@ -557,7 +541,7 @@ em{ font-style: italic; color: var(--gold); }
 .markdown-content em{ color: inherit; font-style: italic; }
 .markdown-content img{
   max-width: 100%;
-  border-radius: 0;
+  border-radius: var(--radius);
   margin: 1em 0;
 }
 .markdown-content ul,
@@ -592,7 +576,7 @@ em{ font-style: italic; color: var(--gold); }
   max-height: 84vh;
   overflow-y: auto;
   background: var(--bg-alt);
-  border-radius: 0;
+  border-radius: var(--radius);
   padding: 3rem;
   z-index: 251;
   opacity: 0;
@@ -733,15 +717,6 @@ em{ font-style: italic; color: var(--gold); }
 }
 
 /* Panneau de réglage du zoom (?zoomtune=1) */
-.zoom-tune-panel{
-  flex-direction: column;
-  align-items: stretch;
-  gap: 0.4rem;
-  max-width: 320px;
-  left: auto;
-  right: var(--gap-lg);
-  transform: none;
-}
 .tune-row{
   display: grid;
   grid-template-columns: 1fr 90px 40px;
@@ -751,3 +726,108 @@ em{ font-style: italic; color: var(--gold); }
   color: var(--muted);
 }
 .tune-row output{ text-align: right; }
+
+/* ==========================================================
+   BARRE D'ÉDITION UNIFIÉE (latérale, rétractable, accordéon)
+   ========================================================== */
+.edit-sidebar-toggle{
+  position: fixed;
+  top: 1rem;
+  right: 1rem;
+  z-index: 401;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  padding: 0.5em 1em;
+  background: var(--bg-alt);
+  color: var(--ink);
+  border: 1px solid var(--line);
+  cursor: pointer;
+}
+
+.edit-sidebar{
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 320px;
+  max-width: 85vw;
+  z-index: 400;
+  background: var(--bg-alt);
+  border-left: 1px solid var(--line);
+  transform: translateX(100%);
+  transition: transform 0.3s var(--ease);
+  overflow-y: auto;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+}
+.edit-sidebar.open{ transform: translateX(0); }
+
+.edit-sidebar-head{
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;
+  border-bottom: 1px solid var(--line);
+  position: sticky;
+  top: 0;
+  background: var(--bg-alt);
+}
+.edit-sidebar-close{
+  background: none;
+  border: none;
+  color: var(--muted);
+  cursor: pointer;
+  font-size: 1rem;
+}
+
+.edit-section{ border-bottom: 1px solid var(--line); }
+.edit-section-head{
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.9rem 1rem;
+  background: none;
+  border: none;
+  color: var(--ink);
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  cursor: pointer;
+  text-align: left;
+}
+.edit-section-head .chevron{ transition: transform 0.25s; }
+.edit-section.open .edit-section-head .chevron{ transform: rotate(180deg); }
+.edit-section-content{
+  display: none;
+  padding: 0 1rem 1rem;
+}
+.edit-section.open .edit-section-content{ display: block; }
+
+.edit-hint{
+  color: var(--muted);
+  line-height: 1.5;
+  margin-bottom: 0.8rem;
+}
+.tune-row{
+  display: grid;
+  grid-template-columns: 1fr 80px 34px;
+  align-items: center;
+  gap: 0.4rem;
+  margin-bottom: 0.5rem;
+  color: var(--muted);
+}
+.tune-row output{ text-align: right; }
+.tune-row-full{
+  display: block;
+  margin-bottom: 0.8rem;
+  color: var(--muted);
+}
+.tune-row-full select{ width: 100%; margin-top: 0.3rem; }
+
+.edit-sidebar .pill-link{
+  display: block;
+  width: 100%;
+  text-align: center;
+  margin-top: 0.8rem;
+  cursor: pointer;
+}
