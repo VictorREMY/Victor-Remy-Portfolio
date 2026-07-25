@@ -1,1 +1,176 @@
-{}
+{
+  "vfx.html": {
+    "vfx-generatif": {
+      "x": 30.8,
+      "y": 32.7
+    },
+    "vfx-interactif": {
+      "x": 65.5,
+      "y": 30.5
+    },
+    "vfx-video": {
+      "x": 49.8,
+      "y": 60.5
+    }
+  },
+  "musique-son.html": {
+    "2h-later": {
+      "x": 18.8,
+      "y": 21.8
+    },
+    "chaque-jours": {
+      "x": 29.2,
+      "y": 53.2
+    },
+    "surfeur-dargent": {
+      "x": 38.8,
+      "y": 31.9
+    },
+    "maladir": {
+      "x": 47.8,
+      "y": 64.3
+    },
+    "creux": {
+      "x": 58.4,
+      "y": 44.6
+    },
+    "baddies-n-pesos": {
+      "x": 12,
+      "y": 64.3
+    },
+    "est-ce-que-tu-veux": {
+      "x": 62.6,
+      "y": 18.5
+    },
+    "figurant": {
+      "x": 80,
+      "y": 21.6
+    },
+    "hannah": {
+      "x": 76.1,
+      "y": 64.9
+    }
+  },
+  "musique-projet.html": {
+    "plusqunetrap": {
+      "x": 27.2,
+      "y": 29.6
+    },
+    "partoutapreslafin": {
+      "x": 76.2,
+      "y": 37.9
+    },
+    "tout-va-bien": {
+      "x": 50.1,
+      "y": 55.2
+    }
+  },
+  "video.html": {
+    "video-montage": {
+      "x": 32.2,
+      "y": 41.6
+    },
+    "video-realisation": {
+      "x": 68.1,
+      "y": 35.9
+    }
+  },
+  "video-montage.html": {
+    "le-sol-et-le-fa": {
+      "x": 15.2,
+      "y": 27.1
+    },
+    "communard-dans-la-capitale": {
+      "x": 25.3,
+      "y": 62
+    },
+    "cheval": {
+      "x": 31,
+      "y": 24
+    },
+    "merri-6ramo": {
+      "x": 42.1,
+      "y": 48.6
+    },
+    "2h-later": {
+      "x": 61.6,
+      "y": 57
+    },
+    "chaque-jours": {
+      "x": 58.3,
+      "y": 24.6
+    },
+    "one-turn-kill": {
+      "x": 79.6,
+      "y": 22.5
+    },
+    "feedback-experimentation": {
+      "x": 77.7,
+      "y": 47.9
+    }
+  },
+  "video-realisation.html": {
+    "le-sol-et-le-fa": {
+      "x": 36.4,
+      "y": 45
+    },
+    "chaque-jours": {
+      "x": 66.3,
+      "y": 34.8
+    }
+  },
+  "vfx-generatif.html": {
+    "le-sol-et-le-fa": {
+      "x": 19.8,
+      "y": 30.9
+    },
+    "cheval": {
+      "x": 37.4,
+      "y": 60.4
+    },
+    "one-turn-kill": {
+      "x": 43.8,
+      "y": 32.6
+    },
+    "tout-ce-quil-manque": {
+      "x": 65.9,
+      "y": 57.5
+    },
+    "c-pas-une-vie": {
+      "x": 79.1,
+      "y": 33.1
+    }
+  },
+  "vfx-interactif.html": {
+    "background-portfolio": {
+      "x": 45.5,
+      "y": 40.5
+    }
+  },
+  "vfx-video.html": {
+    "le-sol-et-le-fa": {
+      "x": 22.9,
+      "y": 59.8
+    },
+    "communard-dans-la-capitale": {
+      "x": 27.8,
+      "y": 25.7
+    },
+    "merri-6ramo": {
+      "x": 46.1,
+      "y": 39.5
+    },
+    "background-portfolio": {
+      "x": 69.7,
+      "y": 61.2
+    },
+    "metastase": {
+      "x": 63.2,
+      "y": 33.7
+    },
+    "feedback-experimentation": {
+      "x": 81.6,
+      "y": 26.3
+    }
+  }
+}
