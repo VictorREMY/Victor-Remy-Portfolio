@@ -1,3 +1,7 @@
+/* Drapeau global : vrai tant que la boucle de zoom molette tourne.
+   Permet de l'arrêter net quand une transition prend le relais. */
+let _zoomAnimating = false;
+
 /* Corrige un piège classique des navigateurs : en cliquant "retour", certains
    navigateurs restaurent une version figée de la page (telle qu'elle était
    au moment de la quitter, donc parfois en plein milieu d'une animation)
@@ -582,7 +586,10 @@ function initWheelZoom(){
     }, 110);
   }
 
+  _zoomAnimating = true;
   function animate(){
+    if(!_zoomAnimating) return; // stoppé net quand une transition prend le relais
+
     const ds = targetScale - scale;
     if(Math.abs(ds) > 0.0005){
       scale += ds * S.smoothing;
@@ -594,7 +601,7 @@ function initWheelZoom(){
         const target = syphonUnderCursor();
         if(target){
           navigating = true;
-          bounceThen(() => vortexInto(target, target.getAttribute("href")));
+          bounceThen(() => { _zoomAnimating = false; vortexInto(target, target.getAttribute("href")); });
         }
       } else if(scale <= S.thresholdOut && retourBtn){
         navigating = true;
@@ -635,10 +642,16 @@ function initWheelZoom(){
 
 /* Animation de dézoom qui déclenche le retour (l'inverse de vortexInto) */
 function zoomOutBack(){
+  _zoomAnimating = false; // stoppe la boucle de zoom pour éviter tout conflit
   const stage = document.getElementById("zoom-stage");
-  stage.style.transition = "transform 0.45s cubic-bezier(0.6,0,0.9,0.4)";
-  stage.style.transformOrigin = "50% 50%";
-  stage.style.transform = "scale(0.08)";
+
+  // On part de l'état actuel (transform tel qu'appliqué par la boucle) et on
+  // laisse une transition CSS finir le mouvement en douceur, sans toucher au
+  // transform-origin (rester sur "0 0" évite le saut des bulles).
+  stage.style.transition = "transform 0.5s cubic-bezier(0.5,0,0.75,0.35)";
+  requestAnimationFrame(() => {
+    stage.style.transform = "translate(50vw, 50vh) scale(0.02)";
+  });
 
   _zoomOverlay.classList.add("active");
   const r = maxRadius();
@@ -647,7 +660,7 @@ function zoomOutBack(){
       { clipPath: "circle(0px at 50% 50%)" },
       { clipPath: `circle(${r}px at 50% 50%)` }
     ],
-    { duration: 450, easing: "cubic-bezier(0.6,0,0.9,0.4)", fill: "forwards" }
+    { duration: 500, easing: "cubic-bezier(0.5,0,0.75,0.35)", fill: "forwards" }
   );
   anim.onfinish = () => window.history.back();
 }
@@ -861,32 +874,30 @@ function buildProjectDetailHTML(project){
 
   const projectLayouts = CHAPTER_LAYOUTS[project.id] || {};
 
-  // Repère les médias identiques d'un chapitre à l'autre pour ne pas
-  // réafficher trois fois le même clip (on met juste une mention discrète).
+  // Un bloc média n'est affiché que si le chapitre a un VRAI média à lui
+  // (youtube/spotify avec URL) et que cette même vidéo n'a pas déjà été
+  // montrée dans un chapitre précédent. Les "pending" et les répétitions
+  // laissent simplement l'espace vide (à remplir via l'éditeur de blocs).
   const seenMedia = {};
   const sectionsHTML = chapters.map((c, idx) => {
     const customLayout = projectLayouts[c.id];
 
-    // Clé d'identité du média (type + url), pour détecter les répétitions
-    const mediaKey = c.media ? `${c.media.type}|${c.media.url || ""}` : "";
-    const isRepeat = mediaKey && c.media && c.media.type !== "pending" && seenMedia[mediaKey] !== undefined;
-    if(mediaKey && c.media && c.media.type !== "pending") {
-      if(seenMedia[mediaKey] === undefined) seenMedia[mediaKey] = c.title;
-    }
+    const hasRealMedia = c.media && c.media.type !== "pending" && c.media.url;
+    const mediaKey = hasRealMedia ? `${c.media.type}|${c.media.url}` : "";
+    const isFirstOccurrence = hasRealMedia && seenMedia[mediaKey] === undefined;
+    if(hasRealMedia && isFirstOccurrence) seenMedia[mediaKey] = c.title;
 
-    let mediaCol;
-    if(isRepeat){
-      mediaCol = "";
-    } else {
-      mediaCol = buildMediaBlock(c.media);
-    }
+    const mediaCol = isFirstOccurrence ? buildMediaBlock(c.media) : "";
 
+    // Si pas de média affiché, le texte prend toute la largeur
     const bodyHTML = (customLayout && customLayout.blocks && customLayout.blocks.length)
       ? `<div class="block-canvas-wrapper" data-canvas-chapter="${project.id}:${c.id}"></div>`
-      : `<div style="display:grid; grid-template-columns: minmax(280px, 480px) 1fr; gap: var(--gap-lg); margin-top: var(--gap-md); align-items:start;">
-          <div>${mediaCol}</div>
-          <div class="markdown-content">${renderMarkdown(c.description)}</div>
-        </div>`;
+      : mediaCol
+        ? `<div style="display:grid; grid-template-columns: minmax(280px, 480px) 1fr; gap: var(--gap-lg); margin-top: var(--gap-md); align-items:start;">
+            <div>${mediaCol}</div>
+            <div class="markdown-content">${renderMarkdown(c.description)}</div>
+          </div>`
+        : `<div class="markdown-content" style="margin-top: var(--gap-md); max-width: 70ch;">${renderMarkdown(c.description)}</div>`;
     return `
     <section class="chapter-section" id="chapter-${c.id}">
       ${hasChapters ? `<h2>${c.title}</h2>` : ""}
