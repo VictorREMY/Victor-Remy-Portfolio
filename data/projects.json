@@ -90,7 +90,7 @@
           ],
           "role": "VFX",
           "credits": "Solo (montage réalisé avec l'aide de Mailow sur une partie du chapitre montage)",
-          "description": "Le clip s'appuie sur deux effets VFX principaux.\n\nLe premier est un système de blob tracking, produit dans TouchDesigner et basé principalement sur le mouvement, qui fait apparaître des rectangles diffusant un visualiseur : des images plus brutes (béton, bâtiments, câbles) qui contrastent avec les plans plus naturels du clip.\n\nLe second effet est du datamoshing, réalisé dans une application dédiée à cette technique pour glitcher certains plans — les artefacts d'encodage propres à la technique se prêtent naturellement à des transitions entre deux plans consécutifs.",
+          "description": "Le clip s'appuie sur deux effets VFX principaux.\n\nLe premier est un système de blob tracking, produit dans TouchDesigner et basé principalement sur le mouvement, qui fait apparaître des rectangles diffusant un visualiseur : des images plus brutes (béton, bâtiments, câbles) qui contrastent avec les plans plus naturels du clip.\n\nLe second effet est du datamoshing, réalisé dans une application dédiée à cette technique pour glitcher certains plans — les artefacts d'encodage propres à la technique se prêtent naturellement à des transitions entre deux plans consécutifs.\n\n![](/assets/images/uploads/gif%20communard2.gif)",
           "media": {
             "type": "pending",
             "url": "",
@@ -205,11 +205,27 @@
       "id": "chaque-jours",
       "title": "Chaque jours",
       "year": 2024,
+      "thumbnail": "/assets/images/uploads/minia chaque jours.png",
       "popup_bg": "",
       "role": "",
       "credits": "",
       "description": "",
       "chapters": [
+        {
+          "id": "montage",
+          "title": "Montage",
+          "tags": [
+            "video-montage"
+          ],
+          "role": "Montage",
+          "credits": "Mailow (artiste)",
+          "description": "Le montage met en avant les moments forts de la chanson, dans une ambiance sombre et dynamique portée par la ville de nuit.",
+          "media": {
+            "type": "youtube",
+            "url": "https://youtu.be/Ya8XBiCIqKw",
+            "note": ""
+          }
+        },
         {
           "id": "musique",
           "title": "Chaque jours",
@@ -220,7 +236,7 @@
           "credits": "Mailow (artiste)",
           "description": "Un morceau aux sonorités sombres et hypnotisantes, sur des batteries trap teintées d'influences plus underground.\n\nLa composition s'est faite en studio avec Mailow, le temps d'une soirée.",
           "media": {
-            "type": "youtube",
+            "type": "pending",
             "url": "https://youtu.be/Ya8XBiCIqKw",
             "note": ""
           }
@@ -235,22 +251,7 @@
           "credits": "Mailow (artiste)",
           "description": "Premier clip tourné et réalisé, dans un environnement urbain nocturne.\n\nLe tournage privilégie des mouvements rapides calés sur les temps de la musique, pensés pour permettre des transitions naturelles au montage.",
           "media": {
-            "type": "youtube",
-            "url": "https://youtu.be/Ya8XBiCIqKw",
-            "note": ""
-          }
-        },
-        {
-          "id": "montage",
-          "title": "Montage",
-          "tags": [
-            "video-montage"
-          ],
-          "role": "Montage",
-          "credits": "Mailow (artiste)",
-          "description": "Le montage met en avant les moments forts de la chanson, dans une ambiance sombre et dynamique portée par la ville de nuit.",
-          "media": {
-            "type": "youtube",
+            "type": "pending",
             "url": "https://youtu.be/Ya8XBiCIqKw",
             "note": ""
           }
@@ -276,8 +277,8 @@
           "credits": "Mailow, Vtext (artistes), Nxsada (production musicale)",
           "description": "Un visuel génératif produit dans TouchDesigner, pensé à l'origine comme fond de scène pour un concert.\n\nIl repose sur deux instances de particules, chacune confinée dans un volume dont les bordures se déforment de manière audioréactive : pilotées par plusieurs pistes audio traitées en amont (basses, kick), elles réagissent très vite sur les temps forts et se calment ailleurs. La caméra suit une animation à vitesse constante.",
           "media": {
-            "type": "pending",
-            "url": "",
+            "type": "youtube",
+            "url": "https://youtu.be/FgF8Qt4D6So",
             "note": "fichiers trop lourds pour l'instant"
           }
         },
@@ -291,8 +292,8 @@
           "credits": "Solo",
           "description": "Un format behind-the-scenes, teasant la création du visuel via des captures d'écran du travail dans TouchDesigner, pensé pour Instagram.",
           "media": {
-            "type": "pending",
-            "url": "",
+            "type": "youtube",
+            "url": "https://youtube.com/shorts/38KJiQ4VKR0",
             "note": "fichiers trop lourds pour l'instant"
           }
         }
