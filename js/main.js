@@ -834,17 +834,40 @@ function renderFilterableGrid(containerId, filterRowId, tagsToShow, defaultTag){
 
 /* ---------- Affiche le détail d'un projet à partir de l'URL (?id=...) ---------- */
 /* Construit le bloc média (vidéo/son/en attente) pour un chapitre ou un projet simple */
+/* Extrait l'ID d'une vidéo YouTube depuis n'importe quel format d'URL :
+   youtu.be/ID, youtube.com/watch?v=ID, youtube.com/embed/ID,
+   youtube.com/shorts/ID. Renvoie aussi si c'est un Short (format vertical). */
+function parseYouTube(url){
+  let isShort = false;
+  let id = "";
+  if(url.includes("/shorts/")){
+    isShort = true;
+    id = url.split("/shorts/")[1];
+  } else if(url.includes("watch?v=")){
+    id = url.split("watch?v=")[1];
+  } else {
+    id = url.split("/").pop();
+  }
+  // Retire tout paramètre qui traîne (?si=..., &t=..., etc.)
+  id = id.split("?")[0].split("&")[0];
+  return { id, isShort };
+}
+
 function buildMediaBlock(media){
   if(!media) return `<div class="thumb" style="aspect-ratio:16/9;">média à venir</div>`;
   if(media.type === "youtube"){
-    const videoId = media.url.split("/").pop().split("?")[0];
-    return `<div style="aspect-ratio:16/9; border-radius:10px; overflow:hidden;">
-      <iframe width="100%" height="100%" src="https://www.youtube.com/embed/${videoId}" frameborder="0" allowfullscreen></iframe>
+    const { id, isShort } = parseYouTube(media.url);
+    // Un Short est vertical (9:16) : cadre étroit centré, pas de bandes noires.
+    // Une vidéo classique garde le 16:9 pleine largeur.
+    const ratio = isShort ? "9/16" : "16/9";
+    const maxW = isShort ? "max-width:300px; margin:0 auto;" : "";
+    return `<div style="aspect-ratio:${ratio}; ${maxW} border-radius:var(--radius); overflow:hidden;">
+      <iframe width="100%" height="100%" src="https://www.youtube.com/embed/${id}" frameborder="0" allowfullscreen></iframe>
     </div>`;
   }
   if(media.type === "spotify"){
     const trackId = media.url.split("/").pop().split("?")[0];
-    return `<iframe src="https://open.spotify.com/embed/track/${trackId}" width="100%" height="152" frameborder="0" allow="encrypted-media" style="border-radius:10px;"></iframe>`;
+    return `<iframe src="https://open.spotify.com/embed/track/${trackId}" width="100%" height="152" frameborder="0" allow="encrypted-media" style="border-radius:var(--radius);"></iframe>`;
   }
   return `<div class="thumb" style="aspect-ratio:16/9;">${media.note || "média à venir"}</div>`;
 }
