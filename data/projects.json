@@ -186,6 +186,7 @@
       "id": "2h-later",
       "title": "2h later",
       "year": 2026,
+      "thumbnail": "/assets/images/uploads/minia 2h later.png",
       "popup_bg": "",
       "tags": [
         "video-montage",
@@ -196,7 +197,7 @@
       "description": "Un petit montage qui met en scène le contraste entre une prod encore brute après 20 minutes de travail et sa version aboutie deux heures plus tard.\n\nLe montage alterne des captures d'écran du processus de production avec des extraits de visualiseurs, pour appuyer visuellement cette progression.\n\nLa musique, composée pour l'occasion, sert de fil rouge à toute la vidéo.",
       "media": {
         "type": "youtube",
-        "url": "https://youtube.com/shorts/gs0mNGSwizY",
+        "url": "https://youtube.com/shorts/SPODRj18m-8?feature=share",
         "note": "à héberger"
       }
     },
