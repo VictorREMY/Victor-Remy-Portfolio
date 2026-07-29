@@ -318,6 +318,9 @@
     {
       "id": "metastase",
       "title": "Métastase",
+      "year": 2025,
+      "thumbnail": "/assets/images/uploads/minia métastase.png",
+      "popup_bg": "",
       "tags": [
         "vfx-video"
       ],
@@ -325,15 +328,36 @@
       "credits": "Solo",
       "description": "Un projet client : Gaindé a fourni son clip existant en cherchant à lui donner plus de profondeur, avec la demande d'y ajouter des effets.\n\nTrois VFX ont été produits et montés sur le clip. Le premier est un effet de saturation et de grain, audioréactif, qui appuie les coups de kick. Le deuxième joue sur une colorimétrie bleu et blanc, proche d'un rendu thermique ou infrarouge, dont la luminosité s'intensifie sur les impacts. Le troisième s'appuie sur une vidéo de pistolet en rotation, utilisée pour displacer l'image originale et construire une imagerie volontaire sans être trop explicite, complétée par un traitement colorimétrique légèrement cramé.",
       "media": {
-        "type": "pending",
-        "url": "",
+        "type": "youtube",
+        "url": "https://youtu.be/auCR89_uqBo",
         "note": "rendu disponible en local"
       }
     },
     {
       "id": "feedback-experimentation",
       "title": "Feedback Experimentation",
+      "year": 2026,
+      "thumbnail": "/assets/images/uploads/minia feedback expe.png",
+      "popup_bg": "",
+      "role": "",
+      "credits": "",
+      "description": "",
       "chapters": [
+        {
+          "id": "vfx-video",
+          "title": "VFX vidéo",
+          "tags": [
+            "vfx-video"
+          ],
+          "role": "VFX",
+          "credits": "Solo",
+          "description": "Un test personnel autour de nouvelles manières de produire un effet de feedback vidéo — où l'image s'autoalimente en boucle — ici altéré par un bruit très fin, presque comme des particules.\n\nLa musique qui accompagne la boucle est également une composition personnelle.",
+          "media": {
+            "type": "youtube",
+            "url": "https://youtu.be/RJYAf4VmAfI",
+            "note": "fichier de 650 Mo en local à héberger"
+          }
+        },
         {
           "id": "montage",
           "title": "Montage",
@@ -348,27 +372,15 @@
             "url": "",
             "note": "fichier de 650 Mo en local à héberger"
           }
-        },
-        {
-          "id": "vfx-video",
-          "title": "VFX vidéo",
-          "tags": [
-            "vfx-video"
-          ],
-          "role": "VFX",
-          "credits": "Solo",
-          "description": "Un test personnel autour de nouvelles manières de produire un effet de feedback vidéo — où l'image s'autoalimente en boucle — ici altéré par un bruit très fin, presque comme des particules.\n\nLa musique qui accompagne la boucle est également une composition personnelle.",
-          "media": {
-            "type": "pending",
-            "url": "",
-            "note": "fichier de 650 Mo en local à héberger"
-          }
         }
       ]
     },
     {
       "id": "tout-ce-quil-manque",
       "title": "Tout ce qu'il manque",
+      "year": 2026,
+      "thumbnail": "/assets/images/uploads/minia tout ce qu'il manque.png",
+      "popup_bg": "",
       "tags": [
         "vfx-generatif"
       ],
@@ -376,14 +388,17 @@
       "credits": "Lis99, Mailow (artistes)",
       "description": "Un visuel génératif produit dans TouchDesigner pour \"Tout ce qu'il manque\" (Lis99 & Mailow), pensé à l'origine comme fond de scène pour un concert.\n\nLe visuel assemble plusieurs rendus TouchDesigner de formes géométriques 3D fortement retravaillées et audioréactives, pour obtenir un résultat plus organique et texturé, combiné à un effet de gloom et un travail de colorimétrie marqué.",
       "media": {
-        "type": "pending",
-        "url": "",
+        "type": "youtube",
+        "url": "https://youtu.be/FqNiokIdcZ0",
         "note": "fichier local à héberger"
       }
     },
     {
       "id": "c-pas-une-vie",
       "title": "C pas une vie",
+      "year": 2026,
+      "thumbnail": "/assets/images/uploads/minia c pas un vie.png",
+      "popup_bg": "",
       "tags": [
         "vfx-generatif"
       ],
@@ -391,14 +406,17 @@
       "credits": "Ové, Vtext (artistes)",
       "description": "Un visuel génératif produit dans TouchDesigner pour \"C pas une vie\" (Ové & Vtext), pensé à l'origine comme fond de scène pour un concert.\n\nLe visuel décline plusieurs effets audioréactifs à partir d'un mesh 3D de voiture trouvé en ligne : un rendu en particules, un rendu en wireframe, et un troisième plus sombre aux formes plus abstraites.",
       "media": {
-        "type": "pending",
-        "url": "",
+        "type": "youtube",
+        "url": "https://youtu.be/R9vap-54RGg",
         "note": "fichier local à héberger"
       }
     },
     {
       "id": "surfeur-dargent",
       "title": "Surfeur d'argent",
+      "year": 2025,
+      "thumbnail": "/assets/images/uploads/minia surfeur d'argent.png",
+      "popup_bg": "",
       "tags": [
         "musique-son"
       ],
@@ -406,14 +424,17 @@
       "credits": "Ové (artiste)",
       "description": "Un morceau planant porté par une mélodie présente, avec des accords inspirés du new jazz, sur une rythmique trap simple mais groovy.\n\nLa composition, réalisée en solo, puise son inspiration dans le new jazz ainsi que dans la scène plugg, pour sa vibe ambiante et nonchalante mêlée à la trap.",
       "media": {
-        "type": "pending",
-        "url": "",
+        "type": "spotify",
+        "url": "https://open.spotify.com/intl-fr/track/7r84jFWfJeTtIhvDPUdxdn?si=2c78042870dc4fc2",
         "note": "lien à ajouter"
       }
     },
     {
       "id": "maladir",
       "title": "Maladir",
+      "year": 2025,
+      "thumbnail": "/assets/images/uploads/maladir.png",
+      "popup_bg": "",
       "tags": [
         "musique-son"
       ],
@@ -421,14 +442,17 @@
       "credits": "Vtext, Mailow (artistes)",
       "description": "Un morceau très mélodique, aux sonorités électroniques, porté par des drums marquées pour accompagner la voix.\n\nLa prod avait déjà été composée lors d'une première session, mais les drums et la basse n'avaient pas été conservées — je les ai refaites dans une seconde session, en ajoutant aussi quelques mélodies supplémentaires, avec Vtext et Mailow présents pour donner leurs retours.",
       "media": {
-        "type": "pending",
-        "url": "",
+        "type": "spotify",
+        "url": "https://open.spotify.com/intl-fr/track/4Nf9jRYf9oatoeUfAu7huM?si=728b99395d9742c0",
         "note": "lien à ajouter"
       }
     },
     {
       "id": "creux",
       "title": "Creux",
+      "year": 2025,
+      "thumbnail": "/assets/images/uploads/creux.png",
+      "popup_bg": "",
       "tags": [
         "musique-son"
       ],
@@ -444,6 +468,9 @@
     {
       "id": "baddies-n-pesos",
       "title": "Baddies n Pesos",
+      "year": 2025,
+      "thumbnail": "/assets/images/uploads/baddie and pesos.png",
+      "popup_bg": "",
       "tags": [
         "musique-son"
       ],
@@ -459,6 +486,9 @@
     {
       "id": "est-ce-que-tu-veux",
       "title": "Est-ce que tu veux",
+      "year": 2025,
+      "thumbnail": "/assets/images/uploads/liminal 7.png",
+      "popup_bg": "",
       "tags": [
         "musique-son"
       ],
@@ -466,14 +496,17 @@
       "credits": "Jimbo, Dehis (artistes), Mailow, Spooky Nerd (composition)",
       "description": "Un morceau triste et mélodique, construit autour d'un sample vocal, sur des textes plus introspectifs.\n\nJ'ai trouvé le sample de base et tenté une première version en solo, avant de faire appel à Mailow et Spooky Nerd pour retravailler la prod. Le morceau a été produit lors d'un séminaire.",
       "media": {
-        "type": "pending",
-        "url": "",
+        "type": "spotify",
+        "url": "https://open.spotify.com/intl-fr/track/6SEzrwze1fPGitB5gx2v57?si=698be1f1ff4e44ee",
         "note": "lien à ajouter"
       }
     },
     {
       "id": "figurant",
       "title": "Figurant",
+      "year": 2025,
+      "thumbnail": "/assets/images/uploads/figurant.png",
+      "popup_bg": "",
       "tags": [
         "musique-son"
       ],
