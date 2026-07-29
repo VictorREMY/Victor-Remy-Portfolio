@@ -522,6 +522,9 @@
     {
       "id": "hannah",
       "title": "Hannah",
+      "year": 2025,
+      "thumbnail": "/assets/images/uploads/hannah.png",
+      "popup_bg": "",
       "tags": [
         "musique-son"
       ],
@@ -537,6 +540,9 @@
     {
       "id": "plusqunetrap",
       "title": "PlusQuneTrap",
+      "year": 2025,
+      "thumbnail": "/assets/images/uploads/PlusQuneTrap.png",
+      "popup_bg": "",
       "tags": [
         "musique-projet"
       ],
@@ -544,7 +550,7 @@
       "credits": "Mailow (artiste)",
       "description": "Projet sorti en juillet 2025 pour Mailow, produit en amont entre plusieurs séances en séminaire et en studio, avec quelques feats et la plupart des compositions réalisées à 2 ou 3 producteurs.\n\nLa volonté du projet était de s'affranchir des codes de production classiques pour explorer de nouvelles sonorités — basses et mélodies distordues, rythmes déconstruits — avec un univers expérimental, sombre et impactant.\n\nJ'ai composé sur 7 des 8 morceaux, en participant à la recherche de sonorités et à la construction de la direction artistique globale. La tracklist alterne des moments plus calmes et plus intenses, avant de se conclure sur le son le plus particulier du projet, précédé d'un morceau plus posé.\n\nCe travail collectif sur la sonorité et la structure du projet en fait l'un des plus aboutis de ma collaboration avec Mailow.",
       "media": {
-        "type": "pending",
+        "type": "spotify",
         "url": "https://open.spotify.com/intl-fr/album/74JsfVzC7NMeE5PweCQhoR",
         "note": "vérifier si un type 'spotify' existe côté CMS"
       }
@@ -552,6 +558,9 @@
     {
       "id": "partoutapreslafin",
       "title": "PartoutApresLaFin",
+      "year": 2025,
+      "thumbnail": "/assets/images/uploads/PartoutApresLaFin.png",
+      "popup_bg": "",
       "tags": [
         "musique-projet"
       ],
@@ -559,14 +568,17 @@
       "credits": "Mailow (artiste)",
       "description": "Projet de Mailow sorti en mars 2025, produit en 2024. Le concept repose sur une narration construite à travers des interludes entre les morceaux, ainsi que sur des sonorités inspirées des années 50 — un album rappé, mais sur des prods qui s'interdisent tout synthé ou toute batterie postérieurs à cette époque, pour garder une couleur particulière.\n\nJ'ai co-composé 5 des 6 morceaux, avec Mailow et parfois d'autres producteurs, avec pour objectif personnel de découvrir ces sonorités tout en y apportant ma propre touche. Le déroulé du projet a été pensé autour des interludes, produits par Mailow.\n\nCette contrainte de production m'a poussé à sortir de mes habitudes tout en gardant une identité sonore reconnaissable.",
       "media": {
-        "type": "pending",
-        "url": "",
+        "type": "spotify",
+        "url": "https://open.spotify.com/intl-fr/album/0I9kMr06bgKrnKxk2OhV54?si=fFdlv-gPQ6mYfIWN5PPGfw",
         "note": "lien à ajouter"
       }
     },
     {
       "id": "tout-va-bien",
-      "title": "Tout va bien",
+      "title": "toutVaBien",
+      "year": 2025,
+      "thumbnail": "/assets/images/uploads/toutVaBien.png",
+      "popup_bg": "",
       "tags": [
         "musique-projet"
       ],
@@ -574,7 +586,7 @@
       "credits": "Mailow (artiste, coproduction)",
       "description": "Album sorti le 16 mai 2025, entre \"PartoutApresLaFin\" et \"PlusQuneTrap\" — deux projets à l'identité très marquée (années 50 d'un côté, expérimental et sombre de l'autre), qui appelaient une transition.\n\nCe projet s'oriente vers des sonorités plus accessibles et immédiates, avec une palette variée selon les morceaux : influences ambiantes, mélodies plus présentes, et un titre qui va jusqu'à une couleur synthwave/disco assumée sous des textes toujours rappés.\n\nJ'ai coproduit l'intégralité des 7 morceaux, chacun avec Mailow et parfois d'autres producteurs.",
       "media": {
-        "type": "pending",
+        "type": "spotify",
         "url": "https://open.spotify.com/intl-fr/album/6WKULQOo3ntMhKCnffUEaV",
         "note": "vérifier si un type 'spotify' existe côté CMS"
       }
