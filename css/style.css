@@ -275,28 +275,46 @@ em{ font-style: italic; color: var(--gold); }
    ========================================================== */
 
 /* Nav du haut minimale : Contact / Nom / À propos */
-.top-nav-minimal{
+/* ---------- Bandeau du haut (image + liens en surimpression) ---------- */
+.site-banner{
   position: fixed;
   top: 0; left: 0; right: 0;
   z-index: 50;
+  /* Ombre douce codée pour détacher le bandeau du fond (réglable ici) */
+  filter: drop-shadow(0 4px 8px rgba(0,0,0,0.18));
+}
+.banner-bg{
+  display: block;
+  width: 100%;
+  height: auto;
+  pointer-events: none;
+  user-select: none;
+}
+/* Les liens sont posés par-dessus l'image, alignés sur sa bande visible */
+.banner-nav{
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 4.5vw;            /* suit la hauteur proportionnelle du bandeau (169/1920) */
+  max-height: 90px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 1.5rem var(--gap-xl);
-  font-family: var(--font-mono);
-  font-size: 0.8rem;
-  letter-spacing: 0.05em;
-  pointer-events: none;
+  padding: 0 5vw;
+  font-family: 'Playfair Display', serif;
+  letter-spacing: 0.08em;
 }
-.top-nav-minimal a{
-  pointer-events: all;
+.banner-nav a{
   text-decoration: none;
-  color: var(--muted);
-  cursor: pointer;
-  transition: color 0.3s;
+  color: #111;
+  font-size: clamp(0.7rem, 0.9vw, 0.95rem);
+  transition: opacity 0.3s;
+  white-space: nowrap;
 }
-.top-nav-minimal a:hover{ color: var(--gold); text-decoration: underline; }
-.top-nav-minimal .brand{ color: var(--ink); }
+.banner-nav a:hover{ opacity: 0.55; }
+.banner-nav .brand{
+  font-size: clamp(1rem, 1.4vw, 1.5rem);
+  font-weight: 500;
+}
 
 /* Chemin en haut à gauche, sous la nav */
 .path-breadcrumb{
