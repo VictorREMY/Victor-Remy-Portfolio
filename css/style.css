@@ -585,6 +585,41 @@ em{ font-style: italic; color: var(--gold); }
 }
 .project-popup-backdrop.visible{ opacity: 1; pointer-events: all; }
 
+/* ---------- En-tête ornemental des fiches projets ---------- */
+.fiche-entete{
+  position: relative;
+  /* déborde du padding de la popup pour occuper toute la largeur */
+  margin: -3rem -3rem 1.5rem;
+}
+.fiche-entete-img{
+  display: block;
+  width: 100%;
+  height: auto;
+  pointer-events: none;
+  user-select: none;
+}
+.fiche-entete-titre{
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -55%);
+  text-align: center;
+  width: 80%;
+}
+.fiche-entete-titre .eyebrow{
+  margin-bottom: 0.3rem;
+}
+.fiche-entete-titre h1{
+  margin: 0;
+  font-family: 'Playfair Display', serif;
+  font-weight: 500;
+}
+
+/* Sur la page projet dédiée (pas la popup), l'en-tête déborde du padding de .page */
+.page .fiche-entete{
+  margin: -3rem calc(-1 * var(--gap-xl)) 1.5rem;
+}
+
 .project-popup{
   position: fixed;
   top: 50%;

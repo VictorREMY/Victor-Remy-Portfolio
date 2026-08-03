@@ -931,13 +931,15 @@ function buildProjectDetailHTML(project){
   }).join(hasChapters ? '<hr class="chapter-divider">' : "");
 
   return `
-    <p class="eyebrow" style="margin-bottom:0.6rem;">${project.year}</p>
-    <h1>${project.title}</h1>
+    <div class="fiche-entete">
+      <img src="assets/entete-fiche.png" alt="" class="fiche-entete-img">
+      <div class="fiche-entete-titre">
+        <p class="eyebrow">${project.year}</p>
+        <h1>${project.title}</h1>
+      </div>
+    </div>
     ${tabsHTML}
     ${sectionsHTML}
-    <div class="tags" style="margin-top: var(--gap-lg);">
-      ${projectTags(project).map(t => `<span class="tag">${BRANCHES[t] ? BRANCHES[t].label : t}</span>`).join("")}
-    </div>
   `;
 }
 
