@@ -262,6 +262,7 @@
       "id": "one-turn-kill",
       "title": "One Turn Kill",
       "year": 2026,
+      "thumbnail": "/assets/images/uploads/minia one turn kill.png",
       "popup_bg": "",
       "role": "",
       "credits": "",
@@ -293,7 +294,7 @@
           "description": "Un format behind-the-scenes, teasant la création du visuel via des captures d'écran du travail dans TouchDesigner, pensé pour Instagram.",
           "media": {
             "type": "youtube",
-            "url": "https://youtube.com/shorts/38KJiQ4VKR0",
+            "url": "https://youtube.com/shorts/JRv3R2QCn9w",
             "note": "fichiers trop lourds pour l'instant"
           }
         }
