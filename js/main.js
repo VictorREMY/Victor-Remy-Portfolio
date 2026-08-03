@@ -1031,10 +1031,16 @@ function openProjectPopup(id, contextTag){
   popupEl.classList.add("open");
   popupEl.scrollTop = 0;
 
-  // Ouvre directement sur le chapitre lié à la branche d'où on vient
+  // La popup s'ouvre toujours en haut (on voit l'en-tête + le premier chapitre).
+  // Si on vient d'une branche précise, on met juste en surbrillance l'onglet
+  // correspondant, sans forcer le défilement automatique.
   if(contextTag && Array.isArray(project.chapters)){
     const target = project.chapters.find(c => (c.tags || []).includes(contextTag));
-    if(target) scrollToChapter(popupEl, target.id, true);
+    if(target){
+      popupEl.querySelectorAll("[data-chapter-tab]").forEach(b =>
+        b.classList.toggle("active", b.dataset.chapterTab === target.id)
+      );
+    }
   }
 }
 
