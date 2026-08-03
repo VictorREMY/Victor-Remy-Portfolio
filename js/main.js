@@ -936,8 +936,8 @@ function buildProjectDetailHTML(project){
     <div class="fiche-entete">
       <img src="assets/entete-fiche.png" alt="" class="fiche-entete-img">
       <div class="fiche-entete-titre">
-        <p class="eyebrow">${project.year}</p>
         <h1>${project.title}</h1>
+        <p class="eyebrow">${project.year}</p>
       </div>
     </div>
     ${tabsHTML}

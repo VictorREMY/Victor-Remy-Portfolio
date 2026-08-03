@@ -590,8 +590,17 @@ em{ font-style: italic; color: var(--gold); }
   position: relative;
   /* déborde du padding de la popup pour occuper toute la largeur */
   margin: -3rem -3rem 1.5rem;
-  /* voile sombre réglable derrière l'en-tête, pour le détacher de la fiche */
   background: rgba(0, 0, 0, var(--entete-fonce, 0.06));
+  overflow: hidden;
+}
+/* Voile uniforme au-dessus de l'image : évite que les bords des calques
+   semi-transparents (filigrane) créent des démarcations visibles. */
+.fiche-entete::after{
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, var(--entete-fonce, 0.06));
+  pointer-events: none;
 }
 .fiche-entete-img{
   display: block;
@@ -607,17 +616,20 @@ em{ font-style: italic; color: var(--gold); }
   transform: translate(-50%, -50%);
   text-align: center;
   width: 70%;
+  z-index: 2;
   display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.3rem;
+  flex-direction: row;
+  align-items: baseline;
+  justify-content: center;
+  gap: 0.6rem;
 }
 .fiche-entete-titre .eyebrow{
   margin: 0;
   font-size: 0.7rem;
-  letter-spacing: 0.4em;
-  opacity: 0.6;
+  letter-spacing: 0.3em;
+  opacity: 0.55;
   font-family: var(--font-mono);
+  white-space: nowrap;
 }
 .fiche-entete-titre h1{
   margin: 0;
