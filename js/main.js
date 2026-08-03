@@ -604,15 +604,18 @@ function initWheelZoom(){
         if(target){
           navigating = true;
           bounceThen(() => {
-            _zoomAnimating = false;
             // Cohérence avec le clic : une bulle projet ouvre la popup,
             // une bulle de navigation change de page.
             if(target.dataset.popup === "true"){
-              // On remet le zoom à zéro avant d'ouvrir la popup par-dessus
-              scale = 1; targetScale = 1; apply();
-              navigating = false; _zoomAnimating = true; requestAnimationFrame(animate);
               openProjectPopup(target.dataset.key, target.dataset.context || null);
+              // Remet le zoom à neuf pour pouvoir re-naviguer ensuite
+              scale = 1; targetScale = 1;
+              anchorScreenX = window.innerWidth / 2; anchorScreenY = window.innerHeight / 2;
+              anchorWorldX = window.innerWidth / 2; anchorWorldY = window.innerHeight / 2;
+              apply();
+              navigating = false; bouncing = false;
             } else {
+              _zoomAnimating = false;
               vortexInto(target, target.getAttribute("href"));
             }
           });
@@ -1040,12 +1043,12 @@ function openProjectPopup(id, contextTag){
   content.innerHTML = buildProjectDetailHTML(project);
   const popupEl = document.getElementById("project-popup");
   popupEl.style.background = project.popup_bg ? project.popup_bg : "";
-  bindChapterTabs(content, popupEl);
+  bindChapterTabs(content, content);
   mountBlockCanvases(content);
 
   document.getElementById("project-popup-backdrop").classList.add("visible");
   popupEl.classList.add("open");
-  popupEl.scrollTop = 0;
+  content.scrollTop = 0;   // le contenu défile dans #popup-content, pas dans la popup
 
   // La popup s'ouvre toujours en haut (on voit l'en-tête + le premier chapitre).
   // Si on vient d'une branche précise, on met juste en surbrillance l'onglet
@@ -1053,7 +1056,7 @@ function openProjectPopup(id, contextTag){
   if(contextTag && Array.isArray(project.chapters)){
     const target = project.chapters.find(c => (c.tags || []).includes(contextTag));
     if(target){
-      popupEl.querySelectorAll("[data-chapter-tab]").forEach(b =>
+      content.querySelectorAll("[data-chapter-tab]").forEach(b =>
         b.classList.toggle("active", b.dataset.chapterTab === target.id)
       );
     }
