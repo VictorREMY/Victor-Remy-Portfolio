@@ -589,6 +589,18 @@ function initWheelZoom(){
   }
 
   _zoomAnimating = true;
+
+  // Réinitialise complètement l'état du zoom (appelé à l'ouverture/fermeture
+  // d'une popup, pour toujours repartir d'un état sain et pouvoir rezoomer).
+  window._resetZoom = function(){
+    scale = 1; targetScale = 1;
+    anchorScreenX = window.innerWidth / 2; anchorScreenY = window.innerHeight / 2;
+    anchorWorldX = window.innerWidth / 2; anchorWorldY = window.innerHeight / 2;
+    navigating = false; bouncing = false;
+    _zoomAnimating = true;
+    apply();
+  };
+
   function animate(){
     if(!_zoomAnimating) return; // stoppé net quand une transition prend le relais
 
@@ -608,12 +620,7 @@ function initWheelZoom(){
             // une bulle de navigation change de page.
             if(target.dataset.popup === "true"){
               openProjectPopup(target.dataset.key, target.dataset.context || null);
-              // Remet le zoom à neuf pour pouvoir re-naviguer ensuite
-              scale = 1; targetScale = 1;
-              anchorScreenX = window.innerWidth / 2; anchorScreenY = window.innerHeight / 2;
-              anchorWorldX = window.innerWidth / 2; anchorWorldY = window.innerHeight / 2;
-              apply();
-              navigating = false; bouncing = false;
+              window._resetZoom();
             } else {
               _zoomAnimating = false;
               vortexInto(target, target.getAttribute("href"));
@@ -1013,6 +1020,14 @@ function initProjectPopups(){
   function close(){
     backdrop.classList.remove("visible");
     popup.classList.remove("open");
+    // Repart d'un zoom sain pour pouvoir rouvrir une bulle ensuite
+    if(window._resetZoom) window._resetZoom();
+    // Vide le contenu pour stopper toute vidéo/audio en cours de lecture
+    setTimeout(() => {
+      if(!popup.classList.contains("open")){
+        document.getElementById("popup-content").innerHTML = "";
+      }
+    }, 300);
   }
   backdrop.addEventListener("click", close);
   popup.querySelector(".popup-close").addEventListener("click", close);
