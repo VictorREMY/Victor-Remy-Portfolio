@@ -932,14 +932,18 @@ function buildProjectDetailHTML(project){
   `;
   }).join(hasChapters ? '<hr class="chapter-divider">' : "");
 
+  const anneeHTML = project.year ? `<p class="fiche-annee">${project.year}</p>` : "";
+
   return `
     <div class="fiche-entete">
-      <img src="assets/entete-fiche.png" alt="" class="fiche-entete-img">
+      <img src="assets/entete-coin-gauche.png" alt="" class="ornement ornement-gauche">
+      <img src="assets/entete-coin-droit.png" alt="" class="ornement ornement-droit">
+      <img src="assets/entete-bas.png" alt="" class="ornement ornement-bas">
       <div class="fiche-entete-titre">
         <h1>${project.title}</h1>
-        <p class="eyebrow">${project.year}</p>
       </div>
     </div>
+    ${anneeHTML}
     ${tabsHTML}
     ${sectionsHTML}
   `;

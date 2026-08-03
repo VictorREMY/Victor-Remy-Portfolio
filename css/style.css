@@ -16,7 +16,7 @@
   --line: rgba(0, 0, 0, 0.18);
 
   /* Rayon des coins arrondis — réglable via le menu (?radiustune ou éditeur) */
-  --radius: 0px;
+  --radius: 12px;
 
   /* PLACEHOLDER — police système générique, aucun choix typographique fait */
   --font-display: system-ui, -apple-system, "Segoe UI", sans-serif;
@@ -590,52 +590,57 @@ em{ font-style: italic; color: var(--gold); }
   position: relative;
   /* déborde du padding de la popup pour occuper toute la largeur */
   margin: -3rem -3rem 1.5rem;
+  height: 240px;
   background: rgba(0, 0, 0, var(--entete-fonce, 0.06));
+  border-radius: var(--radius) var(--radius) 0 0;
   overflow: hidden;
 }
-/* Voile uniforme au-dessus de l'image : évite que les bords des calques
-   semi-transparents (filigrane) créent des démarcations visibles. */
-.fiche-entete::after{
-  content: "";
+/* Chaque ornement est positionné indépendamment : ainsi, quelle que soit
+   la largeur de la fiche, les coins restent aux coins et l'ornement du
+   bas reste centré. */
+.ornement{
   position: absolute;
-  inset: 0;
-  background: rgba(0, 0, 0, var(--entete-fonce, 0.06));
-  pointer-events: none;
-}
-.fiche-entete-img{
-  display: block;
-  width: 100%;
-  height: auto;
   pointer-events: none;
   user-select: none;
+  height: auto;
+}
+.ornement-gauche{
+  top: 0; left: 0;
+  height: 100%;
+  width: auto;
+}
+.ornement-droit{
+  top: 0; right: 0;
+  height: 100%;
+  width: auto;
+}
+.ornement-bas{
+  bottom: -0.5rem; left: 50%;
+  transform: translateX(-50%);
+  width: 260px;
+  height: auto;
 }
 .fiche-entete-titre{
   position: absolute;
-  top: 46%;
+  top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
   text-align: center;
   width: 70%;
   z-index: 2;
-  display: flex;
-  flex-direction: row;
-  align-items: baseline;
-  justify-content: center;
-  gap: 0.6rem;
-}
-.fiche-entete-titre .eyebrow{
-  margin: 0;
-  font-size: 0.7rem;
-  letter-spacing: 0.3em;
-  opacity: 0.55;
-  font-family: var(--font-mono);
-  white-space: nowrap;
 }
 .fiche-entete-titre h1{
   margin: 0;
   font-family: 'Playfair Display', serif;
   font-weight: 500;
-  line-height: 1;
+  line-height: 1.05;
+}
+.fiche-annee{
+  margin: 0 0 1.5rem;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.25em;
+  color: var(--muted);
 }
 
 /* Sur la page projet dédiée (pas la popup), l'en-tête déborde du padding de .page */
