@@ -655,14 +655,22 @@ em{ font-style: italic; color: var(--gold); }
   transform: translate(-50%, -48%) scale(0.96);
   width: min(920px, 90vw);
   max-height: 84vh;
-  overflow-y: auto;
   background: var(--bg-alt);
   border-radius: var(--radius);
-  padding: 3rem;
+  overflow: hidden;              /* le cadre arrondi rogne tout ce qui dépasse */
   z-index: 251;
   opacity: 0;
   pointer-events: none;
   transition: opacity 0.3s, transform 0.3s;
+  display: flex;
+  flex-direction: column;
+}
+/* Le contenu défile À L'INTÉRIEUR du cadre arrondi : la barre de scroll
+   reste donc dans les coins arrondis, pas plaquée sur le bord extérieur. */
+#popup-content{
+  overflow-y: auto;
+  padding: 3rem;
+  max-height: 84vh;
 }
 .project-popup.open{
   opacity: 1;
@@ -679,6 +687,7 @@ em{ font-style: italic; color: var(--gold); }
   font-size: 1.2rem;
   cursor: pointer;
   transition: color 0.3s;
+  z-index: 5;
 }
 .popup-close:hover{ color: var(--gold); }
 

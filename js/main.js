@@ -603,7 +603,19 @@ function initWheelZoom(){
         const target = syphonUnderCursor();
         if(target){
           navigating = true;
-          bounceThen(() => { _zoomAnimating = false; vortexInto(target, target.getAttribute("href")); });
+          bounceThen(() => {
+            _zoomAnimating = false;
+            // Cohérence avec le clic : une bulle projet ouvre la popup,
+            // une bulle de navigation change de page.
+            if(target.dataset.popup === "true"){
+              // On remet le zoom à zéro avant d'ouvrir la popup par-dessus
+              scale = 1; targetScale = 1; apply();
+              navigating = false; _zoomAnimating = true; requestAnimationFrame(animate);
+              openProjectPopup(target.dataset.key, target.dataset.context || null);
+            } else {
+              vortexInto(target, target.getAttribute("href"));
+            }
+          });
         }
       } else if(scale <= S.thresholdOut && retourBtn){
         navigating = true;
