@@ -464,7 +464,7 @@ function buildZoomSection(){
 }
 
 /* --- Section "Apparence" (coins arrondis, etc.) --- */
-const APPEARANCE_SETTINGS = { radius: 0 };
+const APPEARANCE_SETTINGS = { radius: 0, enteteFonce: 0.06 };
 
 function loadAppearanceSettings(){
   return fetch("data/appearance-settings.json")
@@ -479,11 +479,13 @@ function loadAppearanceSettings(){
 
 function applyAppearance(){
   document.documentElement.style.setProperty("--radius", APPEARANCE_SETTINGS.radius + "px");
+  document.documentElement.style.setProperty("--entete-fonce", APPEARANCE_SETTINGS.enteteFonce);
 }
 
 function buildAppearanceSection(){
   const fields = [
-    { key: "radius", label: "Coins arrondis (px)", min: 0, max: 40, step: 1 }
+    { key: "radius", label: "Coins arrondis (px)", min: 0, max: 40, step: 1 },
+    { key: "enteteFonce", label: "Assombrir en-tête fiche", min: 0, max: 0.4, step: 0.01 }
   ];
   const content = document.createElement("div");
   content.appendChild(buildSliderGroup(APPEARANCE_SETTINGS, fields, () => applyAppearance()));

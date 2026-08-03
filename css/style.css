@@ -590,6 +590,8 @@ em{ font-style: italic; color: var(--gold); }
   position: relative;
   /* déborde du padding de la popup pour occuper toute la largeur */
   margin: -3rem -3rem 1.5rem;
+  /* voile sombre réglable derrière l'en-tête, pour le détacher de la fiche */
+  background: rgba(0, 0, 0, var(--entete-fonce, 0.06));
 }
 .fiche-entete-img{
   display: block;
@@ -602,17 +604,24 @@ em{ font-style: italic; color: var(--gold); }
   position: absolute;
   top: 50%;
   left: 50%;
-  transform: translate(-50%, -55%);
+  transform: translate(-50%, -50%);
   text-align: center;
   width: 80%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.2rem;
 }
 .fiche-entete-titre .eyebrow{
-  margin-bottom: 0.3rem;
+  margin: 0;
+  font-size: 0.75rem;
+  letter-spacing: 0.3em;
 }
 .fiche-entete-titre h1{
   margin: 0;
   font-family: 'Playfair Display', serif;
   font-weight: 500;
+  line-height: 1;
 }
 
 /* Sur la page projet dédiée (pas la popup), l'en-tête déborde du padding de .page */
