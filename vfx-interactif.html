@@ -3,10 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Victor Remy — vfx-interactif</title>
+<title>Victor Remy — VFX</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/style.css?v=1785775260">
+<link rel="stylesheet" href="css/style.css?v=1785854055">
 </head>
 <body>
 
@@ -20,7 +20,7 @@
     <a href="#" data-modal="contact">Contact</a>
   </nav>
 </header>
-<p class="path-breadcrumb" id="path-text">hub/vfx/interactif</p>
+<p class="path-breadcrumb" id="path-text">hub/vfx</p>
 <button class="retour-btn" data-retour>← Retour</button>
 
 <div id="zoom-stage" class="zoom-stage">
@@ -28,8 +28,8 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-<script src="js/branches-config.js?v=1785775260"></script>
-<script src="js/main.js?v=1785775260"></script>
+<script src="js/branches-config.js?v=1785854055"></script>
+<script src="js/main.js?v=1785854055"></script>
 <script>
   initZoomTransitions();
   initInfoBubbles();
@@ -38,9 +38,14 @@
   loadZoomSettings().then(() => initWheelZoom());
   bindRetourButton();
 
-  Promise.all([loadLayoutData(), loadChapterLayouts(), loadProjectsData()]).then(() => {
-    const items = getProjectsByTag("vfx-interactif").map(p => ({ label: p.title, href: "projet.html?id=" + p.id, key: p.id, popup: true, thumbnail: p.thumbnail || null, contextTag: "vfx-interactif" }));
-    renderSyphons("syphon-field", items);
+  Promise.all([loadLayoutData(), loadChapterLayouts()]).then(() => {
+    const tree = getChildren("vfx").map(cKey => ({
+      label: BRANCHES[cKey].label,
+      href: BRANCHES[cKey].page,
+      key: cKey,
+      children: []
+    }));
+    renderSyphonTree("syphon-field", tree);
     initEditMode();
   });
 </script>

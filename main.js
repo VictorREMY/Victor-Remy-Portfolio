@@ -16,7 +16,7 @@
   --line: rgba(0, 0, 0, 0.18);
 
   /* Rayon des coins arrondis — réglable via le menu (?radiustune ou éditeur) */
-  --radius: 0px;
+  --radius: 12px;
 
   /* PLACEHOLDER — police système générique, aucun choix typographique fait */
   --font-display: system-ui, -apple-system, "Segoe UI", sans-serif;
@@ -590,15 +590,41 @@ em{ font-style: italic; color: var(--gold); }
   position: relative;
   /* déborde du padding de la popup pour occuper toute la largeur */
   margin: -3rem -3rem 1.5rem;
-  /* voile sombre réglable derrière l'en-tête, pour le détacher de la fiche */
+  height: 240px;
   background: rgba(0, 0, 0, var(--entete-fonce, 0.06));
+  border-radius: var(--radius) var(--radius) 0 0;
+  /* même ombre douce que le bandeau principal, pour détacher l'en-tête */
+  box-shadow: 0 4px 8px rgba(0,0,0,0.18);
 }
-.fiche-entete-img{
-  display: block;
-  width: 100%;
-  height: auto;
+/* Masque intérieur pour rogner les ornements aux coins arrondis SANS
+   couper l'ombre portée de l'en-tête (contrairement à overflow:hidden). */
+.fiche-entete > .ornement{
+  border-radius: inherit;
+}
+/* Chaque ornement est positionné indépendamment : ainsi, quelle que soit
+   la largeur de la fiche, les coins restent aux coins et l'ornement du
+   bas reste centré. */
+.ornement{
+  position: absolute;
   pointer-events: none;
   user-select: none;
+  height: auto;
+}
+.ornement-gauche{
+  top: 0; left: 0;
+  height: 100%;
+  width: auto;
+}
+.ornement-droit{
+  top: 0; right: 0;
+  height: 100%;
+  width: auto;
+}
+.ornement-bas{
+  bottom: 0; left: 50%;
+  transform: translateX(-50%);
+  width: 260px;
+  height: auto;
 }
 .fiche-entete-titre{
   position: absolute;
@@ -606,22 +632,21 @@ em{ font-style: italic; color: var(--gold); }
   left: 50%;
   transform: translate(-50%, -50%);
   text-align: center;
-  width: 80%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.2rem;
-}
-.fiche-entete-titre .eyebrow{
-  margin: 0;
-  font-size: 0.75rem;
-  letter-spacing: 0.3em;
+  width: 70%;
+  z-index: 2;
 }
 .fiche-entete-titre h1{
   margin: 0;
   font-family: 'Playfair Display', serif;
   font-weight: 500;
-  line-height: 1;
+  line-height: 1.05;
+}
+.fiche-annee{
+  margin: 0 0 1.5rem;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.25em;
+  color: var(--muted);
 }
 
 /* Sur la page projet dédiée (pas la popup), l'en-tête déborde du padding de .page */
@@ -636,14 +661,22 @@ em{ font-style: italic; color: var(--gold); }
   transform: translate(-50%, -48%) scale(0.96);
   width: min(920px, 90vw);
   max-height: 84vh;
-  overflow-y: auto;
   background: var(--bg-alt);
   border-radius: var(--radius);
-  padding: 3rem;
+  overflow: hidden;              /* le cadre arrondi rogne tout ce qui dépasse */
   z-index: 251;
   opacity: 0;
   pointer-events: none;
   transition: opacity 0.3s, transform 0.3s;
+  display: flex;
+  flex-direction: column;
+}
+/* Le contenu défile À L'INTÉRIEUR du cadre arrondi : la barre de scroll
+   reste donc dans les coins arrondis, pas plaquée sur le bord extérieur. */
+#popup-content{
+  overflow-y: auto;
+  padding: 3rem;
+  max-height: 84vh;
 }
 .project-popup.open{
   opacity: 1;
@@ -660,6 +693,7 @@ em{ font-style: italic; color: var(--gold); }
   font-size: 1.2rem;
   cursor: pointer;
   transition: color 0.3s;
+  z-index: 5;
 }
 .popup-close:hover{ color: var(--gold); }
 
