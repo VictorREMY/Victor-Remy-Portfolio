@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Victor Remy — Hub</title>
+<title>Victor Remy — Musique</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="css/style.css?v=1785854055">
@@ -20,7 +20,7 @@
     <a href="#" data-modal="contact">Contact</a>
   </nav>
 </header>
-<p class="path-breadcrumb" id="path-text">hub</p>
+<p class="path-breadcrumb" id="path-text">hub/musique</p>
 <button class="retour-btn" data-retour>← Retour</button>
 
 <div id="zoom-stage" class="zoom-stage">
@@ -39,16 +39,11 @@
   bindRetourButton();
 
   Promise.all([loadLayoutData(), loadChapterLayouts()]).then(() => {
-    const tree = getTopLevelBranches().map(bKey => ({
-      label: BRANCHES[bKey].label,
-      href: BRANCHES[bKey].page,
-      key: bKey,
-      children: getChildren(bKey).map(cKey => ({
-        label: BRANCHES[cKey].label,
-        href: BRANCHES[cKey].page,
-        key: cKey,
-        children: []
-      }))
+    const tree = getChildren("musique").map(cKey => ({
+      label: BRANCHES[cKey].label,
+      href: BRANCHES[cKey].page,
+      key: cKey,
+      children: []
     }));
     renderSyphonTree("syphon-field", tree);
     initEditMode();

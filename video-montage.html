@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Victor Remy — vfx-video</title>
+<title>Victor Remy — video-montage</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="css/style.css?v=1785854055">
@@ -20,7 +20,7 @@
     <a href="#" data-modal="contact">Contact</a>
   </nav>
 </header>
-<p class="path-breadcrumb" id="path-text">hub/vfx/basé sur vidéo</p>
+<p class="path-breadcrumb" id="path-text">hub/video/montage</p>
 <button class="retour-btn" data-retour>← Retour</button>
 
 <div id="zoom-stage" class="zoom-stage">
@@ -39,7 +39,7 @@
   bindRetourButton();
 
   Promise.all([loadLayoutData(), loadChapterLayouts(), loadProjectsData()]).then(() => {
-    const items = getProjectsByTag("vfx-video").map(p => ({ label: p.title, href: "projet.html?id=" + p.id, key: p.id, popup: true, thumbnail: p.thumbnail || null, contextTag: "vfx-video" }));
+    const items = getProjectsByTag("video-montage").map(p => ({ label: p.title, href: "projet.html?id=" + p.id, key: p.id, popup: true, thumbnail: p.thumbnail || null, contextTag: "video-montage" }));
     renderSyphons("syphon-field", items);
     initEditMode();
   });
