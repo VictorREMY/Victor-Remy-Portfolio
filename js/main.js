@@ -886,7 +886,7 @@ function buildMediaBlock(media){
     const ratio = isShort ? "9/16" : "16/9";
     const maxW = isShort ? "max-width:300px; margin:0 auto;" : "";
     return `<div style="aspect-ratio:${ratio}; ${maxW} border-radius:var(--radius); overflow:hidden;">
-      <iframe width="100%" height="100%" src="https://www.youtube.com/embed/${id}" frameborder="0" allowfullscreen></iframe>
+      <iframe width="100%" height="100%" src="https://www.youtube.com/embed/${id}?enablejsapi=1" frameborder="0" allowfullscreen></iframe>
     </div>`;
   }
   if(media.type === "spotify"){
@@ -1018,16 +1018,21 @@ function initProjectPopups(){
   document.body.appendChild(popup);
 
   function close(){
+    const content = document.getElementById("popup-content");
+    // 1) Coupe le son TOUT DE SUITE (pause via API + retrait des iframes) —
+    //    c'est ce qui garantit que le son s'arrête, sans exception.
+    content.querySelectorAll("iframe").forEach(f => {
+      try {
+        f.contentWindow.postMessage('{"event":"command","func":"pauseVideo","args":""}', "*");
+      } catch(e){}
+    });
+    // 2) Lance le fondu visuel de fermeture (adoucit la perception de la coupure)
     backdrop.classList.remove("visible");
     popup.classList.remove("open");
-    // Repart d'un zoom sain pour pouvoir rouvrir une bulle ensuite
     if(window._resetZoom) window._resetZoom();
-    // Vide le contenu pour stopper toute vidéo/audio en cours de lecture
-    setTimeout(() => {
-      if(!popup.classList.contains("open")){
-        document.getElementById("popup-content").innerHTML = "";
-      }
-    }, 300);
+    // 3) Retire réellement le contenu net (le son est déjà coupé par le pause)
+    content.querySelectorAll("iframe, video, audio").forEach(el => el.remove());
+    content.innerHTML = "";
   }
   backdrop.addEventListener("click", close);
   popup.querySelector(".popup-close").addEventListener("click", close);
