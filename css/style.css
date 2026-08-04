@@ -593,7 +593,24 @@ em{ font-style: italic; color: var(--gold); }
   height: 240px;
   background: rgba(0, 0, 0, var(--entete-fonce, 0.06));
   border-radius: var(--radius) var(--radius) 0 0;
-  overflow: hidden;
+}
+/* Ombre douce SOUS l'en-tête, réalisée avec un dégradé dans le flux normal
+   (une box-shadow serait rognée par l'overflow de la popup et du contenu). */
+.fiche-entete::after{
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -12px;
+  height: 12px;
+  background: linear-gradient(to bottom, rgba(0,0,0,0.18), rgba(0,0,0,0));
+  pointer-events: none;
+  z-index: 3;
+}
+/* Masque intérieur pour rogner les ornements aux coins arrondis SANS
+   couper l'ombre portée de l'en-tête (contrairement à overflow:hidden). */
+.fiche-entete > .ornement{
+  border-radius: inherit;
 }
 /* Chaque ornement est positionné indépendamment : ainsi, quelle que soit
    la largeur de la fiche, les coins restent aux coins et l'ornement du
@@ -615,7 +632,7 @@ em{ font-style: italic; color: var(--gold); }
   width: auto;
 }
 .ornement-bas{
-  bottom: -0.5rem; left: 50%;
+  bottom: 0; left: 50%;
   transform: translateX(-50%);
   width: 260px;
   height: auto;
