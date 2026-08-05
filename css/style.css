@@ -407,6 +407,15 @@ em{ font-style: italic; color: var(--gold); }
   transform: translate(-50%, -50%);
   z-index: 0;
   pointer-events: none;
+  /* 1) Bords fondus : le contour du typhon se dissout dans le fond
+     (masque radial : opaque au centre, transparent sur les bords). */
+  -webkit-mask-image: radial-gradient(circle, #000 55%, transparent 78%);
+  mask-image: radial-gradient(circle, #000 55%, transparent 78%);
+  /* 2) Mode de fusion : le typhon se mélange à la matière du fond eau
+     au lieu d'être posé dessus comme un autocollant. */
+  mix-blend-mode: screen;
+  /* 3) Léger halo pour adoucir encore la transition avec le fond. */
+  filter: drop-shadow(0 0 12px rgba(120, 160, 180, 0.25));
 }
 /* Textes en blanc, au-dessus du vortex, avec une ombre pour la lisibilité */
 .syphon > span{
