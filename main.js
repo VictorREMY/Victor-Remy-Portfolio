@@ -1,0 +1,963 @@
+/* ==========================================================
+   DESIGN SYSTEM — Victor Remy Portfolio
+   Toutes les pages du site utilisent ce fichier.
+   Change une valeur ici, elle se répercute partout.
+   ========================================================== */
+
+:root{
+  /* PLACEHOLDER — aucune couleur définitive choisie pour l'instant.
+     Remplace ces valeurs une fois ta direction visuelle prête. */
+  --bg: #ffffff;
+  --bg-alt: #f0f0f0;
+  --ink: #111111;
+  --gold: #000000;
+  --cyan: #555555;
+  --muted: #767676;
+  --line: rgba(0, 0, 0, 0.18);
+
+  /* Rayon des coins arrondis — réglable via le menu (?radiustune ou éditeur) */
+  --radius: 12px;
+
+  /* PLACEHOLDER — police système générique, aucun choix typographique fait */
+  --font-display: system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-body: system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: ui-monospace, "Courier New", monospace;
+
+  /* Espacements */
+  --gap-sm: 0.75rem;
+  --gap-md: 1.5rem;
+  --gap-lg: 3rem;
+  --gap-xl: 6vw;
+
+  /* Transition */
+  --ease: cubic-bezier(0.76, 0, 0.24, 1);
+}
+
+*{ margin:0; padding:0; box-sizing:border-box; }
+html, body{ height:100%; overflow-x: hidden; }
+
+/* Fond animé (vidéo TouchDesigner) — présent sur toutes les pages
+   sauf les popups/fiches de détail. Voir js/water-effect.js */
+#water-bg{
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 0;
+  pointer-events: none;
+}
+
+body{
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-body);
+  line-height: 1.5;
+}
+
+a{ color: inherit; }
+img, video{ max-width: 100%; display:block; }
+
+/* ---------- Typo utilitaires ---------- */
+
+.eyebrow{
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--cyan);
+}
+
+h1, h2, h3{
+  font-family: var(--font-display);
+  font-weight: 500;
+  line-height: 1.05;
+}
+
+h1{ font-size: clamp(2.2rem, 6vw, 4.5rem); }
+h2{ font-size: clamp(1.6rem, 4vw, 2.6rem); }
+
+em{ font-style: italic; color: var(--gold); }
+
+.muted{ color: var(--muted); }
+
+/* ---------- Navigation persistante ---------- */
+
+.site-nav{
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 100;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.5rem var(--gap-xl);
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  letter-spacing: 0.05em;
+  background: linear-gradient(to bottom, rgba(255,255,255,0.9), transparent);
+}
+
+.site-nav .brand{
+  text-decoration: none;
+  color: var(--ink);
+}
+
+.site-nav .branches{
+  display: flex;
+  gap: var(--gap-md);
+  list-style: none;
+}
+
+.site-nav .brand,
+.site-nav .branches a{
+  text-decoration: none;
+  color: var(--muted);
+  transition: color 0.3s;
+  cursor: pointer;
+}
+.site-nav .brand{ color: var(--ink); }
+.site-nav .branches a:hover,
+.site-nav .branches a.active{
+  color: var(--gold);
+  text-decoration: underline;
+}
+.site-nav .brand:hover{
+  color: var(--gold);
+  text-decoration: underline;
+}
+
+/* ---------- Fil d'Ariane ---------- */
+
+.breadcrumb{
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  color: var(--muted);
+  letter-spacing: 0.05em;
+}
+.breadcrumb a{ text-decoration:none; color: var(--muted); cursor: pointer; transition: color 0.3s; }
+.breadcrumb a:hover{ color: var(--gold); text-decoration: underline; }
+
+/* ---------- Boutons / liens ronds ---------- */
+
+.pill-link{
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  letter-spacing: 0.05em;
+  color: var(--ink);
+  text-decoration: none;
+  border: 1px solid var(--muted);
+  padding: 0.9em 1.6em;
+  border-radius: var(--radius);
+  transition: border-color 0.3s, color 0.3s;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6em;
+  cursor: pointer;
+  background: none;
+}
+.pill-link:hover{ border-color: var(--gold); color: var(--gold); }
+
+/* ---------- Grille de projets (galeries filtrées) ---------- */
+
+.filter-row{
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  margin: var(--gap-lg) 0;
+}
+
+.filter-chip{
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.05em;
+  padding: 0.5em 1.1em;
+  border-radius: var(--radius);
+  border: 1px solid var(--line);
+  background: none;
+  color: var(--muted);
+  cursor: pointer;
+  transition: all 0.25s;
+}
+.filter-chip:hover{ color: var(--ink); border-color: var(--muted); }
+.filter-chip.active{
+  color: var(--bg);
+  background: var(--gold);
+  border-color: var(--gold);
+}
+
+.project-grid{
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: var(--gap-md);
+}
+
+.project-card{
+  text-decoration: none;
+  color: var(--ink);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: var(--gap-md);
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+  transition: border-color 0.3s, transform 0.3s;
+  min-height: 200px;
+}
+.project-card:hover{
+  border-color: var(--gold);
+  transform: translateY(-4px);
+}
+
+.project-card .thumb{
+  width: 100%;
+  aspect-ratio: 16/9;
+  border-radius: var(--radius);
+  background: var(--bg-alt);
+  border: 1px dashed var(--line);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  color: var(--muted);
+  text-align: center;
+  padding: 1rem;
+}
+
+.project-card .tags{
+  display: flex;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+}
+.project-card .tag{
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  color: var(--cyan);
+  border: 1px solid var(--line);
+  padding: 0.2em 0.6em;
+  border-radius: var(--radius);
+}
+
+/* ---------- Transition de page (rideau) ---------- */
+
+.transition-overlay{
+  position: fixed;
+  inset: 0;
+  background: var(--bg);
+  z-index: 999;
+  transform: scaleY(1);
+  transform-origin: top;
+  transition: transform 0.7s var(--ease);
+  pointer-events: none;
+}
+.transition-overlay.reveal{
+  transform: scaleY(0);
+  transform-origin: bottom;
+}
+.transition-overlay.cover{
+  transform: scaleY(1);
+  transform-origin: top;
+  pointer-events: all;
+}
+
+/* ---------- Layout générique de page ---------- */
+
+.page{
+  min-height: 100vh;
+  padding: 7rem var(--gap-xl) var(--gap-xl);
+}
+
+.page-header{
+  margin-bottom: var(--gap-lg);
+}
+
+/* ==========================================================
+   NAVIGATION SYPHON — Hub / branches / sous-catégories
+   ========================================================== */
+
+/* Nav du haut minimale : Contact / Nom / À propos */
+/* ---------- Bandeau du haut (image + liens en surimpression) ---------- */
+.site-banner{
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 50;
+  /* Ombre douce codée pour détacher le bandeau du fond (réglable ici) */
+  filter: drop-shadow(0 4px 8px rgba(0,0,0,0.18));
+}
+.banner-bg{
+  display: block;
+  width: 100%;
+  height: auto;
+  pointer-events: none;
+  user-select: none;
+}
+/* Les liens sont posés par-dessus l'image, alignés sur sa bande visible */
+.banner-nav{
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 4.5vw;            /* suit la hauteur proportionnelle du bandeau (169/1920) */
+  max-height: 90px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 5vw;
+  font-family: 'Playfair Display', serif;
+  letter-spacing: 0.08em;
+}
+.banner-nav a{
+  text-decoration: none;
+  color: #111;
+  font-size: clamp(0.7rem, 0.9vw, 0.95rem);
+  transition: opacity 0.3s;
+  white-space: nowrap;
+}
+.banner-nav a:hover{ opacity: 0.55; }
+.banner-nav .brand{
+  font-size: clamp(1rem, 1.4vw, 1.5rem);
+  font-weight: 500;
+}
+
+/* Chemin en haut à gauche, sous la nav */
+.path-breadcrumb{
+  position: fixed;
+  top: 4.5rem;
+  left: var(--gap-xl);
+  right: var(--gap-xl);
+  z-index: 50;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--muted);
+  max-width: 70ch;
+  line-height: 1.5;
+  overflow-wrap: break-word;
+}
+
+/* Bouton retour, bas gauche */
+.retour-btn{
+  position: fixed;
+  bottom: var(--gap-lg);
+  left: var(--gap-xl);
+  z-index: 50;
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  color: var(--ink);
+  text-decoration: none;
+  cursor: pointer;
+  background: none;
+  border: none;
+  opacity: 0.7;
+  transition: opacity 0.3s;
+}
+.retour-btn:hover{ opacity: 1; color: var(--gold); }
+
+/* Conteneur zoomé à la molette (canvas + syphons dedans) */
+.zoom-stage{
+  position: fixed;
+  inset: 0;
+  transform-origin: 50% 50%;
+  will-change: transform;
+}
+
+/* Lignes reliant chaque syphon à son parent (montre l'appartenance à la branche).
+   Ce sont des div positionnées en pixels réels (pas du SVG), tracées après
+   coup une fois les syphons dans le DOM pour un alignement garanti. */
+.connector-line{
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 0;
+  border-top: 1.5px dashed var(--gold);
+  opacity: 0.4;
+  transform-origin: 0 0;
+  pointer-events: none;
+}
+
+/* Conteneur des syphons (et de leurs lignes), par-dessus le canvas */
+.syphon-field{
+  position: fixed;
+  inset: 0;
+  z-index: 2;
+}
+
+/* Un syphon : cercle cliquable positionné en absolu */
+.syphon{
+  position: absolute;
+  transform: translate(-50%, -50%);
+  width: 190px;
+  height: 190px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.2rem;
+  cursor: pointer;
+  text-decoration: none;
+  color: #fff;
+  font-family: var(--font-display);
+  font-size: 1.15rem;
+  transition: transform 0.35s var(--ease);
+}
+/* Vidéo "typhon" : elle EST la bulle (plus de cadre ni de fond). */
+.syphon-typhon{
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  transform: translate(-50%, -50%);
+  z-index: 0;
+  pointer-events: none;
+}
+/* Textes en blanc, au-dessus du vortex, avec une ombre pour la lisibilité */
+.syphon > span{
+  position: relative;
+  z-index: 1;
+  color: #fff;
+  text-shadow: 0 1px 4px rgba(0,0,0,0.7);
+}
+.syphon .zoom-hint{
+  font-size: 0.7rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  opacity: 0.85;
+}
+.syphon .syphon-titre{
+  font-size: 1.1rem;
+}
+.syphon:hover{
+  transform: translate(-50%, -50%) scale(1.06);
+}
+.syphon.has-thumb{
+  background-size: cover;
+  background-position: center;
+  justify-content: flex-end;
+  padding-bottom: 0.8rem;
+}
+.syphon.has-thumb:hover{
+  border-color: var(--cyan);
+}
+.syphon .zoom-hint{
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  color: var(--muted);
+  letter-spacing: 0.05em;
+}
+
+/* Tailles réduites pour les niveaux imbriqués (sous-catégories, projets) */
+.syphon.syphon-sm{
+  width: 120px;
+  height: 120px;
+  font-size: 0.82rem;
+}
+.syphon.syphon-sm .zoom-hint{ font-size: 0.5rem; }
+.syphon.syphon-sm .syphon-titre{ font-size: 0.8rem; }
+
+.syphon.syphon-xs{
+  width: 84px;
+  height: 84px;
+  font-size: 0.66rem;
+  gap: 0.1rem;
+}
+.syphon.syphon-xs .zoom-hint{ font-size: 0.42rem; }
+.syphon.syphon-xs .syphon-titre{ font-size: 0.64rem; }
+
+/* Rideau de transition "zoom" : un cercle qui s'étend ou se rétracte
+   depuis le point cliqué, plutôt qu'un rideau plein écran classique. */
+.zoom-overlay{
+  position: fixed;
+  inset: 0;
+  background: var(--bg);
+  z-index: 999;
+  pointer-events: none;
+}
+.zoom-overlay.active{ pointer-events: all; }
+
+/* ---------- Bulles Contact / À propos (superposées, pas des pages) ---------- */
+.info-backdrop{
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  background: rgba(0,0,0,0.4);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.35s;
+}
+.info-backdrop.visible{ opacity: 1; pointer-events: all; }
+
+.info-bubble{
+  position: fixed;
+  top: 0; bottom: 0;
+  width: min(440px, 88vw);
+  background: var(--bg-alt);
+  z-index: 201;
+  padding: 6.5rem var(--gap-lg) var(--gap-lg);
+  overflow-y: auto;
+  transition: transform 0.45s var(--ease);
+}
+.info-bubble.left{ left: 0; transform: translateX(-105%); }
+.info-bubble.right{ right: 0; transform: translateX(105%); }
+.info-bubble.open{ transform: translateX(0); }
+.info-bubble .close-hint{
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  color: var(--muted);
+  margin-top: 3rem;
+}
+
+/* ---------- Mode édition ---------- */
+.edit-mode .syphon{
+  cursor: grab;
+}
+.edit-mode .connector-line{
+  display: none;
+}
+.syphon.dragging{
+  cursor: grabbing;
+  border-color: var(--cyan) !important;
+  z-index: 50;
+}
+.edit-mode #water-bg{
+  opacity: 0.5;
+}
+
+/* ---------- Chapitres (projets à plusieurs volets) ---------- */
+.chapter-tabs{
+  display: flex;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+  margin: 1.5rem 0;
+}
+.chapter-tab{
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.05em;
+  padding: 0.5em 1.1em;
+  border-radius: var(--radius);
+  border: 1px solid var(--line);
+  background: none;
+  color: var(--muted);
+  cursor: pointer;
+  transition: all 0.25s;
+}
+.chapter-tab:hover{ color: var(--ink); border-color: var(--muted); }
+.chapter-tab.active{
+  color: var(--bg);
+  background: var(--gold);
+  border-color: var(--gold);
+}
+.chapter-section{
+  padding: 1.2rem 0;
+  scroll-margin-top: 1.5rem;
+}
+.chapter-divider{
+  border: none;
+  border-top: 1px solid var(--line);
+  margin: 0.5rem 0;
+}
+
+/* ---------- Contenu markdown des fiches projets (titres, liens, images...) ---------- */
+.markdown-content{
+  line-height: 1.7;
+  max-width: 60ch;
+}
+.markdown-content h1,
+.markdown-content h2,
+.markdown-content h3{
+  font-family: var(--font-display);
+  color: var(--ink);
+  margin: 1.2em 0 0.5em;
+  line-height: 1.15;
+}
+.markdown-content h1{ font-size: 1.8rem; }
+.markdown-content h2{ font-size: 1.4rem; }
+.markdown-content h3{ font-size: 1.15rem; }
+.markdown-content p{ margin: 0 0 1em; }
+.markdown-content a{
+  color: var(--gold);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.markdown-content a:hover{ color: var(--cyan); }
+.markdown-content strong{ color: var(--ink); }
+.markdown-content em{ color: inherit; font-style: italic; }
+.markdown-content img{
+  max-width: 100%;
+  border-radius: var(--radius);
+  margin: 1em 0;
+}
+.markdown-content ul,
+.markdown-content ol{
+  margin: 0 0 1em 1.2em;
+}
+.markdown-content blockquote{
+  border-left: 2px solid var(--gold);
+  padding-left: 1em;
+  margin: 1em 0;
+  color: var(--muted);
+}
+
+/* ---------- Popup fiche projet ---------- */
+.project-popup-backdrop{
+  position: fixed;
+  inset: 0;
+  z-index: 250;
+  background: rgba(0,0,0,0.55);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s;
+}
+.project-popup-backdrop.visible{ opacity: 1; pointer-events: all; }
+
+/* ---------- En-tête ornemental des fiches projets ---------- */
+.fiche-entete{
+  position: relative;
+  /* déborde du padding de la popup pour occuper toute la largeur */
+  margin: -3rem -3rem 1.5rem;
+  height: 240px;
+  background: rgba(0, 0, 0, var(--entete-fonce, 0.06));
+  border-radius: var(--radius) var(--radius) 0 0;
+}
+/* Ombre douce SOUS l'en-tête, réalisée avec un dégradé dans le flux normal
+   (une box-shadow serait rognée par l'overflow de la popup et du contenu). */
+.fiche-entete::after{
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -20px;
+  height: 20px;
+  background: linear-gradient(to bottom, rgba(0,0,0,0.10), rgba(0,0,0,0));
+  pointer-events: none;
+  z-index: 3;
+}
+/* Masque intérieur pour rogner les ornements aux coins arrondis SANS
+   couper l'ombre portée de l'en-tête (contrairement à overflow:hidden). */
+.fiche-entete > .ornement{
+  border-radius: inherit;
+}
+/* Chaque ornement est positionné indépendamment : ainsi, quelle que soit
+   la largeur de la fiche, les coins restent aux coins et l'ornement du
+   bas reste centré. */
+.ornement{
+  position: absolute;
+  pointer-events: none;
+  user-select: none;
+  height: auto;
+}
+.ornement-gauche{
+  top: 0; left: 0;
+  height: 100%;
+  width: auto;
+}
+.ornement-droit{
+  top: 0; right: 0;
+  height: 100%;
+  width: auto;
+}
+.ornement-bas{
+  bottom: 0; left: 50%;
+  transform: translateX(-50%);
+  width: 260px;
+  height: auto;
+}
+.fiche-entete-titre{
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  width: 70%;
+  z-index: 2;
+}
+.fiche-entete-titre h1{
+  margin: 0;
+  font-family: 'Playfair Display', serif;
+  font-weight: 500;
+  line-height: 1.05;
+}
+.fiche-annee{
+  margin: 0 0 1.5rem;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.25em;
+  color: var(--muted);
+}
+
+/* Sur la page projet dédiée (pas la popup), l'en-tête déborde du padding de .page */
+.page .fiche-entete{
+  margin: -3rem calc(-1 * var(--gap-xl)) 1.5rem;
+}
+
+.project-popup{
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -48%) scale(0.96);
+  width: min(920px, 90vw);
+  max-height: 84vh;
+  background: var(--bg-alt);
+  border-radius: var(--radius);
+  overflow: hidden;              /* le cadre arrondi rogne tout ce qui dépasse */
+  z-index: 251;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s, transform 0.3s;
+  display: flex;
+  flex-direction: column;
+}
+/* Le contenu défile À L'INTÉRIEUR du cadre arrondi : la barre de scroll
+   reste donc dans les coins arrondis, pas plaquée sur le bord extérieur. */
+#popup-content{
+  overflow-y: auto;
+  padding: 3rem;
+  max-height: 84vh;
+}
+.project-popup.open{
+  opacity: 1;
+  transform: translate(-50%, -50%) scale(1);
+  pointer-events: all;
+}
+.popup-close{
+  position: absolute;
+  top: 1.2rem;
+  right: 1.5rem;
+  background: none;
+  border: none;
+  color: var(--muted);
+  font-size: 1.2rem;
+  cursor: pointer;
+  transition: color 0.3s;
+  z-index: 5;
+}
+.popup-close:hover{ color: var(--gold); }
+
+/* ---------- Fiche projet (page dédiée, gardée pour un lien direct partageable) ---------- */
+.project-sober-bg{
+  background: var(--bg-alt);
+}
+
+/* ---------- Canevas de blocs (contenu libre d'un chapitre) ---------- */
+.block-canvas-wrapper{
+  position: relative;
+  width: 100%;
+  margin-top: var(--gap-md);
+  overflow: hidden;
+}
+.block-canvas-wrapper.editable{
+  border: 1px dashed var(--line);
+  overflow-x: auto;
+}
+.block-canvas{
+  position: relative;
+  transform-origin: top left;
+}
+.content-block{
+  position: absolute;
+  overflow: auto;
+}
+.content-block.markdown-content{
+  padding: 0.4rem;
+  max-width: none;
+}
+.block-canvas-wrapper.editable .content-block{
+  cursor: grab;
+  border: 1px solid transparent;
+}
+.block-canvas-wrapper.editable .content-block:hover{
+  border-color: var(--line);
+}
+.block-delete{
+  position: absolute;
+  top: -0.4rem;
+  right: -0.4rem;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 1px solid var(--line);
+  background: var(--bg);
+  color: var(--muted);
+  font-size: 0.6rem;
+  cursor: pointer;
+  display: none;
+}
+.block-canvas-wrapper.editable .content-block:hover .block-delete{
+  display: block;
+}
+.block-resize-handle{
+  position: absolute;
+  bottom: -4px;
+  right: -4px;
+  width: 12px;
+  height: 12px;
+  border: 2px solid var(--gold);
+  background: var(--bg);
+  cursor: nwse-resize;
+  display: none;
+}
+.block-canvas-wrapper.editable .content-block:hover .block-resize-handle{
+  display: block;
+}
+.block-edit-textarea{
+  width: 100%;
+  height: 100%;
+  border: none;
+  resize: none;
+  font-family: var(--font-body);
+  font-size: 0.9rem;
+  padding: 0.4rem;
+  background: var(--bg-alt);
+  color: var(--ink);
+}
+.snap-guide-x, .snap-guide-y{
+  position: absolute;
+  background: var(--cyan);
+  display: none;
+  pointer-events: none;
+  z-index: 10;
+}
+.snap-guide-x{ top: 0; bottom: 0; width: 1px; }
+.snap-guide-y{ left: 0; right: 0; height: 1px; }
+
+.block-toolbar{
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.8rem;
+}
+.block-toolbar button{
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  padding: 0.4em 0.9em;
+  border: 1px solid var(--line);
+  background: none;
+  color: var(--muted);
+  cursor: pointer;
+}
+.block-toolbar button:hover{ color: var(--ink); border-color: var(--muted); }
+
+/* Poignée pour agrandir la zone de travail d'un chapitre (mode édition) */
+.canvas-resize-handle{
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 18px;
+  height: 18px;
+  background: var(--gold);
+  cursor: nwse-resize;
+  z-index: 20;
+}
+
+/* Panneau de réglage du zoom (?zoomtune=1) */
+.tune-row{
+  display: grid;
+  grid-template-columns: 1fr 90px 40px;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.7rem;
+  color: var(--muted);
+}
+.tune-row output{ text-align: right; }
+
+/* ==========================================================
+   BARRE D'ÉDITION UNIFIÉE (latérale, rétractable, accordéon)
+   ========================================================== */
+.edit-sidebar-toggle{
+  position: fixed;
+  top: 1rem;
+  right: 1rem;
+  z-index: 401;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  padding: 0.5em 1em;
+  background: var(--bg-alt);
+  color: var(--ink);
+  border: 1px solid var(--line);
+  cursor: pointer;
+}
+
+.edit-sidebar{
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 320px;
+  max-width: 85vw;
+  z-index: 400;
+  background: var(--bg-alt);
+  border-left: 1px solid var(--line);
+  transform: translateX(100%);
+  transition: transform 0.3s var(--ease);
+  overflow-y: auto;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+}
+.edit-sidebar.open{ transform: translateX(0); }
+
+.edit-sidebar-head{
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;
+  border-bottom: 1px solid var(--line);
+  position: sticky;
+  top: 0;
+  background: var(--bg-alt);
+}
+.edit-sidebar-close{
+  background: none;
+  border: none;
+  color: var(--muted);
+  cursor: pointer;
+  font-size: 1rem;
+}
+
+.edit-section{ border-bottom: 1px solid var(--line); }
+.edit-section-head{
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.9rem 1rem;
+  background: none;
+  border: none;
+  color: var(--ink);
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  cursor: pointer;
+  text-align: left;
+}
+.edit-section-head .chevron{ transition: transform 0.25s; }
+.edit-section.open .edit-section-head .chevron{ transform: rotate(180deg); }
+.edit-section-content{
+  display: none;
+  padding: 0 1rem 1rem;
+}
+.edit-section.open .edit-section-content{ display: block; }
+
+.edit-hint{
+  color: var(--muted);
+  line-height: 1.5;
+  margin-bottom: 0.8rem;
+}
+.tune-row{
+  display: grid;
+  grid-template-columns: 1fr 80px 34px;
+  align-items: center;
+  gap: 0.4rem;
+  margin-bottom: 0.5rem;
+  color: var(--muted);
+}
+.tune-row output{ text-align: right; }
+.tune-row-full{
+  display: block;
+  margin-bottom: 0.8rem;
+  color: var(--muted);
+}
+.tune-row-full select{ width: 100%; margin-top: 0.3rem; }
+
+.edit-sidebar .pill-link{
+  display: block;
+  width: 100%;
+  text-align: center;
+  margin-top: 0.8rem;
+  cursor: pointer;
+}
