@@ -382,44 +382,51 @@ em{ font-style: italic; color: var(--gold); }
 .syphon{
   position: absolute;
   transform: translate(-50%, -50%);
-  width: 200px;
-  height: 140px;
-  border: 2px solid var(--gold);
-  border-radius: 50%;
+  width: 190px;
+  height: 190px;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 0.3rem;
-  background: rgba(255, 255, 255, 0.6);
+  gap: 0.2rem;
   cursor: pointer;
   text-decoration: none;
-  color: var(--ink);
+  color: #fff;
   font-family: var(--font-display);
   font-size: 1.15rem;
-  transition: transform 0.35s var(--ease), border-color 0.35s, background 0.35s;
-  overflow: hidden;   /* la vidéo typhon est clippée au cercle de la bulle */
+  transition: transform 0.35s var(--ease);
 }
-/* Vidéo "typhon" en fond de bulle, clippée au cercle, derrière le texte */
+/* Vidéo "typhon" : elle EST la bulle (plus de cadre ni de fond). */
 .syphon-typhon{
   position: absolute;
   top: 50%;
   left: 50%;
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: contain;
   transform: translate(-50%, -50%);
   z-index: 0;
   pointer-events: none;
 }
+/* Textes en blanc, au-dessus du vortex, avec une ombre pour la lisibilité */
 .syphon > span{
   position: relative;
-  z-index: 1;   /* le texte passe au-dessus de la vidéo */
+  z-index: 1;
+  color: #fff;
+  text-shadow: 0 1px 4px rgba(0,0,0,0.7);
+}
+.syphon .zoom-hint{
+  font-size: 0.8rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  opacity: 0.9;
+}
+.syphon .syphon-titre{
+  font-size: 1.35rem;
+  font-weight: 600;
 }
 .syphon:hover{
   transform: translate(-50%, -50%) scale(1.06);
-  border-color: var(--cyan);
-  background-color: rgba(255, 255, 255, 0.85);
 }
 .syphon.has-thumb{
   background-size: cover;
@@ -439,21 +446,21 @@ em{ font-style: italic; color: var(--gold); }
 
 /* Tailles réduites pour les niveaux imbriqués (sous-catégories, projets) */
 .syphon.syphon-sm{
-  width: 128px;
-  height: 88px;
+  width: 120px;
+  height: 120px;
   font-size: 0.82rem;
-  border-width: 1.5px;
 }
-.syphon.syphon-sm .zoom-hint{ font-size: 0.56rem; }
+.syphon.syphon-sm .zoom-hint{ font-size: 0.5rem; }
+.syphon.syphon-sm .syphon-titre{ font-size: 0.8rem; }
 
 .syphon.syphon-xs{
-  width: 86px;
-  height: 60px;
+  width: 84px;
+  height: 84px;
   font-size: 0.66rem;
-  border-width: 1px;
   gap: 0.1rem;
 }
-.syphon.syphon-xs .zoom-hint{ font-size: 0.48rem; }
+.syphon.syphon-xs .zoom-hint{ font-size: 0.42rem; }
+.syphon.syphon-xs .syphon-titre{ font-size: 0.64rem; }
 
 /* Rideau de transition "zoom" : un cercle qui s'étend ou se rétracte
    depuis le point cliqué, plutôt qu'un rideau plein écran classique. */

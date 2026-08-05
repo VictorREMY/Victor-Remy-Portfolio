@@ -238,7 +238,7 @@ function renderSyphons(containerId, items){
       el.classList.add("has-thumb");
       el.style.backgroundImage = `linear-gradient(to top, rgba(0,0,0,0.88), rgba(0,0,0,0.05) 60%), url('${item.thumbnail}')`;
     }
-    el.innerHTML = `<span>${item.label}</span><span class="zoom-hint">${item.sublabel || "zoom in !"}</span>`;
+    el.innerHTML = `<span class="zoom-hint">${item.sublabel || "zoom in !"}</span><span class="syphon-titre">${item.label}</span>`;
     addTyphonBubble(el);
     field.appendChild(el);
   });
@@ -306,7 +306,7 @@ function renderSyphonNode(field, node, autoX, autoY, depth, incomingAngle, pairs
   el.setAttribute("data-key", node.key);
   el.style.left = xPct + "%";
   el.style.top = yPct + "%";
-  el.innerHTML = `<span>${node.label}</span><span class="zoom-hint">zoom in !</span>`;
+  el.innerHTML = `<span class="zoom-hint">zoom in !</span><span class="syphon-titre">${node.label}</span>`;
   addTyphonBubble(el);
   field.appendChild(el);
 
