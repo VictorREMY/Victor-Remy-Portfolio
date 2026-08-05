@@ -187,6 +187,35 @@ function vortexInto(syphonEl, targetUrl){
    items: [{ label, sublabel, href }] — usage simple, un seul niveau.
    Utilise le même motif que les niveaux imbriqués : 1 bulle = centrée,
    2 = côte à côte, 3 = deux coins + un centre. */
+/* Injecte la vidéo "typhon" (vortex TouchDesigner) en fond d'une bulle.
+   Une seule et même vidéo est réutilisée partout (léger), mais chaque bulle
+   démarre à un instant aléatoire de la boucle pour casser l'effet copié-collé.
+   Réglages ajustables via TYPHON_SETTINGS (menu ?edit=1). */
+const TYPHON_SETTINGS = { enabled: true, opacity: 1, scale: 1 };
+
+function addTyphonBubble(el){
+  if(!TYPHON_SETTINGS.enabled) return;
+  const v = document.createElement("video");
+  v.className = "syphon-typhon";
+  v.src = "assets/typhon-bubble.webm";
+  v.muted = true;          // obligatoire pour l'autoplay
+  v.loop = true;
+  v.autoplay = true;
+  v.playsInline = true;
+  v.setAttribute("playsinline", "");
+  v.setAttribute("aria-hidden", "true");
+  v.style.opacity = TYPHON_SETTINGS.opacity;
+  v.style.transform = `translate(-50%, -50%) scale(${TYPHON_SETTINGS.scale})`;
+  // Démarre la lecture à un décalage aléatoire (désynchronisation)
+  v.addEventListener("loadedmetadata", () => {
+    if(v.duration && isFinite(v.duration)){
+      v.currentTime = Math.random() * v.duration;
+    }
+    v.play().catch(() => {});
+  });
+  el.insertBefore(v, el.firstChild);
+}
+
 function renderSyphons(containerId, items){
   const field = document.getElementById(containerId);
   field.innerHTML = "";
@@ -210,6 +239,7 @@ function renderSyphons(containerId, items){
       el.style.backgroundImage = `linear-gradient(to top, rgba(0,0,0,0.88), rgba(0,0,0,0.05) 60%), url('${item.thumbnail}')`;
     }
     el.innerHTML = `<span>${item.label}</span><span class="zoom-hint">${item.sublabel || "zoom in !"}</span>`;
+    addTyphonBubble(el);
     field.appendChild(el);
   });
   bindSyphonClicks(field);
@@ -277,6 +307,7 @@ function renderSyphonNode(field, node, autoX, autoY, depth, incomingAngle, pairs
   el.style.left = xPct + "%";
   el.style.top = yPct + "%";
   el.innerHTML = `<span>${node.label}</span><span class="zoom-hint">zoom in !</span>`;
+  addTyphonBubble(el);
   field.appendChild(el);
 
   // On limite à 2 niveaux d'imbrication (branches > sous-catégories > projets)
@@ -397,6 +428,7 @@ function initEditMode(){
   buildPositionsSection();
   buildZoomSection();
   buildAppearanceSection();
+  buildTyphonSection();
 }
 
 const EDITABLE_PAGES = [
@@ -492,6 +524,37 @@ function buildAppearanceSection(){
   content.appendChild(buildCopyButton("Copier l'apparence",
     () => JSON.stringify(APPEARANCE_SETTINGS, null, 2), "data/appearance-settings.json"));
   addEditSection("Apparence", content, false);
+}
+
+/* --- Section "Typhon" (vidéo en fond des bulles) --- */
+function loadTyphonSettings(){
+  return fetch("data/typhon-settings.json")
+    .then(r => r.json())
+    .then(data => {
+      Object.assign(TYPHON_SETTINGS, data || {});
+      applyTyphon();
+      return TYPHON_SETTINGS;
+    })
+    .catch(() => TYPHON_SETTINGS);
+}
+
+function applyTyphon(){
+  document.querySelectorAll(".syphon-typhon").forEach(v => {
+    v.style.opacity = TYPHON_SETTINGS.opacity;
+    v.style.transform = `translate(-50%, -50%) scale(${TYPHON_SETTINGS.scale})`;
+  });
+}
+
+function buildTyphonSection(){
+  const fields = [
+    { key: "opacity", label: "Opacité du typhon", min: 0, max: 1, step: 0.05 },
+    { key: "scale", label: "Zoom du typhon dans la bulle", min: 0.5, max: 2, step: 0.05 }
+  ];
+  const content = document.createElement("div");
+  content.appendChild(buildSliderGroup(TYPHON_SETTINGS, fields, () => applyTyphon()));
+  content.appendChild(buildCopyButton("Copier les réglages typhon",
+    () => JSON.stringify(TYPHON_SETTINGS, null, 2), "data/typhon-settings.json"));
+  addEditSection("Typhon (bulles)", content, false);
 }
 
 function showLayoutFallback(json){

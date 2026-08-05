@@ -398,6 +398,23 @@ em{ font-style: italic; color: var(--gold); }
   font-family: var(--font-display);
   font-size: 1.15rem;
   transition: transform 0.35s var(--ease), border-color 0.35s, background 0.35s;
+  overflow: hidden;   /* la vidéo typhon est clippée au cercle de la bulle */
+}
+/* Vidéo "typhon" en fond de bulle, clippée au cercle, derrière le texte */
+.syphon-typhon{
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transform: translate(-50%, -50%);
+  z-index: 0;
+  pointer-events: none;
+}
+.syphon > span{
+  position: relative;
+  z-index: 1;   /* le texte passe au-dessus de la vidéo */
 }
 .syphon:hover{
   transform: translate(-50%, -50%) scale(1.06);
@@ -601,9 +618,9 @@ em{ font-style: italic; color: var(--gold); }
   position: absolute;
   left: 0;
   right: 0;
-  bottom: -12px;
-  height: 12px;
-  background: linear-gradient(to bottom, rgba(0,0,0,0.18), rgba(0,0,0,0));
+  bottom: -20px;
+  height: 20px;
+  background: linear-gradient(to bottom, rgba(0,0,0,0.10), rgba(0,0,0,0));
   pointer-events: none;
   z-index: 3;
 }
