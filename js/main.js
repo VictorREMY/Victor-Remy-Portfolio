@@ -623,19 +623,11 @@ function initWheelZoom(){
 
   stage.style.transformOrigin = "0 0";
 
-  const waterBg = document.getElementById("water-bg");
   function apply(){
     // tx/ty déduits : on veut anchorWorld * scale + t = anchorScreen
     const tx = anchorScreenX - anchorWorldX * scale;
     const ty = anchorScreenY - anchorWorldY * scale;
     stage.style.transform = `translate(${tx}px, ${ty}px) scale(${scale})`;
-    // Le fond eau zoome aussi, mais de façon ATTÉNUÉE (sinon trop violent) :
-    // on plonge légèrement dans le fond en même temps que dans les bulles,
-    // ce qui donne une cohérence "on entre dans la matière".
-    if(waterBg){
-      const bgScale = 1 + (scale - 1) * 0.35; // 35% de l'intensité du zoom bulles
-      waterBg.style.transform = `scale(${bgScale})`;
-    }
   }
 
   /* Le syphon actuellement sous le curseur (il faut viser pour entrer) */

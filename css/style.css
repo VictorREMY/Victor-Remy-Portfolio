@@ -371,6 +371,7 @@ em{ font-style: italic; color: var(--gold); }
   opacity: 0.4;
   transform-origin: 0 0;
   pointer-events: none;
+  display: none;   /* lignes entre bulles masquées */
 }
 
 /* Conteneur des syphons (et de leurs lignes), par-dessus le canvas */
@@ -398,42 +399,6 @@ em{ font-style: italic; color: var(--gold); }
   font-size: 1.15rem;
   transition: transform 0.35s var(--ease);
 }
-/* 3) Pourtour sombre "trou dans l'eau" : un dégradé radial sombre autour
-   de la bulle, qui creuse visuellement le fond. */
-.syphon::before{
-  content: "";
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 150%;
-  height: 150%;
-  transform: translate(-50%, -50%);
-  background: radial-gradient(circle,
-    rgba(0,0,0,0) 40%,
-    rgba(0,0,0,0.28) 52%,
-    rgba(0,0,0,0) 72%);
-  z-index: -1;
-  pointer-events: none;
-}
-/* 2) Ondulation lente autour de la bulle, comme l'eau perturbée par le vortex. */
-.syphon::after{
-  content: "";
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 130%;
-  height: 130%;
-  transform: translate(-50%, -50%);
-  border-radius: 50%;
-  border: 1px solid rgba(150, 190, 210, 0.12);
-  z-index: -1;
-  pointer-events: none;
-  animation: syphon-ondule 6s ease-in-out infinite;
-}
-@keyframes syphon-ondule{
-  0%, 100% { transform: translate(-50%, -50%) scale(1); opacity: 0.5; }
-  50%      { transform: translate(-50%, -50%) scale(1.08); opacity: 0.2; }
-}
 /* Vidéo "typhon" : elle EST la bulle (plus de cadre ni de fond). */
 .syphon-typhon{
   position: absolute;
@@ -445,16 +410,6 @@ em{ font-style: italic; color: var(--gold); }
   transform: translate(-50%, -50%);
   z-index: 0;
   pointer-events: none;
-  /* Bords fondus : le contour du typhon se dissout dans le fond. */
-  -webkit-mask-image: radial-gradient(circle, #000 60%, transparent 76%);
-  mask-image: radial-gradient(circle, #000 60%, transparent 76%);
-  /* 1) Teinte bleu-vert (tons de l'eau) + léger halo pour la transition.
-     hue-rotate/saturate harmonisent le vortex avec le fond eau. */
-  filter:
-    drop-shadow(0 0 10px rgba(120, 160, 180, 0.2))
-    hue-rotate(-8deg)
-    saturate(1.15)
-    brightness(0.96);
 }
 /* Textes en blanc, au-dessus du vortex, avec une ombre pour la lisibilité */
 .syphon > span{
