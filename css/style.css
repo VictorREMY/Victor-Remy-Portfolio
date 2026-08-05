@@ -48,6 +48,12 @@ html, body{ height:100%; overflow-x: hidden; }
   transform-origin: center center;
   will-change: transform;
 }
+/* Le fond déborde de l'écran en permanence : ainsi, même en dézoomant,
+   on ne voit jamais ses bords. (Compromis : un léger flou au dézoom extrême.) */
+#water-bg canvas, #water-bg video{
+  transform: scale(1.5);
+  transform-origin: center center;
+}
 
 body{
   background: var(--bg);
@@ -432,13 +438,9 @@ em{ font-style: italic; color: var(--gold); }
   transform: translate(-50%, -50%) scale(1.06);
 }
 .syphon.has-thumb{
-  background-size: cover;
-  background-position: center;
-  justify-content: flex-end;
-  padding-bottom: 0.8rem;
-}
-.syphon.has-thumb:hover{
-  border-color: var(--cyan);
+  /* Miniatures désactivées pour l'instant : le typhon remplace le fond.
+     (on évite le rectangle sombre du dégradé de miniature) */
+  background: none !important;
 }
 .syphon .zoom-hint{
   font-family: var(--font-mono);
@@ -659,10 +661,10 @@ em{ font-style: italic; color: var(--gold); }
   width: auto;
 }
 .ornement-bas{
-  bottom: 0; left: 50%;
+  bottom: -6px; left: 50%;
   transform: translateX(-50%);
-  width: 260px;
-  height: auto;
+  height: 70px;
+  width: auto;
 }
 .fiche-entete-titre{
   position: absolute;

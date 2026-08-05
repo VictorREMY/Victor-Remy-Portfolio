@@ -234,10 +234,7 @@ function renderSyphons(containerId, items){
     if(item.contextTag) el.setAttribute("data-context", item.contextTag);
     el.style.left = pos.x + "%";
     el.style.top = pos.y + "%";
-    if(item.thumbnail){
-      el.classList.add("has-thumb");
-      el.style.backgroundImage = `linear-gradient(to top, rgba(0,0,0,0.88), rgba(0,0,0,0.05) 60%), url('${item.thumbnail}')`;
-    }
+    // Miniatures désactivées pour l'instant : le typhon remplace le fond des bulles.
     el.innerHTML = `<span class="zoom-hint">${item.sublabel || "zoom in !"}</span><span class="syphon-titre">${item.label}</span>`;
     addTyphonBubble(el);
     field.appendChild(el);
