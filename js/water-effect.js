@@ -94,7 +94,7 @@ const CONFIG = {
 
   // --- Vidéo source (ta boucle exportée depuis TouchDesigner) ---
   useVideo: true,
-  videoSrc: 'assets/water-td.mp4',
+  videoSrc: 'assets/background-loop-final.mp4',
 
   // --- Panneau de réglages en direct (lil-gui) ---
   // Pratique pour affiner tous les paramètres ci-dessus sans toucher au
