@@ -48,12 +48,6 @@ html, body{ height:100%; overflow-x: hidden; }
   transform-origin: center center;
   will-change: transform;
 }
-/* Le fond déborde de l'écran en permanence : ainsi, même en dézoomant,
-   on ne voit jamais ses bords. (Compromis : un léger flou au dézoom extrême.) */
-#water-bg canvas, #water-bg video{
-  transform: scale(1.5);
-  transform-origin: center center;
-}
 
 body{
   background: var(--bg);
@@ -661,10 +655,10 @@ em{ font-style: italic; color: var(--gold); }
   width: auto;
 }
 .ornement-bas{
-  bottom: -6px; left: 50%;
+  bottom: 0; left: 50%;
   transform: translateX(-50%);
-  height: 70px;
-  width: auto;
+  width: 260px;
+  height: auto;
 }
 .fiche-entete-titre{
   position: absolute;

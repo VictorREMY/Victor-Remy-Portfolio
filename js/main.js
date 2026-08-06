@@ -620,11 +620,18 @@ function initWheelZoom(){
 
   stage.style.transformOrigin = "0 0";
 
+  const waterBg = document.getElementById("water-bg");
   function apply(){
     // tx/ty déduits : on veut anchorWorld * scale + t = anchorScreen
     const tx = anchorScreenX - anchorWorldX * scale;
     const ty = anchorScreenY - anchorWorldY * scale;
     stage.style.transform = `translate(${tx}px, ${ty}px) scale(${scale})`;
+    // Le fond suit le zoom vers le haut (cohérence), mais reste à 1 au minimum
+    // (jamais agrandi par défaut = aucune perte de qualité au repos).
+    if(waterBg){
+      const bgScale = Math.max(1, 1 + (scale - 1) * 0.7);
+      waterBg.style.transform = `scale(${bgScale})`;
+    }
   }
 
   /* Le syphon actuellement sous le curseur (il faut viser pour entrer) */
