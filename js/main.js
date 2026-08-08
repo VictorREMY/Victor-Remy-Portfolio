@@ -638,6 +638,48 @@ function initWheelZoom(){
   let cursorX = window.innerWidth / 2, cursorY = window.innerHeight / 2;
   window.addEventListener("mousemove", e => { cursorX = e.clientX; cursorY = e.clientY; });
 
+  /* --- Déplacement de la vue par clic-glisser dans le vide (pan) ---
+     Cliquer sur une bulle l'ouvre (géré ailleurs) ; cliquer dans le vide
+     et glisser déplace la caméra. Coexiste avec le zoom molette. */
+  let panning = false;
+  let panStartX = 0, panStartY = 0;
+  let panMoved = false;
+  const PAN_THRESHOLD = 4; // px avant de considérer que c'est un glisser
+
+  window.addEventListener("pointerdown", function(e){
+    // Ne pan pas si une popup est ouverte, si on est en pleine transition,
+    // ou si on clique sur une bulle / un lien / un bouton.
+    if(document.querySelector(".project-popup.open, .info-bubble.open")) return;
+    if(navigating || bouncing) return;
+    if(e.target.closest(".syphon, a, button, [data-retour], .site-banner, .edit-sidebar")) return;
+    panning = true;
+    panMoved = false;
+    panStartX = e.clientX;
+    panStartY = e.clientY;
+  });
+
+  window.addEventListener("pointermove", function(e){
+    if(!panning) return;
+    const dx = e.clientX - panStartX;
+    const dy = e.clientY - panStartY;
+    if(!panMoved && Math.hypot(dx, dy) < PAN_THRESHOLD) return; // pas encore un glisser
+    panMoved = true;
+    document.body.style.cursor = "grabbing";
+    // Déplace le point d'ancrage écran de l'écart de souris → la vue suit.
+    anchorScreenX += dx;
+    anchorScreenY += dy;
+    panStartX = e.clientX;
+    panStartY = e.clientY;
+    apply();
+  });
+
+  window.addEventListener("pointerup", function(){
+    if(panning){
+      panning = false;
+      document.body.style.cursor = "";
+    }
+  });
+
   function syphonUnderCursor(){
     const el = document.elementFromPoint(cursorX, cursorY);
     return el ? el.closest(".syphon") : null;
@@ -956,6 +998,16 @@ function buildMediaBlock(media){
       <iframe width="100%" height="100%" src="https://www.youtube.com/embed/${id}?enablejsapi=1" frameborder="0" allowfullscreen></iframe>
     </div>`;
   }
+  if(media.type === "vimeo"){
+    // Vimeo : extrait l'ID numérique depuis l'URL (vimeo.com/123456789
+    // ou player.vimeo.com/video/123456789). Utilisé pour les vidéos que
+    // YouTube bloque (musique soumise à des ayants droit).
+    const vid = (media.url.match(/(?:vimeo\.com\/|video\/)(\d+)/) || [])[1];
+    if(!vid) return `<div class="thumb" style="aspect-ratio:16/9;">lien Vimeo invalide</div>`;
+    return `<div style="aspect-ratio:16/9; border-radius:var(--radius); overflow:hidden;">
+      <iframe width="100%" height="100%" src="https://player.vimeo.com/video/${vid}" frameborder="0" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe>
+    </div>`;
+  }
   if(media.type === "spotify"){
     const trackId = media.url.split("/").pop().split("?")[0];
     return `<iframe src="https://open.spotify.com/embed/track/${trackId}" width="100%" height="152" frameborder="0" allow="encrypted-media" style="border-radius:var(--radius);"></iframe>`;
@@ -1090,7 +1142,10 @@ function initProjectPopups(){
     //    c'est ce qui garantit que le son s'arrête, sans exception.
     content.querySelectorAll("iframe").forEach(f => {
       try {
+        // YouTube
         f.contentWindow.postMessage('{"event":"command","func":"pauseVideo","args":""}', "*");
+        // Vimeo
+        f.contentWindow.postMessage('{"method":"pause"}', "*");
       } catch(e){}
     });
     // 2) Lance le fondu visuel de fermeture (adoucit la perception de la coupure)
