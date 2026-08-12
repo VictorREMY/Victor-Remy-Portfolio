@@ -48,6 +48,12 @@ html, body{ height:100%; overflow-x: hidden; }
   transform-origin: center center;
   will-change: transform;
 }
+/* Décale le fond vers le bas : le bandeau du haut masque le blur supérieur,
+   donc on descend la vidéo pour rééquilibrer le blur visible haut/bas.
+   (Ajuste la valeur si besoin.) */
+#water-bg canvas, #water-bg video{
+  transform: translateY(20px);
+}
 
 body{
   background: var(--bg);
@@ -411,22 +417,31 @@ em{ font-style: italic; color: var(--gold); }
   z-index: 0;
   pointer-events: none;
 }
-/* Textes en blanc, au-dessus du vortex, avec une ombre pour la lisibilité */
-.syphon > span{
+/* Le "zoom in" reste au centre du vortex */
+.syphon .zoom-hint{
   position: relative;
   z-index: 1;
   color: #fff;
   text-shadow: 0 1px 4px rgba(0,0,0,0.7);
-}
-.syphon .zoom-hint{
   font-size: 0.8rem;
   letter-spacing: 0.15em;
   text-transform: uppercase;
   opacity: 0.9;
 }
+/* Le titre est positionné SOUS la bulle (centré), pas sur le vortex */
 .syphon .syphon-titre{
-  font-size: 1.35rem;
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  margin-top: 0.5rem;
+  white-space: nowrap;
+  color: #fff;
+  text-shadow: 0 1px 5px rgba(0,0,0,0.85);
+  font-size: 1.2rem;
   font-weight: 600;
+  z-index: 1;
+  pointer-events: none;
 }
 .syphon:hover{
   transform: translate(-50%, -50%) scale(1.06);
@@ -435,12 +450,6 @@ em{ font-style: italic; color: var(--gold); }
   /* Miniatures désactivées pour l'instant : le typhon remplace le fond.
      (on évite le rectangle sombre du dégradé de miniature) */
   background: none !important;
-}
-.syphon .zoom-hint{
-  font-family: var(--font-mono);
-  font-size: 0.65rem;
-  color: var(--muted);
-  letter-spacing: 0.05em;
 }
 
 /* Tailles réduites pour les niveaux imbriqués (sous-catégories, projets) */
