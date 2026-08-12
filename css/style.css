@@ -52,7 +52,7 @@ html, body{ height:100%; overflow-x: hidden; }
    donc on descend la vidéo pour rééquilibrer le blur visible haut/bas.
    (Ajuste la valeur si besoin.) */
 #water-bg canvas, #water-bg video{
-  transform: translateY(45px);
+  transform: translateY(70px);
 }
 
 body{
@@ -417,19 +417,20 @@ em{ font-style: italic; color: var(--gold); }
   z-index: 0;
   pointer-events: none;
 }
-/* Le "zoom in" passe EN HAUT de la bulle (car la miniature occupe le centre) */
+/* Le "zoom in" passe SOUS le titre (sous la bulle), plus lisible */
 .syphon .zoom-hint{
   position: absolute;
-  top: 0.6rem;
+  top: 100%;
   left: 50%;
   transform: translateX(-50%);
+  margin-top: 1.7rem;
   z-index: 2;
   color: #fff;
   text-shadow: 0 1px 4px rgba(0,0,0,0.9);
-  font-size: 0.65rem;
+  font-size: 0.6rem;
   letter-spacing: 0.15em;
   text-transform: uppercase;
-  opacity: 0.85;
+  opacity: 0.65;
   white-space: nowrap;
 }
 /* Miniature du projet, en rond, au centre du vortex (dans la zone sombre) */

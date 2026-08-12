@@ -234,8 +234,11 @@ function renderSyphons(containerId, items){
     if(item.contextTag) el.setAttribute("data-context", item.contextTag);
     el.style.left = pos.x + "%";
     el.style.top = pos.y + "%";
-    const miniHTML = item.thumbnail
-      ? `<img src="${item.thumbnail}" alt="" class="syphon-mini" aria-hidden="true">`
+    // Retire le slash initial du chemin (sinon pointe vers la racine du domaine
+    // au lieu du sous-dossier GitHub Pages).
+    const thumbUrl = item.thumbnail ? item.thumbnail.replace(/^\//, "") : null;
+    const miniHTML = thumbUrl
+      ? `<img src="${thumbUrl}" alt="" class="syphon-mini" aria-hidden="true">`
       : "";
     el.innerHTML = `<span class="zoom-hint">${item.sublabel || "zoom in !"}</span>${miniHTML}<span class="syphon-titre">${item.label}</span>`;
     addTyphonBubble(el);
