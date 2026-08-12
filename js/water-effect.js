@@ -369,13 +369,15 @@ function initInteractiveWaterEffect(container) {
 
   sharedCamera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
 
-  renderer = new THREE.WebGLRenderer({ antialias: false, alpha: false });
+  renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false });
   // On veut que la vidéo garde ses couleurs d'origine (c'est ton vrai rendu
   // TD, pas la peine de la retraiter) : on désactive donc les conversions
   // automatiques de Three.js pour éviter toute double conversion qui
   // fausserait les couleurs.
   renderer.outputColorSpace = THREE.LinearSRGBColorSpace;
-  const pixelRatio = Math.min(window.devicePixelRatio, 2);
+  // pixelRatio à la densité réelle de l'écran (plafonné à 2.5 pour la perf).
+  // Un pixelRatio plus élevé = rendu à plus haute résolution = plus net.
+  const pixelRatio = Math.min(window.devicePixelRatio || 1, 2.5);
   renderer.setPixelRatio(pixelRatio);
   renderer.setSize(width, height);
   container.appendChild(renderer.domElement);

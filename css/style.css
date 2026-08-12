@@ -655,9 +655,9 @@ em{ font-style: italic; color: var(--gold); }
   width: auto;
 }
 .ornement-bas{
-  bottom: 0; left: 50%;
+  bottom: 8px; left: 50%;
   transform: translateX(-50%);
-  width: 260px;
+  width: 240px;
   height: auto;
 }
 .fiche-entete-titre{

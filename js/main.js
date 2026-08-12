@@ -639,46 +639,73 @@ function initWheelZoom(){
   window.addEventListener("mousemove", e => { cursorX = e.clientX; cursorY = e.clientY; });
 
   /* --- Déplacement de la vue par clic-glisser dans le vide (pan) ---
-     Cliquer sur une bulle l'ouvre (géré ailleurs) ; cliquer dans le vide
-     et glisser déplace la caméra. Coexiste avec le zoom molette. */
+     Avec inertie/momentum : on suit la vélocité du glisser et on continue
+     le mouvement en décélérant après le relâchement (comme Google Maps).
+     Cliquer sur une bulle l'ouvre (géré ailleurs). Coexiste avec le zoom. */
   let panning = false;
-  let panStartX = 0, panStartY = 0;
   let panMoved = false;
-  const PAN_THRESHOLD = 4; // px avant de considérer que c'est un glisser
+  let lastPanX = 0, lastPanY = 0;
+  let panVelX = 0, panVelY = 0;        // vélocité (px/frame) pour l'inertie
+  let panInertiaActive = false;
+  const PAN_THRESHOLD = 4;             // px avant de considérer que c'est un glisser
+  const PAN_FRICTION = 0.92;           // décélération de l'inertie (0.9-0.95 = doux)
+  const PAN_MIN_VEL = 0.15;            // seuil d'arrêt de l'inertie
 
   window.addEventListener("pointerdown", function(e){
-    // Ne pan pas si une popup est ouverte, si on est en pleine transition,
-    // ou si on clique sur une bulle / un lien / un bouton.
     if(document.querySelector(".project-popup.open, .info-bubble.open")) return;
     if(navigating || bouncing) return;
     if(e.target.closest(".syphon, a, button, [data-retour], .site-banner, .edit-sidebar")) return;
     panning = true;
     panMoved = false;
-    panStartX = e.clientX;
-    panStartY = e.clientY;
+    panInertiaActive = false;          // stoppe toute inertie en cours
+    panVelX = 0; panVelY = 0;
+    lastPanX = e.clientX;
+    lastPanY = e.clientY;
   });
 
   window.addEventListener("pointermove", function(e){
     if(!panning) return;
-    const dx = e.clientX - panStartX;
-    const dy = e.clientY - panStartY;
-    if(!panMoved && Math.hypot(dx, dy) < PAN_THRESHOLD) return; // pas encore un glisser
+    const dx = e.clientX - lastPanX;
+    const dy = e.clientY - lastPanY;
+    if(!panMoved && Math.hypot(e.clientX - lastPanX, e.clientY - lastPanY) < PAN_THRESHOLD) return;
     panMoved = true;
     document.body.style.cursor = "grabbing";
-    // Déplace le point d'ancrage écran de l'écart de souris → la vue suit.
     anchorScreenX += dx;
     anchorScreenY += dy;
-    panStartX = e.clientX;
-    panStartY = e.clientY;
+    // Vélocité lissée (moyenne avec la précédente = mouvement plus naturel)
+    panVelX = panVelX * 0.4 + dx * 0.6;
+    panVelY = panVelY * 0.4 + dy * 0.6;
+    lastPanX = e.clientX;
+    lastPanY = e.clientY;
     apply();
   });
 
   window.addEventListener("pointerup", function(){
-    if(panning){
-      panning = false;
-      document.body.style.cursor = "";
+    if(!panning) return;
+    panning = false;
+    document.body.style.cursor = "";
+    // Lance l'inertie si le mouvement avait de la vitesse au relâchement
+    if(Math.hypot(panVelX, panVelY) > PAN_MIN_VEL){
+      panInertiaActive = true;
+      requestAnimationFrame(panInertiaStep);
     }
   });
+
+  function panInertiaStep(){
+    if(!panInertiaActive) return;
+    // Interrompt l'inertie si l'utilisateur reprend la main ou zoome/navigue
+    if(panning || navigating || bouncing){ panInertiaActive = false; return; }
+    panVelX *= PAN_FRICTION;
+    panVelY *= PAN_FRICTION;
+    anchorScreenX += panVelX;
+    anchorScreenY += panVelY;
+    apply();
+    if(Math.hypot(panVelX, panVelY) > PAN_MIN_VEL){
+      requestAnimationFrame(panInertiaStep);
+    } else {
+      panInertiaActive = false;
+    }
+  }
 
   function syphonUnderCursor(){
     const el = document.elementFromPoint(cursorX, cursorY);
