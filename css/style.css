@@ -52,7 +52,7 @@ html, body{ height:100%; overflow-x: hidden; }
    donc on descend la vidéo pour rééquilibrer le blur visible haut/bas.
    (Ajuste la valeur si besoin.) */
 #water-bg canvas, #water-bg video{
-  transform: translateY(20px);
+  transform: translateY(45px);
 }
 
 body{
@@ -417,16 +417,34 @@ em{ font-style: italic; color: var(--gold); }
   z-index: 0;
   pointer-events: none;
 }
-/* Le "zoom in" reste au centre du vortex */
+/* Le "zoom in" passe EN HAUT de la bulle (car la miniature occupe le centre) */
 .syphon .zoom-hint{
-  position: relative;
-  z-index: 1;
+  position: absolute;
+  top: 0.6rem;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 2;
   color: #fff;
-  text-shadow: 0 1px 4px rgba(0,0,0,0.7);
-  font-size: 0.8rem;
+  text-shadow: 0 1px 4px rgba(0,0,0,0.9);
+  font-size: 0.65rem;
   letter-spacing: 0.15em;
   text-transform: uppercase;
-  opacity: 0.9;
+  opacity: 0.85;
+  white-space: nowrap;
+}
+/* Miniature du projet, en rond, au centre du vortex (dans la zone sombre) */
+.syphon-mini{
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 42%;
+  height: 42%;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  object-fit: cover;
+  z-index: 1;
+  pointer-events: none;
+  box-shadow: 0 0 12px rgba(0,0,0,0.6);
 }
 /* Le titre est positionné SOUS la bulle (centré), pas sur le vortex */
 .syphon .syphon-titre{
@@ -434,7 +452,7 @@ em{ font-style: italic; color: var(--gold); }
   top: 100%;
   left: 50%;
   transform: translateX(-50%);
-  margin-top: 0.5rem;
+  margin-top: -0.3rem;
   white-space: nowrap;
   color: #fff;
   text-shadow: 0 1px 5px rgba(0,0,0,0.85);
