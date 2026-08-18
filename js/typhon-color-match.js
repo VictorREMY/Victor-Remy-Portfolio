@@ -38,10 +38,10 @@ const CONFIG = {
 
   // Garde-fous pour éviter un filtre trop extrême/moche si le fond passe
   // par une couleur inhabituelle (ex. transition, flash) :
-  maxSaturateFactor: 2.2,
-  minSaturateFactor: 0.4,
-  maxBrightnessFactor: 1.5,
-  minBrightnessFactor: 0.6,
+  maxSaturateFactor: 1.8,
+  minSaturateFactor: 0.75,
+  maxBrightnessFactor: 1.3,
+  minBrightnessFactor: 0.92,   // ne quasi jamais assombrir (sinon typhon invisible sur fond sombre)
 
   transitionSeconds: 0.8,  // douceur du changement de filtre (évite les à-coups)
 };
