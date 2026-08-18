@@ -298,6 +298,13 @@ let videoTexture = null;
 let clock = new THREE.Clock();
 let containerRef = null;
 
+// Expose l'élément <video> du fond (déjà chargé/décodé) pour que d'autres
+// modules (ex. typhon-color-match.js) puissent l'échantillonner sans avoir
+// à recharger une deuxième instance de la même vidéo.
+export function getBackgroundVideoElement() {
+  return videoEl;
+}
+
 const mouseRaw = { x: 0.5, y: 0.5 };
 const mouseSmooth = { x: 0.5, y: 0.5 };
 let mouseInside = false;
