@@ -43,10 +43,12 @@ const CONFIG = {
   maxBrightnessFactor: 1.4,
   minBrightnessFactor: 1.0,    // JAMAIS assombrir (le typhon doit rester visible)
 
-  // Le typhon exporté est très sombre (~50/255) et se noie dans le fond.
-  // On l'éclaircit et le contraste pour qu'il ressorte nettement.
-  typhonBrightnessBoost: 1.8,  // multiplie la luminosité (1 = inchangé)
-  typhonContrast: 1.25,        // renforce le contraste (1 = inchangé)
+  // Le typhon exporté est très sombre (~50/255) et manque de contraste
+  // propre, donc il se noie aussi bien sur fond clair que sombre. On mise
+  // surtout sur le CONTRASTE (ressort quel que soit le fond) + un léger
+  // boost de luminosité, complétés par une ombre portée en CSS.
+  typhonBrightnessBoost: 1.35,  // multiplie la luminosité (1 = inchangé)
+  typhonContrast: 1.6,          // renforce le contraste (1 = inchangé)
 
   transitionSeconds: 0.8,  // douceur du changement de filtre (évite les à-coups)
 };
@@ -118,7 +120,7 @@ export function initTyphonColorMatch() {
       // ressorte, en plus de l'ajustement de teinte.
       brightnessFactor *= CONFIG.typhonBrightnessBoost;
 
-      const filterValue = `hue-rotate(${hueRotate.toFixed(1)}deg) saturate(${saturateFactor.toFixed(2)}) brightness(${brightnessFactor.toFixed(2)}) contrast(${CONFIG.typhonContrast})`;
+      const filterValue = `hue-rotate(${hueRotate.toFixed(1)}deg) saturate(${saturateFactor.toFixed(2)}) brightness(${brightnessFactor.toFixed(2)}) contrast(${CONFIG.typhonContrast}) drop-shadow(0 0 6px rgba(0,0,0,0.55))`;
       document.documentElement.style.setProperty('--typhon-filter', filterValue);
 
       // Couleur sombre du fond pour le disque central des bulles : on reprend
