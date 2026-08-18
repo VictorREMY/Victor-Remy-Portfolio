@@ -426,11 +426,11 @@ em{ font-style: italic; color: var(--gold); }
   margin-top: 1.7rem;
   z-index: 3;
   color: #fff;
-  text-shadow: 0 1px 4px rgba(0,0,0,0.9);
-  font-size: 0.6rem;
-  letter-spacing: 0.15em;
+  text-shadow: 0 2px 5px rgba(0,0,0,0.95), 0 0 2px rgba(0,0,0,0.9);
+  font-size: 0.7rem;
+  letter-spacing: 0.2em;
   text-transform: uppercase;
-  opacity: 0.65;
+  opacity: 1;
   white-space: nowrap;
 }
 /* Miniature du projet, en rond, au centre du vortex (dans la zone sombre) */
@@ -442,11 +442,16 @@ em{ font-style: italic; color: var(--gold); }
   position: absolute;
   top: 50%;
   left: 50%;
-  width: 46%;
-  height: 46%;
+  width: 52%;
+  height: 52%;
   transform: translate(-50%, -50%);
   border-radius: 50%;
-  background: radial-gradient(circle, #05080a 60%, rgba(5,8,10,0) 100%);
+  /* Couleur sombre échantillonnée sur le fond (alimentée par typhon-color-match)
+     avec un repli sombre neutre. Placé SOUS le typhon (z-index négatif local)
+     pour que le vortex se superpose dessus au lieu d'un rond posé par-dessus. */
+  background: radial-gradient(circle,
+    var(--typhon-core, #0a1216) 55%,
+    rgba(10,18,22,0) 100%);
   z-index: 0;
   pointer-events: none;
 }
@@ -457,17 +462,14 @@ em{ font-style: italic; color: var(--gold); }
   position: absolute;
   top: 50%;
   left: 50%;
-  width: 42%;
-  height: 42%;
+  width: 40%;
+  height: 40%;
   transform: translate(-50%, -50%);
   border-radius: 50%;
   object-fit: cover;
   z-index: 2;
   pointer-events: none;
-  /* Bords fondus pour que la miniature se blende dans le disque sombre
-     au lieu d'avoir un contour net. */
-  -webkit-mask-image: radial-gradient(circle, #000 62%, transparent 88%);
-  mask-image: radial-gradient(circle, #000 62%, transparent 88%);
+  box-shadow: 0 0 0 2px rgba(0,0,0,0.3), 0 0 10px rgba(0,0,0,0.5);
 }
 /* Le titre est positionné SOUS la bulle (centré), pas sur le vortex */
 .syphon .syphon-titre{

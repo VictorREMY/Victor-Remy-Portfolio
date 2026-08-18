@@ -38,10 +38,15 @@ const CONFIG = {
 
   // Garde-fous pour éviter un filtre trop extrême/moche si le fond passe
   // par une couleur inhabituelle (ex. transition, flash) :
-  maxSaturateFactor: 1.8,
-  minSaturateFactor: 0.75,
-  maxBrightnessFactor: 1.3,
-  minBrightnessFactor: 0.92,   // ne quasi jamais assombrir (sinon typhon invisible sur fond sombre)
+  maxSaturateFactor: 1.6,
+  minSaturateFactor: 0.85,
+  maxBrightnessFactor: 1.4,
+  minBrightnessFactor: 1.0,    // JAMAIS assombrir (le typhon doit rester visible)
+
+  // Le typhon exporté est très sombre (~50/255) et se noie dans le fond.
+  // On l'éclaircit et le contraste pour qu'il ressorte nettement.
+  typhonBrightnessBoost: 1.8,  // multiplie la luminosité (1 = inchangé)
+  typhonContrast: 1.25,        // renforce le contraste (1 = inchangé)
 
   transitionSeconds: 0.8,  // douceur du changement de filtre (évite les à-coups)
 };
@@ -108,9 +113,23 @@ export function initTyphonColorMatch() {
 
       let brightnessFactor = CONFIG.baseLight > 0.01 ? l / CONFIG.baseLight : 1;
       brightnessFactor = Math.min(CONFIG.maxBrightnessFactor, Math.max(CONFIG.minBrightnessFactor, brightnessFactor));
+      // Boost de base : le typhon exporté est très sombre (~50/255), il se
+      // noie dans le fond sombre. On l'éclaircit et le contraste pour qu'il
+      // ressorte, en plus de l'ajustement de teinte.
+      brightnessFactor *= CONFIG.typhonBrightnessBoost;
 
-      const filterValue = `hue-rotate(${hueRotate.toFixed(1)}deg) saturate(${saturateFactor.toFixed(2)}) brightness(${brightnessFactor.toFixed(2)})`;
+      const filterValue = `hue-rotate(${hueRotate.toFixed(1)}deg) saturate(${saturateFactor.toFixed(2)}) brightness(${brightnessFactor.toFixed(2)}) contrast(${CONFIG.typhonContrast})`;
       document.documentElement.style.setProperty('--typhon-filter', filterValue);
+
+      // Couleur sombre du fond pour le disque central des bulles : on reprend
+      // la couleur moyenne échantillonnée et on l'assombrit nettement (un
+      // chouïa plus sombre que le fond) pour qu'elle ressorte tout en restant
+      // dans la même famille de teinte. Évite le "rond noir posé".
+      const darkFactor = 0.45;  // 0 = noir, 1 = couleur moyenne du fond
+      const cr = Math.round(r * darkFactor);
+      const cg = Math.round(g * darkFactor);
+      const cb = Math.round(b * darkFactor);
+      document.documentElement.style.setProperty('--typhon-core', `rgb(${cr}, ${cg}, ${cb})`);
     } catch (e) {
       // Silencieux : un échec ponctuel (ex. frame pas encore prête) n'est
       // pas grave, on retente au prochain intervalle.
