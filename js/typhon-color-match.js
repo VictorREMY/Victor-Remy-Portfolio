@@ -22,7 +22,14 @@
    — important pour les perfs vu le nombre de vidéos déjà lues sur le site.
    ========================================================================= */
 
-import { getBackgroundVideoElement } from './water-effect.js';
+// Trouve la vidéo de fond directement dans la page (élément #water-bg),
+// sans dépendre d'un import depuis water-effect.js (plus robuste : si ce
+// module change ou se charge dans un ordre différent, on ne plante pas).
+function getBackgroundVideoElement() {
+  const bg = document.getElementById('water-bg');
+  if (!bg) return null;
+  return bg.querySelector('video') || document.querySelector('#water-bg video');
+}
 
 const CONFIG = {
   sampleIntervalMs: 600,   // fréquence d'échantillonnage de la couleur du fond
@@ -74,6 +81,7 @@ function rgbToHsl(r, g, b) {
 }
 
 export function initTyphonColorMatch() {
+  console.log('[typhon-color-match] démarré');
   // Règle CSS injectée une seule fois : lit la variable --typhon-filter
   // (mise à jour périodiquement plus bas) avec une transition douce.
   const style = document.createElement('style');
