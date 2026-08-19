@@ -59,8 +59,8 @@ collections:
                 widget: "object"
                 required: false
                 fields:
-                  - { label: "Type", name: "type", widget: "select", options: ["youtube", "spotify", "pending"] }
-                  - { label: "URL (si YouTube ou Spotify)", name: "url", widget: "string", required: false }
+                  - { label: "Type", name: "type", widget: "select", options: ["youtube", "vimeo", "spotify", "pending"] }
+                  - { label: "URL (si YouTube, Vimeo ou Spotify)", name: "url", widget: "string", required: false }
                   - { label: "Note (si en attente)", name: "note", widget: "string", required: false }
 
               - label: "Chapitres (optionnel — pour les projets à plusieurs volets)"
@@ -86,6 +86,6 @@ collections:
                     name: "media"
                     widget: "object"
                     fields:
-                      - { label: "Type", name: "type", widget: "select", options: ["youtube", "spotify", "pending"] }
-                      - { label: "URL (si YouTube ou Spotify)", name: "url", widget: "string", required: false }
+                      - { label: "Type", name: "type", widget: "select", options: ["youtube", "vimeo", "spotify", "pending"] }
+                      - { label: "URL (si YouTube, Vimeo ou Spotify)", name: "url", widget: "string", required: false }
                       - { label: "Note (si en attente)", name: "note", widget: "string", required: false }
