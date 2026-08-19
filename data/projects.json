@@ -145,6 +145,7 @@
       "id": "merri-6ramo",
       "title": "Merri & 6ramo",
       "year": 2025,
+      "thumbnail": "/assets/images/uploads/Capture d'écran 2026-08-19 211210.png",
       "popup_bg": "",
       "role": "",
       "credits": "",
@@ -262,7 +263,7 @@
       "id": "one-turn-kill",
       "title": "One Turn Kill",
       "year": 2026,
-      "thumbnail": "/assets/images/uploads/minia one turn kill.png",
+      "thumbnail": "/assets/images/uploads/Capture d'écran 2026-08-19 211332.png",
       "popup_bg": "",
       "role": "",
       "credits": "",
@@ -303,6 +304,9 @@
     {
       "id": "background-portfolio",
       "title": "Background portfolio",
+      "year": 2026,
+      "thumbnail": "/assets/images/uploads/Capture d'écran 2026-08-09 184144.png",
+      "popup_bg": "",
       "tags": [
         "vfx-interactif",
         "vfx-video"
