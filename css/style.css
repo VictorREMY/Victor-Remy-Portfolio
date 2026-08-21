@@ -346,16 +346,25 @@ em{ font-style: italic; color: var(--gold); }
   left: var(--gap-xl);
   z-index: 50;
   font-family: var(--font-mono);
-  font-size: 0.85rem;
-  color: var(--ink);
+  font-size: 1.05rem;
+  color: #fff;
   text-decoration: none;
   cursor: pointer;
-  background: none;
-  border: none;
-  opacity: 0.7;
-  transition: opacity 0.3s;
+  background: rgba(0, 0, 0, 0.35);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: 999px;
+  padding: 0.5rem 1.1rem;
+  opacity: 0.92;
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  text-shadow: 0 1px 3px rgba(0,0,0,0.8);
+  transition: opacity 0.25s, transform 0.2s, background 0.25s;
 }
-.retour-btn:hover{ opacity: 1; color: var(--gold); }
+.retour-btn:hover{
+  opacity: 1;
+  transform: translateX(-3px);
+  background: rgba(0, 0, 0, 0.55);
+}
 
 /* Conteneur zoomé à la molette (canvas + syphons dedans) */
 .zoom-stage{
@@ -385,6 +394,8 @@ em{ font-style: italic; color: var(--gold); }
   position: fixed;
   inset: 0;
   z-index: 2;
+  user-select: none;
+  -webkit-user-select: none;
 }
 
 /* Un syphon : cercle cliquable positionné en absolu */
@@ -402,6 +413,16 @@ em{ font-style: italic; color: var(--gold); }
   text-decoration: none;
   color: #fff;
   font-family: var(--font-display);
+  /* Apparition en fondu doux (coordonnée par un léger décalage en JS via
+     --syphon-delay) plutôt qu'un affichage brut au chargement de chaque vidéo. */
+  opacity: 0;
+  animation: syphon-appear 0.7s ease forwards;
+  animation-delay: var(--syphon-delay, 0s);
+}
+@keyframes syphon-appear{
+  from{ opacity: 0; transform: translate(-50%, -50%) scale(0.92); }
+  to{ opacity: 1; transform: translate(-50%, -50%) scale(1); }
+}
   font-size: 1.15rem;
   transition: transform 0.35s var(--ease);
 }

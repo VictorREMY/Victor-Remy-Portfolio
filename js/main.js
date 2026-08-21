@@ -193,6 +193,46 @@ function vortexInto(syphonEl, targetUrl){
    Réglages ajustables via TYPHON_SETTINGS (menu ?edit=1). */
 const TYPHON_SETTINGS = { enabled: true, opacity: 1, scale: 1 };
 
+/* Observer partagé : ne fait jouer que les typhons visibles à l'écran.
+   Ceux hors écran sont mis en pause (le décodage vidéo s'arrête) — gros
+   gain de perf quand une page a beaucoup de bulles. La reprise est
+   instantanée (la vidéo est déjà chargée, juste en pause). */
+let _typhonObserver = null;
+function getTyphonObserver(){
+  if(_typhonObserver) return _typhonObserver;
+  _typhonObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      const v = entry.target;
+      if(entry.isIntersecting){
+        // Devient visible : on (re)lance la lecture.
+        if(v.paused) v.play().catch(() => {});
+      } else {
+        // Sort de l'écran : on met en pause pour libérer le décodage.
+        if(!v.paused) v.pause();
+      }
+    });
+  }, {
+    // Marge : on active un peu avant que la bulle entre à l'écran, pour
+    // qu'elle joue déjà quand elle devient visible (pas de "démarrage" visible).
+    rootMargin: "150px"
+  });
+  return _typhonObserver;
+}
+
+/* Met en pause ou reprend tous les typhons d'un coup (ex. quand une popup
+   plein écran s'ouvre/se ferme). La reprise ne relance que ceux visibles. */
+function setTyphonsPlaying(playing){
+  document.querySelectorAll(".syphon-typhon").forEach(v => {
+    if(playing){
+      // On laisse l'observer décider lesquels rejouer selon leur visibilité :
+      // on relance seulement, l'observer remettra en pause les hors-écran.
+      v.play().catch(() => {});
+    } else {
+      v.pause();
+    }
+  });
+}
+
 function addTyphonBubble(el){
   if(!TYPHON_SETTINGS.enabled) return;
   const v = document.createElement("video");
@@ -200,10 +240,10 @@ function addTyphonBubble(el){
   v.src = "assets/typhon-bubble.webm";
   v.muted = true;          // obligatoire pour l'autoplay
   v.loop = true;
-  v.autoplay = true;
   v.playsInline = true;
   v.setAttribute("playsinline", "");
   v.setAttribute("aria-hidden", "true");
+  v.preload = "auto";
   v.style.opacity = TYPHON_SETTINGS.opacity;
   v.style.transform = `translate(-50%, -50%) scale(${TYPHON_SETTINGS.scale})`;
   // Démarre la lecture à un décalage aléatoire (désynchronisation)
@@ -211,9 +251,10 @@ function addTyphonBubble(el){
     if(v.duration && isFinite(v.duration)){
       v.currentTime = Math.random() * v.duration;
     }
-    v.play().catch(() => {});
   });
   el.insertBefore(v, el.firstChild);
+  // Branche la vidéo sur l'observer : elle ne jouera que si visible.
+  getTyphonObserver().observe(v);
 }
 
 function renderSyphons(containerId, items){
@@ -234,6 +275,9 @@ function renderSyphons(containerId, items){
     if(item.contextTag) el.setAttribute("data-context", item.contextTag);
     el.style.left = pos.x + "%";
     el.style.top = pos.y + "%";
+    // Apparition coordonnée : léger décalage progressif (effet cascade douce
+    // et maîtrisée, au lieu d'un ordre aléatoire selon le chargement vidéo).
+    el.style.setProperty("--syphon-delay", (i * 0.08) + "s");
     // Retire le slash initial du chemin (sinon pointe vers la racine du domaine
     // au lieu du sous-dossier GitHub Pages).
     const thumbUrl = item.thumbnail ? item.thumbnail.replace(/^\//, "") : null;
@@ -308,6 +352,9 @@ function renderSyphonNode(field, node, autoX, autoY, depth, incomingAngle, pairs
   el.setAttribute("data-key", node.key);
   el.style.left = xPct + "%";
   el.style.top = yPct + "%";
+  // Délai basé sur la profondeur : les branches principales apparaissent
+  // en premier, puis les sous-niveaux (cascade logique du général au détail).
+  el.style.setProperty("--syphon-delay", (depth * 0.12) + "s");
   el.innerHTML = `<span class="syphon-titre">${node.label}</span>`;
   addTyphonBubble(el);
   field.appendChild(el);
@@ -1109,6 +1156,8 @@ function initProjectPopups(){
     backdrop.classList.remove("visible");
     popup.classList.remove("open");
     if(window._resetZoom) window._resetZoom();
+    // Les typhons du menu redeviennent visibles : on les relance.
+    setTyphonsPlaying(true);
     // 3) Retire réellement le contenu net (le son est déjà coupé par le pause)
     content.querySelectorAll("iframe, video, audio").forEach(el => el.remove());
     content.innerHTML = "";
@@ -1148,6 +1197,9 @@ function openProjectPopup(id, contextTag){
   document.getElementById("project-popup-backdrop").classList.add("visible");
   popupEl.classList.add("open");
   content.scrollTop = 0;   // le contenu défile dans #popup-content, pas dans la popup
+  // La popup couvre l'écran : inutile de continuer à décoder les typhons
+  // derrière. On les met en pause (repris à la fermeture).
+  setTyphonsPlaying(false);
 
   // La popup s'ouvre toujours en haut (on voit l'en-tête + le premier chapitre).
   // Si on vient d'une branche précise, on met juste en surbrillance l'onglet
