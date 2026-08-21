@@ -44,8 +44,12 @@
    tous les réglages actuels et me les recoller directement dans le chat.
    ========================================================================= */
 
-import * as THREE from 'three';
-import GUI from 'lil-gui';
+// three.js et lil-gui ne sont PAS importés en haut : ils pèsent ~1,2 Mo et ne
+// servent QUE au mode interactif WebGL (ENABLE_CURSOR_EFFECT: true), désactivé
+// par défaut. On les charge dynamiquement uniquement si ce mode est activé,
+// pour ne pas plomber le chargement de chaque page avec du code inutilisé.
+let THREE = null;
+let GUI = null;
 
 // ============================================================================
 // CONFIG — les réglages à toucher en priorité
@@ -295,7 +299,7 @@ let firstFrame = true;
 
 let videoEl = null;
 let videoTexture = null;
-let clock = new THREE.Clock();
+let clock = null;  // initialisé dans initWaterEffect une fois THREE chargé
 let containerRef = null;
 
 // Expose l'élément <video> du fond (déjà chargé/décodé) pour que d'autres
@@ -363,10 +367,21 @@ function initSimpleWaterEffect(container) {
 // ============================================================================
 export function initWaterEffect(container) {
   if (!CONFIG.ENABLE_CURSOR_EFFECT) {
+    // Mode simple (par défaut) : juste une balise vidéo, aucun besoin de
+    // three.js — on ne le charge donc pas du tout.
     initSimpleWaterEffect(container);
     return;
   }
-  initInteractiveWaterEffect(container);
+  // Mode interactif WebGL : on charge three.js + lil-gui à la demande.
+  Promise.all([
+    import('three'),
+    import('lil-gui')
+  ]).then(([threeMod, guiMod]) => {
+    THREE = threeMod;
+    GUI = guiMod.default || guiMod;
+    clock = new THREE.Clock();
+    initInteractiveWaterEffect(container);
+  });
 }
 
 function initInteractiveWaterEffect(container) {
