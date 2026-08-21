@@ -240,7 +240,7 @@ function renderSyphons(containerId, items){
     const miniHTML = thumbUrl
       ? `<img src="${thumbUrl}" alt="" class="syphon-mini" aria-hidden="true">`
       : "";
-    el.innerHTML = `<span class="zoom-hint">${item.sublabel || "zoom in !"}</span>${miniHTML}<span class="syphon-titre">${item.label}</span>`;
+    el.innerHTML = `${miniHTML}<span class="syphon-titre">${item.label}</span>`;
     addTyphonBubble(el);
     field.appendChild(el);
   });
@@ -308,7 +308,7 @@ function renderSyphonNode(field, node, autoX, autoY, depth, incomingAngle, pairs
   el.setAttribute("data-key", node.key);
   el.style.left = xPct + "%";
   el.style.top = yPct + "%";
-  el.innerHTML = `<span class="zoom-hint">zoom in !</span><span class="syphon-titre">${node.label}</span>`;
+  el.innerHTML = `<span class="syphon-titre">${node.label}</span>`;
   addTyphonBubble(el);
   field.appendChild(el);
 
@@ -587,10 +587,10 @@ function bindRetourButton(){
    ========================================================== */
 /* Réglages du zoom — ajustables en direct via ?zoomtune=1 */
 const ZOOM_SETTINGS = {
-  maxScale: 9,        // zoom avant max
-  thresholdIn: 7,     // seuil d'entrée dans un syphon (il faut viser la bulle)
-  minScale: 0.35,     // dézoom max
-  thresholdOut: 0.45, // seuil de déclenchement du retour
+  maxScale: 1.2,      // zoom avant max (léger effet, plus de lag ni pixels)
+  thresholdIn: 99,    // (inutilisé : navigation par zoom retirée)
+  minScale: 1,        // pas de dézoom sous 100% (plus de bulles perdues)
+  thresholdOut: -1,   // (inutilisé : navigation par zoom retirée)
   speed: 1.2,         // sensibilité de la molette
   smoothing: 0.12,    // 0.05 = très doux/lent, 0.3 = plus direct
   bounce: 1.15        // léger rebond avant la bascule (1 = aucun)
@@ -631,11 +631,10 @@ function initWheelZoom(){
     const tx = anchorScreenX - anchorWorldX * scale;
     const ty = anchorScreenY - anchorWorldY * scale;
     stage.style.transform = `translate(${tx}px, ${ty}px) scale(${scale})`;
-    // Le fond suit le zoom vers le haut (cohérence), mais reste à 1 au minimum
-    // (jamais agrandi par défaut = aucune perte de qualité au repos).
+    // Le fond zoome au MÊME rythme que les typhons (scène cohérente).
+    // Zoom bridé à 100-120%, donc pas de perte de qualité notable.
     if(waterBg){
-      const bgScale = Math.max(1, 1 + (scale - 1) * 0.7);
-      waterBg.style.transform = `scale(${bgScale})`;
+      waterBg.style.transform = `scale(${scale})`;
     }
   }
 
@@ -751,28 +750,9 @@ function initWheelZoom(){
       apply();
     }
 
-    if(!navigating && !bouncing){
-      if(scale >= S.thresholdIn){
-        const target = syphonUnderCursor();
-        if(target){
-          navigating = true;
-          bounceThen(() => {
-            // Cohérence avec le clic : une bulle projet ouvre la popup,
-            // une bulle de navigation change de page.
-            if(target.dataset.popup === "true"){
-              openProjectPopup(target.dataset.key, target.dataset.context || null);
-              window._resetZoom();
-            } else {
-              _zoomAnimating = false;
-              vortexInto(target, target.getAttribute("href"));
-            }
-          });
-        }
-      } else if(scale <= S.thresholdOut && retourBtn){
-        navigating = true;
-        bounceThen(zoomOutBack);
-      }
-    }
+    // Navigation par zoom retirée : on ouvre les projets / change de page
+    // uniquement au CLIC (voir bindSyphonClicks). Le zoom molette ne sert
+    // plus qu'à un léger effet d'exploration (bridé à 100-120%).
 
     requestAnimationFrame(animate);
   }
