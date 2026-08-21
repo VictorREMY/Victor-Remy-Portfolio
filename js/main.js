@@ -600,7 +600,17 @@ function loadZoomSettings(){
   return fetch("data/zoom-settings.json")
     .then(r => r.json())
     .then(data => { Object.assign(ZOOM_SETTINGS, data || {}); return ZOOM_SETTINGS; })
-    .catch(() => ZOOM_SETTINGS);
+    .catch(() => ZOOM_SETTINGS)
+    .finally(() => {
+      // Bridage FORCÉ du zoom, quel que soit le contenu de zoom-settings.json :
+      // le zoom molette n'est plus qu'un léger effet cosmétique (100-120%),
+      // il ne sert plus à naviguer (navigation au clic). Ces valeurs écrasent
+      // volontairement celles du fichier de réglages.
+      ZOOM_SETTINGS.maxScale = 1.2;   // zoom avant max
+      ZOOM_SETTINGS.minScale = 1;     // pas de dézoom sous 100%
+      ZOOM_SETTINGS.thresholdIn = 99; // navigation par zoom désactivée
+      ZOOM_SETTINGS.thresholdOut = -1;
+    });
 }
 
 function initWheelZoom(){
