@@ -652,74 +652,9 @@ function initWheelZoom(){
   let cursorX = window.innerWidth / 2, cursorY = window.innerHeight / 2;
   window.addEventListener("mousemove", e => { cursorX = e.clientX; cursorY = e.clientY; });
 
-  /* --- Déplacement de la vue par clic-glisser dans le vide (pan) ---
-     Avec inertie/momentum : on suit la vélocité du glisser et on continue
-     le mouvement en décélérant après le relâchement (comme Google Maps).
-     Cliquer sur une bulle l'ouvre (géré ailleurs). Coexiste avec le zoom. */
-  let panning = false;
-  let panMoved = false;
-  let lastPanX = 0, lastPanY = 0;
-  let panVelX = 0, panVelY = 0;        // vélocité (px/frame) pour l'inertie
-  let panInertiaActive = false;
-  const PAN_THRESHOLD = 4;             // px avant de considérer que c'est un glisser
-  const PAN_FRICTION = 0.92;           // décélération de l'inertie (0.9-0.95 = doux)
-  const PAN_MIN_VEL = 0.15;            // seuil d'arrêt de l'inertie
-
-  window.addEventListener("pointerdown", function(e){
-    if(document.querySelector(".project-popup.open, .info-bubble.open")) return;
-    if(navigating || bouncing) return;
-    if(e.target.closest(".syphon, a, button, [data-retour], .site-banner, .edit-sidebar")) return;
-    panning = true;
-    panMoved = false;
-    panInertiaActive = false;          // stoppe toute inertie en cours
-    panVelX = 0; panVelY = 0;
-    lastPanX = e.clientX;
-    lastPanY = e.clientY;
-  });
-
-  window.addEventListener("pointermove", function(e){
-    if(!panning) return;
-    const dx = e.clientX - lastPanX;
-    const dy = e.clientY - lastPanY;
-    if(!panMoved && Math.hypot(e.clientX - lastPanX, e.clientY - lastPanY) < PAN_THRESHOLD) return;
-    panMoved = true;
-    document.body.style.cursor = "grabbing";
-    anchorScreenX += dx;
-    anchorScreenY += dy;
-    // Vélocité lissée (moyenne avec la précédente = mouvement plus naturel)
-    panVelX = panVelX * 0.4 + dx * 0.6;
-    panVelY = panVelY * 0.4 + dy * 0.6;
-    lastPanX = e.clientX;
-    lastPanY = e.clientY;
-    apply();
-  });
-
-  window.addEventListener("pointerup", function(){
-    if(!panning) return;
-    panning = false;
-    document.body.style.cursor = "";
-    // Lance l'inertie si le mouvement avait de la vitesse au relâchement
-    if(Math.hypot(panVelX, panVelY) > PAN_MIN_VEL){
-      panInertiaActive = true;
-      requestAnimationFrame(panInertiaStep);
-    }
-  });
-
-  function panInertiaStep(){
-    if(!panInertiaActive) return;
-    // Interrompt l'inertie si l'utilisateur reprend la main ou zoome/navigue
-    if(panning || navigating || bouncing){ panInertiaActive = false; return; }
-    panVelX *= PAN_FRICTION;
-    panVelY *= PAN_FRICTION;
-    anchorScreenX += panVelX;
-    anchorScreenY += panVelY;
-    apply();
-    if(Math.hypot(panVelX, panVelY) > PAN_MIN_VEL){
-      requestAnimationFrame(panInertiaStep);
-    } else {
-      panInertiaActive = false;
-    }
-  }
+  /* Déplacement (pan) retiré : le menu est fixe, la navigation se fait
+     uniquement au clic sur les bulles. Plus simple, cohérent (pas de
+     typhons qui bougent sans le fond), et ça règle le "glisser trop loin". */
 
   function syphonUnderCursor(){
     const el = document.elementFromPoint(cursorX, cursorY);
