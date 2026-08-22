@@ -475,6 +475,14 @@ em{ font-style: italic; color: var(--gold); }
     rgba(10,18,22,0) 100%);
   z-index: 0;
   pointer-events: none;
+  /* Le disque n'apparaît QU'AVEC le typhon (classe .typhon-ready ajoutée
+     quand la vidéo est prête), pour ne pas voir un rond noir seul pendant
+     le chargement de la vidéo. */
+  opacity: 0;
+  transition: opacity 0.6s ease;
+}
+.syphon.typhon-ready::before{
+  opacity: 1;
 }
 .syphon-typhon{
   z-index: 1 !important;

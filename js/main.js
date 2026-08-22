@@ -254,9 +254,11 @@ function addTyphonBubble(el){
       v.currentTime = Math.random() * v.duration;
     }
   });
-  // Quand la vidéo peut jouer sans interruption, on la révèle en fondu.
+  // Quand la vidéo peut jouer sans interruption, on la révèle en fondu,
+  // et on révèle aussi le disque central (classe sur la bulle parente).
   v.addEventListener("canplay", () => {
     v.style.opacity = String(TYPHON_SETTINGS.opacity);
+    if(el && el.classList) el.classList.add("typhon-ready");
   }, { once: true });
   el.insertBefore(v, el.firstChild);
   // Branche la vidéo sur l'observer : elle ne jouera que si visible.
