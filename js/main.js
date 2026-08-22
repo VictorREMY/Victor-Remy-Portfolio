@@ -247,19 +247,32 @@ function addTyphonBubble(el){
   // Le typhon démarre invisible et apparaît en fondu QUAND il est prêt à
   // jouer (évite le "pop" brutal d'un typhon qui surgit après le fond).
   v.style.opacity = "0";
-  v.style.transition = "opacity 0.6s ease";
+  v.style.transition = "opacity 0.5s ease";
   v.style.transform = `translate(-50%, -50%) scale(${TYPHON_SETTINGS.scale})`;
+
+  let revealed = false;
+  function reveal(){
+    if(revealed) return;
+    revealed = true;
+    v.style.opacity = String(TYPHON_SETTINGS.opacity);
+    if(el && el.classList) el.classList.add("typhon-ready");
+  }
+
+  // Désynchronisation : on choisit le point de départ aléatoire dès que les
+  // métadonnées sont là. On révèle IMMÉDIATEMENT après (pas besoin d'attendre
+  // le buffer complet), pour une apparition beaucoup plus rapide.
   v.addEventListener("loadedmetadata", () => {
     if(v.duration && isFinite(v.duration)){
       v.currentTime = Math.random() * v.duration;
     }
   });
-  // Quand la vidéo peut jouer sans interruption, on la révèle en fondu,
-  // et on révèle aussi le disque central (classe sur la bulle parente).
-  v.addEventListener("canplay", () => {
-    v.style.opacity = String(TYPHON_SETTINGS.opacity);
-    if(el && el.classList) el.classList.add("typhon-ready");
-  }, { once: true });
+  // 'loadeddata' = la première image (au point choisi) est prête → on révèle.
+  // Bien plus tôt que 'canplay' (qui attend un buffer confortable).
+  v.addEventListener("loadeddata", reveal, { once: true });
+  // Filet de sécurité : si pour une raison l'événement tarde, on révèle
+  // quand même au bout d'un court délai (évite un typhon invisible bloqué).
+  setTimeout(reveal, 1500);
+
   el.insertBefore(v, el.firstChild);
   // Branche la vidéo sur l'observer : elle ne jouera que si visible.
   getTyphonObserver().observe(v);
