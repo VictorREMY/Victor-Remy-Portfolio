@@ -413,18 +413,18 @@ em{ font-style: italic; color: var(--gold); }
   text-decoration: none;
   color: #fff;
   font-family: var(--font-display);
-  /* Apparition en fondu doux (coordonnée par un léger décalage en JS via
-     --syphon-delay) plutôt qu'un affichage brut au chargement de chaque vidéo. */
+  font-size: 1.15rem;
+  transition: transform 0.35s var(--ease);
+  /* Apparition en fondu doux, coordonnée par un léger décalage (--syphon-delay).
+     On n'anime QUE l'opacité (pas le transform) pour ne pas casser le centrage
+     translate(-50%,-50%) de la bulle et de la vidéo à l'intérieur. */
   opacity: 0;
   animation: syphon-appear 0.7s ease forwards;
   animation-delay: var(--syphon-delay, 0s);
 }
 @keyframes syphon-appear{
-  from{ opacity: 0; transform: translate(-50%, -50%) scale(0.92); }
-  to{ opacity: 1; transform: translate(-50%, -50%) scale(1); }
-}
-  font-size: 1.15rem;
-  transition: transform 0.35s var(--ease);
+  from{ opacity: 0; }
+  to{ opacity: 1; }
 }
 /* Vidéo "typhon" : elle EST la bulle (plus de cadre ni de fond). */
 .syphon-typhon{
