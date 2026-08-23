@@ -19,6 +19,7 @@
 
 (function(){
   const FIELD_ID = "syphon-field";
+  let _currentView = null;  // clé de la vue de bulles actuellement affichée
 
   // Construit l'arbre/les items pour une vue donnée, puis rend les bulles.
   function renderView(route){
@@ -35,6 +36,7 @@
 
       const parts = route.split("/").filter(Boolean); // ex: ["musique-son"]
       const key = parts[0] || "accueil";
+      _currentView = key;  // mémorise la vue affichée
 
       // Met à jour le fil d'ariane
       updateBreadcrumb(key);
@@ -87,6 +89,10 @@
       }
 
       if(typeof initEditMode === "function") initEditMode();
+
+      // Effet d'entrée : les nouvelles bulles arrivent depuis un léger flou.
+      field.classList.add("view-entering");
+      setTimeout(() => field.classList.remove("view-entering"), 350);
     }, 280); // durée du fondu de sortie (doit matcher le CSS)
   }
 
@@ -94,15 +100,31 @@
   function updateBreadcrumb(key){
     const el = document.getElementById("path-text");
     if(!el) return;
-    if(key === "accueil"){ el.textContent = ""; return; }
-    if(key === "hub" || key === "home"){ el.textContent = "hub"; return; }
-    const b = BRANCHES[key];
-    if(!b){ el.textContent = "hub"; return; }
-    if(b.parent){
-      el.textContent = "hub/" + b.parent + "/" + key;
-    } else {
-      el.textContent = "hub/" + key;
+    if(key === "accueil"){ el.innerHTML = ""; return; }
+
+    // Construit un fil d'ariane cliquable : chaque segment navigue vers sa vue.
+    const crumbs = [];
+    crumbs.push({ label: "hub", target: "hub" });
+
+    if(key !== "hub" && key !== "home"){
+      const b = BRANCHES[key];
+      if(b){
+        if(b.parent){
+          crumbs.push({ label: BRANCHES[b.parent] ? BRANCHES[b.parent].label.toLowerCase() : b.parent, target: b.parent });
+        }
+        crumbs.push({ label: b.label.toLowerCase(), target: key });
+      }
     }
+
+    el.innerHTML = crumbs.map((c, i) => {
+      const sep = i > 0 ? '<span class="crumb-sep"> / </span>' : "";
+      // Le dernier segment (vue actuelle) n'est pas cliquable.
+      const isLast = i === crumbs.length - 1;
+      if(isLast){
+        return sep + '<span class="crumb-current">' + c.label + '</span>';
+      }
+      return sep + '<a class="crumb-link" href="#/' + c.target + '">' + c.label + '</a>';
+    }).join("");
   }
 
   // Gère l'ouverture d'une fiche projet via l'URL (#/projet/<id>)
@@ -131,6 +153,7 @@
     const field = document.getElementById(FIELD_ID);
     if(!field) return;
     field.innerHTML = "";
+    _currentView = key;  // mémorise la vue affichée
     updateBreadcrumb(key);
     if(BRANCHES[key] && getChildren(key).length){
       const tree = getChildren(key).map(cKey => ({
@@ -167,6 +190,17 @@
       handleProjectRoute(id);
       return;
     }
+
+    // Cas fermeture de popup : on revient à une vue de bulles. Si cette vue
+    // est DÉJÀ celle affichée derrière la popup (même contexte), inutile de
+    // tout recréer (ça rechargeait les typhons pour rien). On saute le rendu.
+    if(window._spaClosingPopup){
+      window._spaClosingPopup = false;
+      if(hash === _currentView){
+        return; // la vue est déjà là, on ne touche pas aux typhons
+      }
+    }
+
     renderView(hash);
   }
 

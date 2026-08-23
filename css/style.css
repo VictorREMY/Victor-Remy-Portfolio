@@ -338,6 +338,26 @@ em{ font-style: italic; color: var(--gold); }
   line-height: 1.5;
   overflow-wrap: break-word;
 }
+.path-breadcrumb .crumb-link{
+  color: #fff;
+  opacity: 0.7;
+  text-decoration: none;
+  cursor: pointer;
+  transition: opacity 0.2s;
+  text-shadow: 0 1px 3px rgba(0,0,0,0.7);
+}
+.path-breadcrumb .crumb-link:hover{
+  opacity: 1;
+  text-decoration: underline;
+}
+.path-breadcrumb .crumb-current{
+  color: #fff;
+  opacity: 1;
+  text-shadow: 0 1px 3px rgba(0,0,0,0.7);
+}
+.path-breadcrumb .crumb-sep{
+  opacity: 0.4;
+}
 
 /* Bouton retour, bas gauche */
 .retour-btn{
@@ -1041,12 +1061,21 @@ em{ font-style: italic; color: var(--gold); }
 }
 
 /* ==========================================================
-   TRANSITIONS DE VUE (SPA) — fondu doux entre les menus
+   TRANSITIONS DE VUE (SPA) — fondu doux + léger flou entre les menus
    ========================================================== */
 .syphon-field{
-  transition: opacity 0.28s ease;
+  transition: opacity 0.28s ease, filter 0.28s ease;
 }
 .syphon-field.view-leaving{
   opacity: 0;
+  filter: blur(6px);
   pointer-events: none;
+}
+/* Entrée : les bulles arrivent depuis un léger flou aussi (effet symétrique). */
+@keyframes view-enter{
+  from{ opacity: 0; filter: blur(6px); }
+  to{ opacity: 1; filter: blur(0); }
+}
+.syphon-field.view-entering{
+  animation: view-enter 0.32s ease forwards;
 }
