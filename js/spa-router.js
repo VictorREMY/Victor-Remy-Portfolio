@@ -21,10 +21,25 @@
   const FIELD_ID = "syphon-field";
   let _currentView = null;  // clé de la vue de bulles actuellement affichée
 
+  // Joue le voile de transition plein écran (retire puis remet la classe pour
+  // pouvoir rejouer l'animation à chaque changement de vue).
+  function triggerViewFlash(){
+    const ov = document.getElementById("view-transition-overlay");
+    if(!ov) return;
+    ov.classList.remove("flash");
+    // force le reflow pour redémarrer l'animation même en changement rapide
+    void ov.offsetWidth;
+    ov.classList.add("flash");
+  }
+
   // Construit l'arbre/les items pour une vue donnée, puis rend les bulles.
   function renderView(route){
     const field = document.getElementById(FIELD_ID);
     if(!field) return;
+
+    // Déclenche le voile de transition plein écran (couvre fond + bulles) pour
+    // marquer le changement de vue comme un vrai changement de page.
+    triggerViewFlash();
 
     // Transition de sortie : fondu doux des bulles actuelles avant de les
     // remplacer (la plus fluide, comme convenu par défaut).
