@@ -3,10 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Victor Remy — Accueil</title>
+<title>Victor Remy</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500&family=Playfair+Display:wght@400;500&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/style.css?v=1787390476">
+<link rel="stylesheet" href="css/style.css?v=1787434436">
 <link rel="preload" as="video" href="assets/background-loop-final.mp4" type="video/mp4">
 </head>
 <body>
@@ -17,32 +17,33 @@
   <img src="assets/bandeau.png" alt="" class="banner-bg">
   <nav class="banner-nav">
     <a href="#" data-modal="apropos">À propos</a>
-    <a href="index.html" class="brand">Victor Remy</a>
+    <a href="#/accueil" class="brand">Victor Remy</a>
     <a href="#" data-modal="contact">Contact</a>
   </nav>
 </header>
-
-
+<p class="path-breadcrumb" id="path-text"></p>
+<button class="retour-btn" data-retour>← Retour</button>
 
 <div id="zoom-stage" class="zoom-stage">
 <div id="syphon-field" class="syphon-field"></div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-<script src="js/branches-config.js?v=1787328261"></script>
-<script src="js/main.js?v=1787416271"></script>
+<script src="js/branches-config.js?v=1787417448"></script>
+<script src="js/main.js?v=1787434436"></script>
+<script src="js/spa-router.js?v=1787434436"></script>
 <script>
-  initZoomTransitions();
+  // Initialisation UNE SEULE FOIS (le fond et le contexte persistent ensuite).
   initInfoBubbles();
   initProjectPopups();
   loadAppearanceSettings();
   loadTyphonSettings();
   loadZoomSettings().then(() => initWheelZoom());
-  
+  bindRetourButton();
 
-  Promise.all([loadLayoutData(), loadChapterLayouts()]).then(() => {
-    renderSyphons("syphon-field", [{ label: "Victor Remy", href: "hub.html", key: "home" }]);
-    initEditMode();
+  // Charge les données puis lance le routeur SPA (première vue selon l'URL).
+  Promise.all([loadLayoutData(), loadChapterLayouts(), loadProjectsData()]).then(() => {
+    window.spaInit();
   });
 </script>
 

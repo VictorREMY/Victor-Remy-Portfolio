@@ -2,69 +2,8 @@
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Victor Remy — Vidéo</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500&family=Playfair+Display:wght@400;500&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/style.css?v=1787390476">
-<link rel="preload" as="video" href="assets/background-loop-final.mp4" type="video/mp4">
+<meta http-equiv="refresh" content="0; url=index.html#/video">
+<script>location.replace("index.html#/video");</script>
 </head>
-<body>
-
-<div id="water-bg"></div>
-
-<header class="site-banner">
-  <img src="assets/bandeau.png" alt="" class="banner-bg">
-  <nav class="banner-nav">
-    <a href="#" data-modal="apropos">À propos</a>
-    <a href="index.html" class="brand">Victor Remy</a>
-    <a href="#" data-modal="contact">Contact</a>
-  </nav>
-</header>
-<p class="path-breadcrumb" id="path-text">hub/video</p>
-<button class="retour-btn" data-retour>← Retour</button>
-
-<div id="zoom-stage" class="zoom-stage">
-<div id="syphon-field" class="syphon-field"></div>
-</div>
-
-<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-<script src="js/branches-config.js?v=1787328261"></script>
-<script src="js/main.js?v=1787416271"></script>
-<script>
-  initZoomTransitions();
-  initInfoBubbles();
-  initProjectPopups();
-  loadAppearanceSettings();
-  loadTyphonSettings();
-  loadZoomSettings().then(() => initWheelZoom());
-  bindRetourButton();
-
-  Promise.all([loadLayoutData(), loadChapterLayouts()]).then(() => {
-    const tree = getChildren("video").map(cKey => ({
-      label: BRANCHES[cKey].label,
-      href: BRANCHES[cKey].page,
-      key: cKey,
-      children: []
-    }));
-    renderSyphonTree("syphon-field", tree);
-    initEditMode();
-  });
-</script>
-
-<script type="importmap">
-{
-  "imports": {
-    "three": "./js/vendor/three.module.js",
-    "lil-gui": "./js/vendor/lil-gui.esm.js"
-  }
-}
-</script>
-<script type="module">
-  import { initWaterEffect } from './js/water-effect.js';
-  initWaterEffect(document.getElementById('water-bg'));
-  import('./js/typhon-color-match.js').then(m => m.initTyphonColorMatch());
-</script>
-
-</body>
+<body></body>
 </html>

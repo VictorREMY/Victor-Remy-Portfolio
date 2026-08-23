@@ -435,7 +435,7 @@ em{ font-style: italic; color: var(--gold); }
   height: 100%;
   object-fit: contain;
   transform: translate(-50%, -50%);
-  z-index: 0;
+  z-index: 1;
   pointer-events: none;
 }
 /* Le "zoom in" passe SOUS le titre (sous la bulle), plus lisible */
@@ -483,9 +483,6 @@ em{ font-style: italic; color: var(--gold); }
 }
 .syphon.typhon-ready::before{
   opacity: 1;
-}
-.syphon-typhon{
-  z-index: 1 !important;
 }
 .syphon-mini{
   position: absolute;
@@ -1041,4 +1038,15 @@ em{ font-style: italic; color: var(--gold); }
   text-align: center;
   margin-top: 0.8rem;
   cursor: pointer;
+}
+
+/* ==========================================================
+   TRANSITIONS DE VUE (SPA) — fondu doux entre les menus
+   ========================================================== */
+.syphon-field{
+  transition: opacity 0.28s ease;
+}
+.syphon-field.view-leaving{
+  opacity: 0;
+  pointer-events: none;
 }

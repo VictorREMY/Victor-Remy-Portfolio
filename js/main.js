@@ -432,9 +432,23 @@ function bindSyphonClicks(field){
     el.addEventListener("click", function(e){
       e.preventDefault();
       if(this.dataset.popup === "true"){
-        openProjectPopup(this.dataset.key, this.dataset.context || null);
+        // Projet : on met à jour l'URL (partageable) et on ouvre la fiche.
+        const id = this.dataset.key;
+        if(window.spaNavigate && location.hash.indexOf("projet/") === -1){
+          location.hash = "#/projet/" + id;
+        } else {
+          openProjectPopup(id, this.dataset.context || null);
+        }
       } else {
-        vortexInto(this, this.getAttribute("href"));
+        // Navigation vers une autre vue : via le routeur SPA (pas de
+        // rechargement de page → le fond vidéo reste en place).
+        const href = this.getAttribute("href") || "";
+        if(href.startsWith("#/") && window.spaNavigate){
+          window.spaNavigate(href);
+        } else {
+          // Repli : ancien comportement (au cas où un lien non-SPA traîne)
+          vortexInto(this, href);
+        }
       }
     });
   });
@@ -637,10 +651,25 @@ function bindRetourButton(){
   if(!btn) return;
   btn.addEventListener("click", function(e){
     e.preventDefault();
-    const rect = btn.getBoundingClientRect();
-    const x = rect.left + rect.width / 2;
-    const y = rect.top + rect.height / 2;
-    zoomThenRun(x, y, () => window.history.back());
+    // Navigation SPA : remonter d'un niveau selon la vue courante.
+    let hash = location.hash.replace(/^#\/?/, "");
+    if(hash.startsWith("projet/")){
+      // Depuis une fiche : la popup se ferme (géré ailleurs), on retire juste
+      // le projet de l'URL en revenant à la vue de bulles précédente.
+      history.length > 1 ? history.back() : (location.hash = "#/hub");
+      return;
+    }
+    const b = BRANCHES[hash];
+    if(b && b.parent){
+      // Sous-catégorie → remonter à sa branche
+      location.hash = "#/" + b.parent;
+    } else if(b){
+      // Branche principale → remonter au hub
+      location.hash = "#/hub";
+    } else {
+      // Déjà au hub ou route inconnue : rien / retour à l'accueil
+      location.hash = "#/hub";
+    }
   });
 }
 
@@ -1182,6 +1211,15 @@ function initProjectPopups(){
     // 3) Retire réellement le contenu net (le son est déjà coupé par le pause)
     content.querySelectorAll("iframe, video, audio").forEach(el => el.remove());
     content.innerHTML = "";
+    // 4) SPA : si l'URL contient #/projet/<id>, on la retire pour revenir à la
+    //    vue de bulles. On remonte vers la sous-catégorie du projet (contexte)
+    //    si on la connaît, sinon vers le hub. On pose un drapeau pour que le
+    //    routeur ne ré-ouvre pas la popup en boucle.
+    if(location.hash.indexOf("projet/") !== -1){
+      window._spaClosingPopup = true;
+      const backHash = window._spaProjectContext ? ("#/" + window._spaProjectContext) : "#/hub";
+      location.hash = backHash;
+    }
   }
   backdrop.addEventListener("click", close);
   popup.querySelector(".popup-close").addEventListener("click", close);
@@ -1208,6 +1246,15 @@ function openProjectPopup(id, contextTag){
   const project = PROJECTS.find(p => p.id === id);
   const content = document.getElementById("popup-content");
   if(!project || !content) return;
+
+  // Mémorise la sous-catégorie d'où vient le projet, pour y revenir à la
+  // fermeture (SPA). Si pas de contexte explicite, on déduit depuis les tags.
+  let ctx = contextTag;
+  if(!ctx){
+    const tags = projectTags(project);
+    if(tags && tags.length) ctx = tags[0];
+  }
+  window._spaProjectContext = ctx || null;
 
   content.innerHTML = buildProjectDetailHTML(project);
   const popupEl = document.getElementById("project-popup");
