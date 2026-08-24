@@ -1115,10 +1115,12 @@ em{ font-style: italic; color: var(--gold); }
   will-change: transform, opacity;
 }
 #view-transition-overlay.wave{
-  animation: wave-hold 0.62s ease;
+  animation: wave-hold 1.3s ease;
 }
 #view-transition-overlay.wave::before{
-  animation: wave-spread 0.62s cubic-bezier(0.4, 0, 0.2, 1);
+  /* Courbe douce : départ progressif, propagation fluide, décélération lente
+     en fin (ease-out organique). */
+  animation: wave-spread 1.3s cubic-bezier(0.22, 0.61, 0.36, 1);
 }
 /* L'overlay reste "présent" le temps de l'animation (opacité gérée par les frames) */
 @keyframes wave-hold{
@@ -1126,17 +1128,20 @@ em{ font-style: italic; color: var(--gold); }
   100% { opacity: 1; }
 }
 /* Le cercle grandit depuis le centre jusqu'à couvrir tout l'écran, puis
-   se dissipe (l'anneau lumineux passe comme une vague). */
+   se dissipe (l'anneau lumineux passe comme une vague, en douceur). */
 @keyframes wave-spread{
   0%{
     transform: translate(-50%, -50%) scale(0);
-    opacity: 0.9;
+    opacity: 0;
   }
-  55%{
+  15%{
+    opacity: 1;      /* l'onde monte en douceur */
+  }
+  65%{
     opacity: 1;
   }
   100%{
     transform: translate(-50%, -50%) scale(30);
-    opacity: 0;
+    opacity: 0;      /* dissipation lente et propre */
   }
 }

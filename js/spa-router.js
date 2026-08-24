@@ -108,7 +108,7 @@
       // Effet d'entrée : les nouvelles bulles arrivent depuis un léger flou.
       field.classList.add("view-entering");
       setTimeout(() => field.classList.remove("view-entering"), 350);
-    }, 280); // durée du fondu de sortie (doit matcher le CSS)
+    }, 420); // le changement de bulles se fait quand l'onde couvre l'écran
   }
 
   // Met à jour le texte du fil d'ariane (chemin) en haut.
