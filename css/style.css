@@ -1084,64 +1084,24 @@ em{ font-style: italic; color: var(--gold); }
 }
 
 /* ==========================================================
-   TRANSITION EN ONDE (SPA) — une onde circulaire part du centre et
-   balaie l'écran, comme une goutte dans l'eau. Cohérent avec l'univers
-   aquatique du site.
+   TRANSITION SIMPLE (SPA) — fondu doux à travers une couleur sombre.
+   Approche des sites pro (Vercel, Linear...) : pas d'effet clinquant,
+   juste un fondu propre et lent qui masque le changement de contenu.
    ========================================================== */
 #view-transition-overlay{
   position: fixed;
   inset: 0;
   z-index: 40;                 /* au-dessus du fond et des bulles, sous le bandeau */
   pointer-events: none;
-  overflow: hidden;
   opacity: 0;
-}
-/* L'onde elle-même : un cercle dont la bordure floue se propage. */
-#view-transition-overlay::before{
-  content: "";
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 10vmax;
-  height: 10vmax;
-  transform: translate(-50%, -50%) scale(0);
-  border-radius: 50%;
-  /* Anneau lumineux + voile sombre à l'intérieur, dégradé pour l'effet d'onde */
-  background: radial-gradient(circle,
-    rgba(10,15,20,0) 38%,
-    rgba(120,160,180,0.18) 52%,
-    rgba(10,15,20,0.55) 60%,
-    rgba(10,15,20,0.75) 100%);
-  will-change: transform, opacity;
+  background: #080b0e;         /* sombre, dans le ton du site */
 }
 #view-transition-overlay.wave{
-  animation: wave-hold 1.3s ease;
+  animation: view-fade 1.6s ease-in-out;
 }
-#view-transition-overlay.wave::before{
-  /* Courbe douce : départ progressif, propagation fluide, décélération lente
-     en fin (ease-out organique). */
-  animation: wave-spread 1.3s cubic-bezier(0.22, 0.61, 0.36, 1);
-}
-/* L'overlay reste "présent" le temps de l'animation (opacité gérée par les frames) */
-@keyframes wave-hold{
-  0%   { opacity: 1; }
-  100% { opacity: 1; }
-}
-/* Le cercle grandit depuis le centre jusqu'à couvrir tout l'écran, puis
-   se dissipe (l'anneau lumineux passe comme une vague, en douceur). */
-@keyframes wave-spread{
-  0%{
-    transform: translate(-50%, -50%) scale(0);
-    opacity: 0;
-  }
-  15%{
-    opacity: 1;      /* l'onde monte en douceur */
-  }
-  65%{
-    opacity: 1;
-  }
-  100%{
-    transform: translate(-50%, -50%) scale(30);
-    opacity: 0;      /* dissipation lente et propre */
-  }
+@keyframes view-fade{
+  0%   { opacity: 0; }
+  40%  { opacity: 1; }   /* fondu vers le sombre (masque le changement) */
+  60%  { opacity: 1; }   /* petit palier où les bulles changent */
+  100% { opacity: 0; }   /* réouverture douce sur la nouvelle vue */
 }
