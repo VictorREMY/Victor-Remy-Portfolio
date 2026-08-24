@@ -21,15 +21,15 @@
   const FIELD_ID = "syphon-field";
   let _currentView = null;  // clé de la vue de bulles actuellement affichée
 
-  // Joue le voile de transition plein écran (retire puis remet la classe pour
+  // Joue l'onde de transition plein écran (retire puis remet la classe pour
   // pouvoir rejouer l'animation à chaque changement de vue).
   function triggerViewFlash(){
     const ov = document.getElementById("view-transition-overlay");
     if(!ov) return;
-    ov.classList.remove("flash");
+    ov.classList.remove("wave");
     // force le reflow pour redémarrer l'animation même en changement rapide
     void ov.offsetWidth;
-    ov.classList.add("flash");
+    ov.classList.add("wave");
   }
 
   // Construit l'arbre/les items pour une vue donnée, puis rend les bulles.

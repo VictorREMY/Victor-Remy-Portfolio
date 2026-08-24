@@ -1083,25 +1083,60 @@ em{ font-style: italic; color: var(--gold); }
   animation: view-enter 0.32s ease forwards;
 }
 
-/* Voile de transition plein écran : couvre fond + bulles + tout. */
+/* ==========================================================
+   TRANSITION EN ONDE (SPA) — une onde circulaire part du centre et
+   balaie l'écran, comme une goutte dans l'eau. Cohérent avec l'univers
+   aquatique du site.
+   ========================================================== */
 #view-transition-overlay{
   position: fixed;
   inset: 0;
   z-index: 40;                 /* au-dessus du fond et des bulles, sous le bandeau */
   pointer-events: none;
+  overflow: hidden;
   opacity: 0;
-  background: radial-gradient(ellipse at center,
-    rgba(8,12,16,0.35) 0%,
-    rgba(8,12,16,0.75) 100%);
-  backdrop-filter: blur(3px);
-  -webkit-backdrop-filter: blur(3px);
 }
-#view-transition-overlay.flash{
-  animation: view-flash 0.5s ease;
+/* L'onde elle-même : un cercle dont la bordure floue se propage. */
+#view-transition-overlay::before{
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 10vmax;
+  height: 10vmax;
+  transform: translate(-50%, -50%) scale(0);
+  border-radius: 50%;
+  /* Anneau lumineux + voile sombre à l'intérieur, dégradé pour l'effet d'onde */
+  background: radial-gradient(circle,
+    rgba(10,15,20,0) 38%,
+    rgba(120,160,180,0.18) 52%,
+    rgba(10,15,20,0.55) 60%,
+    rgba(10,15,20,0.75) 100%);
+  will-change: transform, opacity;
 }
-@keyframes view-flash{
-  0%   { opacity: 0; }
-  45%  { opacity: 1; }   /* le voile monte vite (masque le changement) */
-  55%  { opacity: 1; }
-  100% { opacity: 0; }   /* puis se dissipe sur la nouvelle vue */
+#view-transition-overlay.wave{
+  animation: wave-hold 0.62s ease;
+}
+#view-transition-overlay.wave::before{
+  animation: wave-spread 0.62s cubic-bezier(0.4, 0, 0.2, 1);
+}
+/* L'overlay reste "présent" le temps de l'animation (opacité gérée par les frames) */
+@keyframes wave-hold{
+  0%   { opacity: 1; }
+  100% { opacity: 1; }
+}
+/* Le cercle grandit depuis le centre jusqu'à couvrir tout l'écran, puis
+   se dissipe (l'anneau lumineux passe comme une vague). */
+@keyframes wave-spread{
+  0%{
+    transform: translate(-50%, -50%) scale(0);
+    opacity: 0.9;
+  }
+  55%{
+    opacity: 1;
+  }
+  100%{
+    transform: translate(-50%, -50%) scale(30);
+    opacity: 0;
+  }
 }
