@@ -54,6 +54,16 @@ function loadChapterLayouts(){
 }
 
 function currentPageKey(){
+  // En SPA, toutes les vues sont sur index.html : la "page courante" est
+  // déterminée par le hash (#/hub, #/musique-son...). On mappe le hash vers
+  // les clés utilisées dans layout.json (ex: "hub.html") pour rester
+  // compatible avec les positions déjà enregistrées.
+  const hash = window.location.hash.replace(/^#\/?/, "").split("?")[0];
+  if(hash && hash !== "accueil"){
+    const key = (hash === "home") ? "hub" : hash;
+    return key + ".html";
+  }
+  // Repli (hors SPA ou accueil) : ancien comportement basé sur le fichier.
   return window.location.pathname.split("/").pop() || "index.html";
 }
 
@@ -430,7 +440,11 @@ function clampPct(v){
 }
 
 function isEditMode(){
-  return new URLSearchParams(window.location.search).get("edit") === "1";
+  // Compatible SPA : ?edit=1 peut être dans le search (index.html?edit=1#/hub)
+  // ou après le hash. On teste les deux emplacements.
+  if(new URLSearchParams(window.location.search).get("edit") === "1") return true;
+  if(/[?&]edit=1(\b|$)/.test(window.location.hash)) return true;
+  return false;
 }
 
 function bindSyphonClicks(field){
@@ -470,8 +484,13 @@ function bindSyphonClicks(field){
    ========================================================== */
 function initEditMode(){
   if(!isEditMode()) return;
-
   document.body.classList.add("edit-mode");
+
+  // Garde : en SPA, initEditMode est appelé à chaque changement de vue (les
+  // bulles sont recréées). Mais le sidebar et ses sections ne doivent être
+  // construits qu'UNE fois, sinon les sections se dupliquent.
+  if(window._editModeInitialized) return;
+  window._editModeInitialized = true;
 
   let dragEl = null, offsetX = 0, offsetY = 0;
   let startX = 0, startY = 0, moved = false;
@@ -563,7 +582,15 @@ function buildPositionsSection(){
 
   content.querySelector("#edit-page-switch").addEventListener("change", function(){
     saveEditSessionForCurrentPage();
-    window.location.href = this.value + "?edit=1";
+    // SPA : on navigue via le hash (le "?edit=1" reste dans le search, donc
+    // le mode édition persiste). this.value est du type "musique-son.html".
+    const viewKey = this.value.replace(/\.html$/, "");
+    const target = (viewKey === "hub") ? "hub" : viewKey;
+    // Conserve ?edit=1 dans le search et change le hash de vue.
+    if(window.location.search.indexOf("edit=1") === -1){
+      window.location.search = "?edit=1";
+    }
+    window.location.hash = "#/" + target;
   });
 }
 
@@ -658,11 +685,18 @@ function bindRetourButton(){
   btn.addEventListener("click", function(e){
     e.preventDefault();
     // Navigation SPA : remonter d'un niveau selon la vue courante.
-    let hash = location.hash.replace(/^#\/?/, "");
+    let hash = location.hash.replace(/^#\/?/, "").split("?")[0];
+    if(!hash) hash = "accueil";
+
     if(hash.startsWith("projet/")){
       // Depuis une fiche : la popup se ferme (géré ailleurs), on retire juste
       // le projet de l'URL en revenant à la vue de bulles précédente.
       history.length > 1 ? history.back() : (location.hash = "#/hub");
+      return;
+    }
+    if(hash === "hub" || hash === "home"){
+      // Depuis le hub → retour à l'accueil (bulle Victor Remy)
+      location.hash = "#/accueil";
       return;
     }
     const b = BRANCHES[hash];
@@ -673,10 +707,25 @@ function bindRetourButton(){
       // Branche principale → remonter au hub
       location.hash = "#/hub";
     } else {
-      // Déjà au hub ou route inconnue : rien / retour à l'accueil
-      location.hash = "#/hub";
+      // Accueil ou route inconnue : rien à faire (déjà au niveau le plus haut)
+      location.hash = "#/accueil";
     }
+    updateRetourVisibility();
   });
+
+  // Cache le bouton retour quand on est à l'accueil (pas de niveau au-dessus).
+  updateRetourVisibility();
+  window.addEventListener("hashchange", updateRetourVisibility);
+}
+
+// Affiche le bouton retour seulement quand un retour est possible
+// (c.-à-d. partout SAUF sur l'écran d'accueil).
+function updateRetourVisibility(){
+  const btn = document.querySelector("[data-retour]");
+  if(!btn) return;
+  let hash = location.hash.replace(/^#\/?/, "").split("?")[0];
+  if(!hash) hash = "accueil";
+  btn.style.display = (hash === "accueil") ? "none" : "";
 }
 
 /* ==========================================================
