@@ -263,7 +263,13 @@ function addTyphonBubble(el){
   // le buffer complet), pour une apparition beaucoup plus rapide.
   v.addEventListener("loadedmetadata", () => {
     if(v.duration && isFinite(v.duration)){
-      v.currentTime = Math.random() * v.duration;
+      // Désynchronisation : on décale le départ, MAIS seulement dans les
+      // premières secondes (déjà bufferisées). Sauter loin dans la vidéo
+      // (47s) forçait une re-bufferisation qui retardait l'apparition.
+      // Quelques secondes de décalage suffisent pour désynchroniser les
+      // typhons entre eux visuellement.
+      const maxJump = Math.min(v.duration, 6); // fenêtre de désynchro (s)
+      v.currentTime = Math.random() * maxJump;
     }
   });
   // 'loadeddata' = la première image (au point choisi) est prête → on révèle.
@@ -271,7 +277,7 @@ function addTyphonBubble(el){
   v.addEventListener("loadeddata", reveal, { once: true });
   // Filet de sécurité : si pour une raison l'événement tarde, on révèle
   // quand même au bout d'un court délai (évite un typhon invisible bloqué).
-  setTimeout(reveal, 1500);
+  setTimeout(reveal, 1200);
 
   el.insertBefore(v, el.firstChild);
   // Branche la vidéo sur l'observer : elle ne jouera que si visible.
