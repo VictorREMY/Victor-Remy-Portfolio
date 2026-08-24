@@ -533,8 +533,17 @@ em{ font-style: italic; color: var(--gold); }
   z-index: 3;
   pointer-events: none;
 }
+.syphon{
+  transition: transform 0.4s cubic-bezier(0.22, 0.61, 0.36, 1), filter 0.4s ease;
+}
 .syphon:hover{
-  transform: translate(-50%, -50%) scale(1.06);
+  transform: translate(-50%, -50%) scale(1.05);
+  filter: drop-shadow(0 0 14px rgba(150, 190, 210, 0.45));
+}
+.syphon:active{
+  /* Léger retour au clic : la bulle se "presse" un instant. */
+  transform: translate(-50%, -50%) scale(0.98);
+  transition: transform 0.1s ease;
 }
 .syphon.has-thumb{
   /* Miniatures désactivées pour l'instant : le typhon remplace le fond.
@@ -1097,7 +1106,7 @@ em{ font-style: italic; color: var(--gold); }
   background: #080b0e;         /* sombre, dans le ton du site */
 }
 #view-transition-overlay.wave{
-  animation: view-fade 1.6s ease-in-out;
+  animation: view-fade 1.35s ease-in-out;
 }
 @keyframes view-fade{
   0%   { opacity: 0; }
