@@ -451,6 +451,9 @@ function bindSyphonClicks(field){
   field.querySelectorAll("[data-syphon]").forEach(el => {
     el.addEventListener("click", function(e){
       e.preventDefault();
+      // En mode édition, le clic ne navigue pas : on glisse les bulles pour
+      // les repositionner (voir initEditMode). On ignore donc le clic ici.
+      if(isEditMode()) return;
       if(this.dataset.popup === "true"){
         // Projet : on met à jour l'URL (partageable) et on ouvre la fiche.
         const id = this.dataset.key;
@@ -521,7 +524,13 @@ function initEditMode(){
   });
 
   document.addEventListener("pointerup", function(){
-    if(dragEl) dragEl.classList.remove("dragging");
+    if(dragEl){
+      dragEl.classList.remove("dragging");
+      // Sauvegarde immédiate de la position dans la session dès qu'on relâche
+      // une bulle : ainsi, changer de vue (même par erreur) ne perd jamais
+      // les modifications en cours.
+      if(moved) saveEditSessionForCurrentPage();
+    }
     dragEl = null;
   });
 
