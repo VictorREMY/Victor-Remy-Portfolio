@@ -1,234 +1,78 @@
 {
   "vfx.html": {
-    "vfx-generatif": {
-      "x": 30.1,
-      "y": 38.3
-    },
-    "vfx-interactif": {
-      "x": 68.6,
-      "y": 37.1
-    },
-    "vfx-video": {
-      "x": 53.8,
-      "y": 71.3
-    }
+    "vfx-generatif": { "x": 30.1, "y": 38.3 },
+    "vfx-interactif": { "x": 68.6, "y": 37.1 },
+    "vfx-video": { "x": 53.8, "y": 71.3 }
   },
   "musique-son.html": {
-    "2h-later": {
-      "x": 19.7,
-      "y": 31.4
-    },
-    "chaque-jours": {
-      "x": 34.4,
-      "y": 67.4
-    },
-    "surfeur-dargent": {
-      "x": 38.5,
-      "y": 38.8
-    },
-    "maladir": {
-      "x": 58.7,
-      "y": 76.4
-    },
-    "creux": {
-      "x": 71.2,
-      "y": 51.9
-    },
-    "baddies-n-pesos": {
-      "x": 15.8,
-      "y": 67.5
-    },
-    "est-ce-que-tu-veux": {
-      "x": 57.9,
-      "y": 30.6
-    },
-    "figurant": {
-      "x": 85.7,
-      "y": 32.7
-    },
-    "hannah": {
-      "x": 82.8,
-      "y": 74.3
-    }
+    "2h-later": { "x": 19.7, "y": 31.4 },
+    "chaque-jours": { "x": 34.4, "y": 67.4 },
+    "surfeur-dargent": { "x": 38.5, "y": 38.8 },
+    "maladir": { "x": 58.7, "y": 76.4 },
+    "creux": { "x": 71.2, "y": 51.9 },
+    "baddies-n-pesos": { "x": 15.8, "y": 67.5 },
+    "est-ce-que-tu-veux": { "x": 57.9, "y": 30.6 },
+    "figurant": { "x": 85.7, "y": 32.7 },
+    "hannah": { "x": 82.8, "y": 74.3 }
   },
   "musique-projet.html": {
-    "plusqunetrap": {
-      "x": 25.7,
-      "y": 41.6
-    },
-    "partoutapreslafin": {
-      "x": 78.2,
-      "y": 46.6
-    },
-    "tout-va-bien": {
-      "x": 50.4,
-      "y": 65.3
-    }
+    "plusqunetrap": { "x": 25.7, "y": 41.6 },
+    "partoutapreslafin": { "x": 78.2, "y": 46.6 },
+    "tout-va-bien": { "x": 50.4, "y": 65.3 }
   },
   "video.html": {
-    "video-montage": {
-      "x": 31.5,
-      "y": 47.8
-    },
-    "video-realisation": {
-      "x": 68.6,
-      "y": 45.4
-    }
+    "video-montage": { "x": 31.5, "y": 47.8 },
+    "video-realisation": { "x": 68.6, "y": 45.4 }
   },
   "video-montage.html": {
-    "le-sol-et-le-fa": {
-      "x": 15.2,
-      "y": 27.1
-    },
-    "communard-dans-la-capitale": {
-      "x": 24.9,
-      "y": 67.7
-    },
-    "cheval": {
-      "x": 36.8,
-      "y": 38.1
-    },
-    "merri-6ramo": {
-      "x": 44.2,
-      "y": 78.7
-    },
-    "2h-later": {
-      "x": 59.2,
-      "y": 58.2
-    },
-    "chaque-jours": {
-      "x": 67.7,
-      "y": 31.9
-    },
-    "one-turn-kill": {
-      "x": 86.2,
-      "y": 37.5
-    },
-    "feedback-experimentation": {
-      "x": 83,
-      "y": 78.1
-    }
+    "le-sol-et-le-fa": { "x": 15.2, "y": 27.1 },
+    "communard-dans-la-capitale": { "x": 24.9, "y": 67.7 },
+    "cheval": { "x": 36.8, "y": 38.1 },
+    "merri-6ramo": { "x": 44.2, "y": 78.7 },
+    "2h-later": { "x": 59.2, "y": 58.2 },
+    "chaque-jours": { "x": 67.7, "y": 31.9 },
+    "one-turn-kill": { "x": 86.2, "y": 37.5 },
+    "feedback-experimentation": { "x": 83, "y": 78.1 }
   },
   "video-realisation.html": {
-    "le-sol-et-le-fa": {
-      "x": 32.8,
-      "y": 54.5
-    },
-    "chaque-jours": {
-      "x": 66.8,
-      "y": 46.7
-    }
+    "le-sol-et-le-fa": { "x": 32.8, "y": 54.5 },
+    "chaque-jours": { "x": 66.8, "y": 46.7 }
   },
   "vfx-generatif.html": {
-    "le-sol-et-le-fa": {
-      "x": 19.8,
-      "y": 30.9
-    },
-    "cheval": {
-      "x": 36.3,
-      "y": 66.4
-    },
-    "one-turn-kill": {
-      "x": 23.4,
-      "y": 37.1
-    },
-    "tout-ce-quil-manque": {
-      "x": 63.5,
-      "y": 69.2
-    },
-    "c-pas-une-vie": {
-      "x": 77,
-      "y": 38.9
-    }
+    "le-sol-et-le-fa": { "x": 19.8, "y": 30.9 },
+    "cheval": { "x": 36.3, "y": 66.4 },
+    "one-turn-kill": { "x": 23.4, "y": 37.1 },
+    "tout-ce-quil-manque": { "x": 63.5, "y": 69.2 },
+    "c-pas-une-vie": { "x": 77, "y": 38.9 }
   },
   "vfx-interactif.html": {
-    "background-portfolio": {
-      "x": 48.2,
-      "y": 50.7
-    }
+    "background-portfolio": { "x": 48.2, "y": 50.7 }
   },
   "vfx-video.html": {
-    "le-sol-et-le-fa": {
-      "x": 23.6,
-      "y": 69.2
-    },
-    "communard-dans-la-capitale": {
-      "x": 19.4,
-      "y": 35.6
-    },
-    "merri-6ramo": {
-      "x": 42.5,
-      "y": 51.4
-    },
-    "background-portfolio": {
-      "x": 65.3,
-      "y": 74.4
-    },
-    "metastase": {
-      "x": 63.2,
-      "y": 33.7
-    },
-    "feedback-experimentation": {
-      "x": 84.3,
-      "y": 48.4
-    }
+    "le-sol-et-le-fa": { "x": 23.6, "y": 69.2 },
+    "communard-dans-la-capitale": { "x": 19.4, "y": 35.6 },
+    "merri-6ramo": { "x": 42.5, "y": 51.4 },
+    "background-portfolio": { "x": 65.3, "y": 74.4 },
+    "metastase": { "x": 63.2, "y": 33.7 },
+    "feedback-experimentation": { "x": 84.3, "y": 48.4 }
   },
   "index.html": {
-    "home": {
-      "x": 50,
-      "y": 50
-    }
+    "home": { "x": 50, "y": 50 }
   },
   "musique.html": {
-    "musique-son": {
-      "x": 32,
-      "y": 51.2
-    },
-    "musique-projet": {
-      "x": 67.2,
-      "y": 50.2
-    }
+    "musique-son": { "x": 32, "y": 51.2 },
+    "musique-projet": { "x": 67.2, "y": 50.2 }
   },
   "hub.html": {
-    "musique": {
-      "x": 22,
-      "y": 26
-    },
-    "musique-son": {
-      "x": 11.0,
-      "y": 58
-    },
-    "musique-projet": {
-      "x": 33.0,
-      "y": 70
-    },
-    "video": {
-      "x": 50,
-      "y": 26
-    },
-    "video-montage": {
-      "x": 39.0,
-      "y": 58
-    },
-    "video-realisation": {
-      "x": 61.0,
-      "y": 70
-    },
-    "vfx": {
-      "x": 78,
-      "y": 26
-    },
-    "vfx-generatif": {
-      "x": 67.0,
-      "y": 58
-    },
-    "vfx-interactif": {
-      "x": 78.0,
-      "y": 70
-    },
-    "vfx-video": {
-      "x": 89.0,
-      "y": 58
-    }
+    "musique": { "x": 22.1, "y": 43.5 },
+    "musique-son": { "x": 17.1, "y": 24.5 },
+    "musique-projet": { "x": 15, "y": 58.4 },
+    "video": { "x": 48.2, "y": 73.5 },
+    "video-montage": { "x": 39.2, "y": 59.7 },
+    "video-realisation": { "x": 58.4, "y": 68.3 },
+    "vfx": { "x": 78.1, "y": 44.1 },
+    "vfx-generatif": { "x": 66.5, "y": 34.3 },
+    "vfx-interactif": { "x": 88, "y": 33 },
+    "vfx-video": { "x": 81, "y": 66.5 }
   }
 }

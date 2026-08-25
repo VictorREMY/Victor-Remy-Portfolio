@@ -342,14 +342,18 @@ function initSimpleWaterEffect(container) {
   // voie pas, on mémorise où elle en était juste avant de quitter la
   // page, et on la reprend à ce moment précis dès qu'elle est prête —
   // ça donne l'impression qu'elle n'a jamais été coupée.
+  // START_OFFSET : au tout premier démarrage (pas de temps mémorisé), on
+  // commence un peu plus loin dans la vidéo pour éviter les premières
+  // secondes (moins réussies avec l'upscale, et qui tombent pendant la
+  // transition d'entrée).
+  const START_OFFSET = 3.5;
   const savedTime = parseFloat(sessionStorage.getItem('waterBgTime') || '0');
-  if (savedTime > 0) {
-    video.addEventListener('loadedmetadata', () => {
-      if (isFinite(video.duration) && savedTime < video.duration) {
-        video.currentTime = savedTime;
-      }
-    }, { once: true });
-  }
+  const startAt = savedTime > 0 ? savedTime : START_OFFSET;
+  video.addEventListener('loadedmetadata', () => {
+    if (isFinite(video.duration) && startAt < video.duration) {
+      video.currentTime = startAt;
+    }
+  }, { once: true });
   window.addEventListener('pagehide', () => {
     sessionStorage.setItem('waterBgTime', String(video.currentTime));
   });
