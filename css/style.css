@@ -641,12 +641,23 @@ em{ font-style: italic; color: var(--gold); }
   margin-top: 1.5rem;
 }
 .info-bubble .apropos-body p{
-  line-height: 1.7;
-  margin-bottom: 1.1rem;
+  line-height: 1.8;
   color: var(--ink);
+  margin: 0;
+  padding: 1.4rem 0;
+  border-bottom: 1px solid var(--line);
 }
+/* Premier paragraphe (nom + métiers) : en grand, police display, mis en avant */
 .info-bubble .apropos-body p:first-child{
-  font-size: 1.1rem;
+  font-family: var(--font-display);
+  font-size: 1.35rem;
+  line-height: 1.4;
+  padding-top: 0;
+}
+/* Dernier paragraphe (collaborations) : discret, pas de trait après */
+.info-bubble .apropos-body p:last-child{
+  border-bottom: none;
+  color: var(--muted);
 }
 .info-bubble .contact-label{
   font-family: var(--font-mono);
