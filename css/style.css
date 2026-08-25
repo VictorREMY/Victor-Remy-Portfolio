@@ -52,7 +52,10 @@ html, body{ height:100%; overflow-x: hidden; }
    donc on descend la vidéo pour rééquilibrer le blur visible haut/bas.
    (Ajuste la valeur si besoin.) */
 #water-bg canvas, #water-bg video{
-  transform: translateY(70px);
+  /* translateY(70px) = décalage pour équilibrer le blur (bandeau).
+     Les variables --par-x/--par-y = parallaxe douce pilotée par la souris. */
+  transform: translate(var(--par-x, 0px), calc(70px + var(--par-y, 0px)));
+  transition: transform 0.5s cubic-bezier(0.22, 0.61, 0.36, 1);
 }
 
 body{
@@ -386,6 +389,16 @@ em{ font-style: italic; color: var(--gold); }
   transform: translateX(-3px);
   background: rgba(0, 0, 0, 0.55);
 }
+/* Apparition subtile : quand le bouton retour redevient visible (changement
+   de page), il arrive en fondu depuis la gauche — un léger appel visuel,
+   une seule fois, non répétitif (pas agaçant). */
+@keyframes retour-appear{
+  from{ opacity: 0; transform: translateX(-10px); }
+  to{ opacity: 0.92; transform: translateX(0); }
+}
+.retour-btn.just-appeared{
+  animation: retour-appear 0.5s ease;
+}
 
 /* Conteneur zoomé à la molette (canvas + syphons dedans) */
 .zoom-stage{
@@ -532,9 +545,16 @@ em{ font-style: italic; color: var(--gold); }
   font-weight: 700;
   z-index: 3;
   pointer-events: none;
+  transition: letter-spacing 0.4s ease, text-shadow 0.4s ease;
+}
+/* Au survol de la bulle, le titre "respire" légèrement (espacement des
+   lettres + ombre plus douce). Très subtil. */
+.syphon:hover .syphon-titre{
+  letter-spacing: 0.04em;
+  text-shadow: 0 2px 10px rgba(0,0,0,0.95), 0 0 6px rgba(150,190,210,0.3);
 }
 .syphon{
-  transition: transform 0.4s cubic-bezier(0.22, 0.61, 0.36, 1), filter 0.4s ease;
+  transition: transform 0.4s cubic-bezier(0.22, 0.61, 0.36, 1), filter 0.4s ease, opacity 0.4s ease;
 }
 .syphon:hover{
   transform: translate(-50%, -50%) scale(1.05);
@@ -544,6 +564,11 @@ em{ font-style: italic; color: var(--gold); }
   /* Léger retour au clic : la bulle se "presse" un instant. */
   transform: translate(-50%, -50%) scale(0.98);
   transition: transform 0.1s ease;
+}
+/* Effet focus : quand une bulle est survolée, les AUTRES s'atténuent
+   légèrement pour mettre en valeur celle que l'on vise. Subtil. */
+.syphon-field:hover .syphon:not(:hover){
+  opacity: 0.55;
 }
 .syphon.has-thumb{
   /* Miniatures désactivées pour l'instant : le typhon remplace le fond.
@@ -645,9 +670,13 @@ em{ font-style: italic; color: var(--gold); }
   background: none;
   color: var(--muted);
   cursor: pointer;
-  transition: all 0.25s;
+  transition: color 0.25s ease, border-color 0.25s ease, background 0.25s ease, transform 0.2s ease;
 }
-.chapter-tab:hover{ color: var(--ink); border-color: var(--muted); }
+.chapter-tab:hover{
+  color: var(--ink);
+  border-color: var(--muted);
+  transform: translateY(-1px);
+}
 .chapter-tab.active{
   color: var(--bg);
   background: var(--gold);
@@ -819,6 +848,11 @@ em{ font-style: italic; color: var(--gold); }
   overflow-y: auto;
   padding: 3rem;
   max-height: 84vh;
+  opacity: 0;
+  transition: opacity 0.4s ease 0.15s;  /* le contenu se révèle juste après le cadre */
+}
+.project-popup.open #popup-content{
+  opacity: 1;
 }
 .project-popup.open{
   opacity: 1;
@@ -834,10 +868,13 @@ em{ font-style: italic; color: var(--gold); }
   color: var(--muted);
   font-size: 1.2rem;
   cursor: pointer;
-  transition: color 0.3s;
+  transition: color 0.3s ease, transform 0.3s ease;
   z-index: 5;
 }
-.popup-close:hover{ color: var(--gold); }
+.popup-close:hover{
+  color: var(--gold);
+  transform: rotate(90deg);
+}
 
 /* ---------- Fiche projet (page dédiée, gardée pour un lien direct partageable) ---------- */
 .project-sober-bg{
@@ -1106,7 +1143,7 @@ em{ font-style: italic; color: var(--gold); }
   background: #080b0e;         /* sombre, dans le ton du site */
 }
 #view-transition-overlay.wave{
-  animation: view-fade 1.35s ease-in-out;
+  animation: view-fade 1.2s ease-in-out;
 }
 @keyframes view-fade{
   0%   { opacity: 0; }

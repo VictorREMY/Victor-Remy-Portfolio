@@ -734,7 +734,16 @@ function updateRetourVisibility(){
   if(!btn) return;
   let hash = location.hash.replace(/^#\/?/, "").split("?")[0];
   if(!hash) hash = "accueil";
-  btn.style.display = (hash === "accueil") ? "none" : "";
+  const shouldShow = (hash !== "accueil");
+  const wasHidden = (btn.style.display === "none");
+  btn.style.display = shouldShow ? "" : "none";
+  // Si le bouton passe de caché à visible, joue l'animation d'apparition
+  // (une seule fois, non répétitive).
+  if(shouldShow && wasHidden){
+    btn.classList.remove("just-appeared");
+    void btn.offsetWidth; // reflow pour rejouer l'animation
+    btn.classList.add("just-appeared");
+  }
 }
 
 /* ==========================================================
@@ -772,6 +781,28 @@ function loadZoomSettings(){
       ZOOM_SETTINGS.thresholdIn = 99; // navigation par zoom désactivée
       ZOOM_SETTINGS.thresholdOut = -1;
     });
+}
+
+/* Parallaxe douce : le fond se décale très légèrement selon la position de
+   la souris, donnant une sensation de profondeur. Amplitude faible (sobre),
+   mouvement lissé par la transition CSS. Désactivée en mode édition. */
+function initBackgroundParallax(){
+  if(isEditMode()) return;
+  const root = document.documentElement;
+  const MAX = 12; // amplitude max en px (discret)
+  let raf = null;
+  window.addEventListener("mousemove", function(e){
+    if(raf) return; // throttle : au plus un calcul par frame
+    raf = requestAnimationFrame(() => {
+      raf = null;
+      // Position relative au centre de l'écran, de -1 à 1
+      const nx = (e.clientX / window.innerWidth - 0.5) * 2;
+      const ny = (e.clientY / window.innerHeight - 0.5) * 2;
+      // Décalage inversé (le fond va à l'opposé de la souris = profondeur)
+      root.style.setProperty("--par-x", (-nx * MAX).toFixed(1) + "px");
+      root.style.setProperty("--par-y", (-ny * MAX).toFixed(1) + "px");
+    });
+  });
 }
 
 function initWheelZoom(){
