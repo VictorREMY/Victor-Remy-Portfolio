@@ -6,7 +6,7 @@
 <title>Victor Remy</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500&family=Playfair+Display:wght@400;500&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/style.css?v=1787600827">
+<link rel="stylesheet" href="css/style.css?v=1787649741">
 <link rel="preload" as="video" href="assets/background-loop-final.mp4" type="video/mp4">
 <link rel="preload" as="video" href="assets/typhon-bubble.webm" type="video/webm">
 </head>
@@ -32,7 +32,7 @@
 
 <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 <script src="js/branches-config.js?v=1787417448"></script>
-<script src="js/main.js?v=1787600827"></script>
+<script src="js/main.js?v=1787649741"></script>
 <script src="js/spa-router.js?v=1787587280"></script>
 <script>
   // Initialisation UNE SEULE FOIS (le fond et le contexte persistent ensuite).
@@ -42,7 +42,6 @@
   loadTyphonSettings();
   loadZoomSettings().then(() => initWheelZoom());
   bindRetourButton();
-  initBackgroundParallax();
 
   // Charge les données puis lance le routeur SPA (première vue selon l'URL).
   Promise.all([loadLayoutData(), loadChapterLayouts(), loadProjectsData()]).then(() => {

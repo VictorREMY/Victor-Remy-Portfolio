@@ -457,6 +457,10 @@ function bindSyphonClicks(field){
       if(this.dataset.popup === "true"){
         // Projet : on met à jour l'URL (partageable) et on ouvre la fiche.
         const id = this.dataset.key;
+        // Mémorise la section RÉELLE d'où l'on clique (pas le premier tag du
+        // projet), pour revenir au bon endroit à la fermeture. Un même projet
+        // peut apparaître dans plusieurs sections.
+        window._spaProjectContext = this.dataset.context || null;
         if(window.spaNavigate && location.hash.indexOf("projet/") === -1){
           location.hash = "#/projet/" + id;
         } else {
@@ -734,16 +738,7 @@ function updateRetourVisibility(){
   if(!btn) return;
   let hash = location.hash.replace(/^#\/?/, "").split("?")[0];
   if(!hash) hash = "accueil";
-  const shouldShow = (hash !== "accueil");
-  const wasHidden = (btn.style.display === "none");
-  btn.style.display = shouldShow ? "" : "none";
-  // Si le bouton passe de caché à visible, joue l'animation d'apparition
-  // (une seule fois, non répétitive).
-  if(shouldShow && wasHidden){
-    btn.classList.remove("just-appeared");
-    void btn.offsetWidth; // reflow pour rejouer l'animation
-    btn.classList.add("just-appeared");
-  }
+  btn.style.display = (hash === "accueil") ? "none" : "";
 }
 
 /* ==========================================================
@@ -1343,8 +1338,9 @@ function openProjectPopup(id, contextTag){
   if(!project || !content) return;
 
   // Mémorise la sous-catégorie d'où vient le projet, pour y revenir à la
-  // fermeture (SPA). Si pas de contexte explicite, on déduit depuis les tags.
-  let ctx = contextTag;
+  // fermeture (SPA). Priorité : le contexte explicite passé (ou défini au
+  // clic dans _spaProjectContext), sinon on déduit depuis les tags.
+  let ctx = contextTag || window._spaProjectContext;
   if(!ctx){
     const tags = projectTags(project);
     if(tags && tags.length) ctx = tags[0];

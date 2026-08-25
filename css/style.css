@@ -52,10 +52,7 @@ html, body{ height:100%; overflow-x: hidden; }
    donc on descend la vidéo pour rééquilibrer le blur visible haut/bas.
    (Ajuste la valeur si besoin.) */
 #water-bg canvas, #water-bg video{
-  /* translateY(70px) = décalage pour équilibrer le blur (bandeau).
-     Les variables --par-x/--par-y = parallaxe douce pilotée par la souris. */
-  transform: translate(var(--par-x, 0px), calc(70px + var(--par-y, 0px)));
-  transition: transform 0.5s cubic-bezier(0.22, 0.61, 0.36, 1);
+  transform: translateY(70px);
 }
 
 body{
@@ -565,11 +562,7 @@ em{ font-style: italic; color: var(--gold); }
   transform: translate(-50%, -50%) scale(0.98);
   transition: transform 0.1s ease;
 }
-/* Effet focus : quand une bulle est survolée, les AUTRES s'atténuent
-   légèrement pour mettre en valeur celle que l'on vise. Subtil. */
-.syphon-field:hover .syphon:not(:hover){
-  opacity: 0.55;
-}
+
 .syphon.has-thumb{
   /* Miniatures désactivées pour l'instant : le typhon remplace le fond.
      (on évite le rectangle sombre du dégradé de miniature) */
