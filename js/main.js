@@ -21,7 +21,7 @@ window.addEventListener("pageshow", function(e){
 let PROJECTS = [];
 
 function loadProjectsData(){
-  return fetch("data/projects.json")
+  return fetch("data/projects.json?t=" + Date.now())
     .then(response => response.json())
     .then(data => { PROJECTS = data.projects; return PROJECTS; })
     .catch(err => {
@@ -35,7 +35,10 @@ function loadProjectsData(){
 let LAYOUT = {};
 
 function loadLayoutData(){
-  return fetch("data/layout.json")
+  // Cache-busting : GitHub Pages met en cache agressivement les JSON. Sans ça,
+  // une ancienne version des positions peut être servie après un upload,
+  // donnant l'impression que les modifications ne sont pas prises en compte.
+  return fetch("data/layout.json?t=" + Date.now())
     .then(response => response.json())
     .then(data => { LAYOUT = data || {}; return LAYOUT; })
     .catch(() => { LAYOUT = {}; return LAYOUT; });
@@ -47,7 +50,7 @@ function loadLayoutData(){
 let CHAPTER_LAYOUTS = {};
 
 function loadChapterLayouts(){
-  return fetch("data/chapter-layouts.json")
+  return fetch("data/chapter-layouts.json?t=" + Date.now())
     .then(response => response.json())
     .then(data => { CHAPTER_LAYOUTS = data || {}; return CHAPTER_LAYOUTS; })
     .catch(() => { CHAPTER_LAYOUTS = {}; return CHAPTER_LAYOUTS; });
@@ -1292,19 +1295,24 @@ function initProjectPopups(){
         f.contentWindow.postMessage('{"method":"pause"}', "*");
       } catch(e){}
     });
-    // 2) Lance le fondu visuel de fermeture (adoucit la perception de la coupure)
+    // 2) Coupe le son des médias natifs immédiatement aussi (sans retirer les
+    //    éléments tout de suite, pour ne pas casser le fondu visuel).
+    content.querySelectorAll("video, audio").forEach(el => { try { el.pause(); el.muted = true; } catch(e){} });
+    // 3) Lance le fondu visuel de fermeture (le cadre se fond en 0.3s).
     backdrop.classList.remove("visible");
     popup.classList.remove("open");
     if(window._resetZoom) window._resetZoom();
     // Les typhons du menu redeviennent visibles : on les relance.
     setTyphonsPlaying(true);
-    // 3) Retire réellement le contenu net (le son est déjà coupé par le pause)
-    content.querySelectorAll("iframe, video, audio").forEach(el => el.remove());
-    content.innerHTML = "";
-    // 4) SPA : si l'URL contient #/projet/<id>, on la retire pour revenir à la
+    // 4) On vide le contenu APRÈS le fondu (350ms > 300ms de transition), pour
+    //    que la fiche disparaisse en douceur au lieu d'un vidage brut.
+    setTimeout(() => {
+      content.querySelectorAll("iframe, video, audio").forEach(el => el.remove());
+      content.innerHTML = "";
+    }, 350);
+    // 5) SPA : si l'URL contient #/projet/<id>, on la retire pour revenir à la
     //    vue de bulles. On remonte vers la sous-catégorie du projet (contexte)
-    //    si on la connaît, sinon vers le hub. On pose un drapeau pour que le
-    //    routeur ne ré-ouvre pas la popup en boucle.
+    //    si on la connaît, sinon vers le hub.
     if(location.hash.indexOf("projet/") !== -1){
       window._spaClosingPopup = true;
       const backHash = window._spaProjectContext ? ("#/" + window._spaProjectContext) : "#/hub";

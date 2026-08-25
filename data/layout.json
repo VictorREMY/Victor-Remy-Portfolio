@@ -111,12 +111,12 @@
   },
   "video-realisation.html": {
     "le-sol-et-le-fa": {
-      "x": 36.4,
-      "y": 45
+      "x": 32.8,
+      "y": 54.5
     },
     "chaque-jours": {
-      "x": 66.3,
-      "y": 34.8
+      "x": 66.8,
+      "y": 46.7
     }
   },
   "vfx-generatif.html": {
@@ -143,8 +143,8 @@
   },
   "vfx-interactif.html": {
     "background-portfolio": {
-      "x": 45.5,
-      "y": 40.5
+      "x": 48.2,
+      "y": 50.7
     }
   },
   "vfx-video.html": {
