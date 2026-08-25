@@ -961,11 +961,10 @@ function initInfoBubbles(){
   contactBubble.innerHTML = `
     <p class="eyebrow">Contact</p>
     <h2 style="margin:1rem 0 1.5rem;">Discutons d'un <em>projet</em>.</h2>
-    <p class="muted" style="margin-bottom:1.5rem; line-height:1.6;">Remplace ce texte par tes vraies coordonnées : email, réseaux, ou un lien de prise de rendez-vous.</p>
-    <p style="margin-bottom:0.6rem;">Email — email@exemple.com</p>
-    <p style="margin-bottom:0.6rem;">Instagram — @tonpseudo</p>
-    <p>Vimeo / YouTube — lien</p>
-    <p class="close-hint">Clique en dehors pour fermer</p>
+    <p class="muted" style="margin-bottom:1.8rem; line-height:1.6;">Pour toute demande, collaboration ou renseignement, n'hésitez pas à me contacter.</p>
+    <p class="contact-line"><span class="contact-label">Email</span><a href="mailto:victorremy49@gmail.com">victorremy49@gmail.com</a></p>
+    <p class="contact-line"><span class="contact-label">Instagram</span><a href="https://instagram.com/aoda_visual_shop" target="_blank" rel="noopener">@aoda_visual_shop</a></p>
+    <p class="close-hint">Cliquez en dehors pour fermer</p>
   `;
   document.body.appendChild(contactBubble);
 
@@ -973,9 +972,14 @@ function initInfoBubbles(){
   aproposBubble.className = "info-bubble right";
   aproposBubble.innerHTML = `
     <p class="eyebrow">À propos</p>
-    <h2 style="margin:1rem 0 1.5rem;">Musique, image, <em>génératif</em>.</h2>
-    <p class="muted" style="line-height:1.7;">Remplace ce texte par ta vraie bio : ton parcours, ta démarche, ce qui relie tes trois disciplines entre elles.</p>
-    <p class="close-hint">Clique en dehors pour fermer</p>
+    <div class="apropos-body">
+      <p>Je suis Victor Remy, compositeur, réalisateur-monteur et artiste VFX.</p>
+      <p>J'aime passionnément créer — un morceau, une vidéo, une image. Le résultat compte, mais c'est souvent l'acte de faire, le geste lui-même, qui me porte le plus.</p>
+      <p>La vidéo et l'audio sont pour moi complémentaires : retranscrire une émotion ou un univers passe autant par le son que par l'image. J'aime aussi naviguer entre différents outils et logiciels, et laisser chaque médium nourrir les autres.</p>
+      <p>Je fais de la musique depuis longtemps. J'ai ensuite suivi une école de game design et de 3D, qui m'a initié à des workflows, des concepts et des logiciels nouveaux. En parallèle, la musique m'a fait rencontrer beaucoup de monde — notamment des réalisateurs et monteurs qui m'ont donné envie de me lancer dans la vidéo. Puis, au hasard des réseaux, je suis tombé sur TouchDesigner, qui m'a fasciné à son tour.</p>
+      <p>La plupart de mes projets naissent de collaborations, avec des artistes nantais et parisiens.</p>
+    </div>
+    <p class="close-hint">Cliquez en dehors pour fermer</p>
   `;
   document.body.appendChild(aproposBubble);
 

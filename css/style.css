@@ -629,6 +629,44 @@ em{ font-style: italic; color: var(--gold); }
   color: var(--muted);
   margin-top: 3rem;
 }
+/* Lignes de contact : label discret + lien mis en valeur */
+.info-bubble .contact-line{
+  margin-bottom: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+/* Corps de texte de l'À propos : paragraphes aérés et lisibles */
+.info-bubble .apropos-body{
+  margin-top: 1.5rem;
+}
+.info-bubble .apropos-body p{
+  line-height: 1.7;
+  margin-bottom: 1.1rem;
+  color: var(--ink);
+}
+.info-bubble .apropos-body p:first-child{
+  font-size: 1.1rem;
+}
+.info-bubble .contact-label{
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--muted);
+}
+.info-bubble .contact-line a{
+  color: var(--ink);
+  text-decoration: none;
+  font-size: 1.05rem;
+  transition: color 0.25s ease;
+  width: fit-content;
+  border-bottom: 1px solid transparent;
+}
+.info-bubble .contact-line a:hover{
+  color: var(--gold);
+  border-bottom-color: var(--gold);
+}
 
 /* ---------- Mode édition ---------- */
 .edit-mode .syphon{
