@@ -188,5 +188,47 @@
       "x": 67.2,
       "y": 50.2
     }
+  },
+  "hub.html": {
+    "musique": {
+      "x": 22,
+      "y": 26
+    },
+    "musique-son": {
+      "x": 11.0,
+      "y": 58
+    },
+    "musique-projet": {
+      "x": 33.0,
+      "y": 70
+    },
+    "video": {
+      "x": 50,
+      "y": 26
+    },
+    "video-montage": {
+      "x": 39.0,
+      "y": 58
+    },
+    "video-realisation": {
+      "x": 61.0,
+      "y": 70
+    },
+    "vfx": {
+      "x": 78,
+      "y": 26
+    },
+    "vfx-generatif": {
+      "x": 67.0,
+      "y": 58
+    },
+    "vfx-interactif": {
+      "x": 78.0,
+      "y": 70
+    },
+    "vfx-video": {
+      "x": 89.0,
+      "y": 58
+    }
   }
 }
